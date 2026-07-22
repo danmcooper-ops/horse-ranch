@@ -1,5 +1,8 @@
 # Horse Ranch
 
+**▶ Play now: https://danmcooper-ops.github.io/horse-ranch/** — works on
+iPhone, Android and any PC browser, nothing to install.
+
 A standalone 3D horse-riding game written entirely in Java (libGDX). One codebase,
 two targets:
 
