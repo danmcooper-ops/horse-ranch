@@ -1,0 +1,2 @@
+rootProject.name = 'horse-riding-game'
+include 'core', 'lwjgl3', 'teavm'

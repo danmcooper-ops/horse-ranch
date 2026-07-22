@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(':core')
+    implementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
+}
+
+tasks.register('buildWeb', JavaExec) {
+    group = 'build'
+    description = 'Compiles the game to JavaScript/WebGL into teavm/build/dist'
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = projectDir
+    mainClass = 'com.ranchgame.teavm.TeaVMBuilder'
+}
