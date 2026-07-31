@@ -18,9 +18,10 @@ tasks.register('gameJar', Jar) {
         attributes 'Main-Class': 'com.ranchgame.lwjgl3.Lwjgl3Launcher'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn configurations.runtimeClasspath
     from sourceSets.main.output
     from rootProject.file('assets')
-    from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+    from({ configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }) {
         exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
     }
 }

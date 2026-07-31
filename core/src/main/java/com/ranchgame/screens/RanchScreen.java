@@ -21,6 +21,7 @@ import com.ranchgame.horse.Horse;
 import com.ranchgame.horse.HorseAnimator;
 import com.ranchgame.horse.HorseModelFactory;
 import com.ranchgame.hud.Hud;
+import com.ranchgame.world.ProceduralTextures;
 import com.ranchgame.world.RanchWorld;
 import com.ranchgame.world.WorldBuilder;
 
@@ -32,6 +33,7 @@ public class RanchScreen extends ScreenAdapter {
     private final ModelBatch batch = new ModelBatch();
     private final Environment environment = new Environment();
     private final PerspectiveCamera camera;
+    private final ProceduralTextures textures;
     private final RanchWorld world;
     private final CourseManager course = new CourseManager();
     private final Hud hud = new Hud();
@@ -53,27 +55,33 @@ public class RanchScreen extends ScreenAdapter {
     private CourseManager.State lastState = CourseManager.State.READY;
 
     public RanchScreen() {
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.55f, 0.55f, 0.55f, 1f));
+        // warm key light + cool fill, Sims-style soft daylight
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.58f, 0.54f, 1f));
         environment.set(new ColorAttribute(ColorAttribute.Fog, SKY.r, SKY.g, SKY.b, 1f));
-        environment.add(new DirectionalLight().set(0.75f, 0.73f, 0.68f, -0.35f, -0.9f, -0.3f));
+        environment.add(new DirectionalLight().set(0.85f, 0.8f, 0.7f, -0.3f, -0.85f, -0.35f));
+        environment.add(new DirectionalLight().set(0.18f, 0.2f, 0.26f, 0.5f, -0.25f, 0.45f));
 
         camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 0.3f;
         camera.far = 420f;
 
-        world = WorldBuilder.build();
+        textures = new ProceduralTextures();
+        world = WorldBuilder.build(textures);
 
         horseModel = HorseModelFactory.create(
-                new Color(0.55f, 0.36f, 0.2f, 1f), new Color(0.25f, 0.16f, 0.1f, 1f), true);
+                new Color(0.55f, 0.36f, 0.2f, 1f), new Color(0.25f, 0.16f, 0.1f, 1f), true,
+                textures.coat);
         horseInstance = new ModelInstance(horseModel);
         horseAnimator = new HorseAnimator(horseInstance);
         horse.position.set(0f, 0f, -42f);
         horse.yaw = 0f;
 
         pastureModel1 = HorseModelFactory.create(
-                new Color(0.35f, 0.3f, 0.28f, 1f), new Color(0.12f, 0.1f, 0.1f, 1f), false);
+                new Color(0.35f, 0.3f, 0.28f, 1f), new Color(0.12f, 0.1f, 0.1f, 1f), false,
+                textures.coat);
         pastureModel2 = HorseModelFactory.create(
-                new Color(0.85f, 0.78f, 0.68f, 1f), new Color(0.9f, 0.88f, 0.82f, 1f), false);
+                new Color(0.85f, 0.78f, 0.68f, 1f), new Color(0.9f, 0.88f, 0.82f, 1f), false,
+                textures.coat);
         pasture1 = new HorseAnimator(new ModelInstance(pastureModel1));
         pasture2 = new HorseAnimator(new ModelInstance(pastureModel2));
 
@@ -239,6 +247,7 @@ public class RanchScreen extends ScreenAdapter {
     public void dispose() {
         batch.dispose();
         world.dispose();
+        textures.dispose();
         course.dispose();
         hud.dispose();
         horseModel.dispose();

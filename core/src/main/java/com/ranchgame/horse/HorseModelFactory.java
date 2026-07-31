@@ -2,10 +2,12 @@ package com.ranchgame.horse;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -22,11 +24,12 @@ import com.badlogic.gdx.math.Vector3;
 public final class HorseModelFactory {
 
     private static final long ATTRS = Usage.Position | Usage.Normal;
+    private static final long ATTRS_TEX = Usage.Position | Usage.Normal | Usage.TextureCoordinates;
 
     private HorseModelFactory() {
     }
 
-    public static Model create(Color bodyColor, Color maneColor, boolean withRider) {
+    public static Model create(Color bodyColor, Color maneColor, boolean withRider, Texture coat) {
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
 
@@ -37,7 +40,7 @@ public final class HorseModelFactory {
         Node body = mb.node();
         body.id = "body";
         body.translation.set(0f, 1.02f, 0f);
-        MeshPartBuilder b = mb.part("body", GL20.GL_TRIANGLES, ATTRS, mat(bodyColor));
+        MeshPartBuilder b = mb.part("body", GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
         BoxShapeBuilder.build(b, 0f, 0f, 0.05f, 0.72f, 0.72f, 1.65f);
         // chest and rump caps for a slightly rounded silhouette
         BoxShapeBuilder.build(b, 0f, -0.02f, 0.78f, 0.6f, 0.62f, 0.3f);
@@ -55,7 +58,7 @@ public final class HorseModelFactory {
         Node neck = mb.node();
         neck.id = "neck";
         neck.translation.set(0f, 1.3f, 0.62f);
-        MeshPartBuilder n = mb.part("neck", GL20.GL_TRIANGLES, ATTRS, mat(bodyColor));
+        MeshPartBuilder n = mb.part("neck", GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
         Matrix4 lean = new Matrix4().rotate(Vector3.X, 32f);
         n.setVertexTransform(lean);
         BoxShapeBuilder.build(n, 0f, 0.32f, 0f, 0.3f, 0.85f, 0.34f);
@@ -81,10 +84,10 @@ public final class HorseModelFactory {
         t.setVertexTransform(null);
 
         // --- Legs (pivot at hip/shoulder) ---------------------------------
-        buildLeg(mb, "legFL", -0.24f, 0.62f, bodyColor, hoof);
-        buildLeg(mb, "legFR", 0.24f, 0.62f, bodyColor, hoof);
-        buildLeg(mb, "legBL", -0.24f, -0.62f, bodyColor, hoof);
-        buildLeg(mb, "legBR", 0.24f, -0.62f, bodyColor, hoof);
+        buildLeg(mb, "legFL", -0.24f, 0.62f, bodyColor, hoof, coat);
+        buildLeg(mb, "legFR", 0.24f, 0.62f, bodyColor, hoof, coat);
+        buildLeg(mb, "legBL", -0.24f, -0.62f, bodyColor, hoof, coat);
+        buildLeg(mb, "legBR", 0.24f, -0.62f, bodyColor, hoof, coat);
 
         // --- Rider --------------------------------------------------------
         if (withRider) {
@@ -116,11 +119,11 @@ public final class HorseModelFactory {
     }
 
     private static void buildLeg(ModelBuilder mb, String id, float x, float z,
-                                 Color bodyColor, Color hoofColor) {
+                                 Color bodyColor, Color hoofColor, Texture coat) {
         Node leg = mb.node();
         leg.id = id;
         leg.translation.set(x, 0.95f, z);
-        MeshPartBuilder l = mb.part(id, GL20.GL_TRIANGLES, ATTRS, mat(bodyColor));
+        MeshPartBuilder l = mb.part(id, GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
         BoxShapeBuilder.build(l, 0f, -0.475f, 0f, 0.2f, 0.95f, 0.2f);
         MeshPartBuilder h = mb.part(id + "Hoof", GL20.GL_TRIANGLES, ATTRS, mat(hoofColor));
         BoxShapeBuilder.build(h, 0f, -0.9f, 0f, 0.22f, 0.13f, 0.22f);
@@ -128,5 +131,13 @@ public final class HorseModelFactory {
 
     private static Material mat(Color c) {
         return new Material(ColorAttribute.createDiffuse(c));
+    }
+
+    /** Dappled coat: the near-white noise texture tinted with the horse's color. */
+    private static Material coatMat(Texture coat, Color tint) {
+        TextureAttribute ta = TextureAttribute.createDiffuse(coat);
+        ta.scaleU = 1.5f;
+        ta.scaleV = 1.5f;
+        return new Material(ta, ColorAttribute.createDiffuse(tint));
     }
 }
