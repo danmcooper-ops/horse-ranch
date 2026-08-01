@@ -45,6 +45,11 @@ public class Hud implements Disposable {
     private final Touchpad touchpad;
     private final Image jumpButton;
     private final Label jumpLabel;
+    private final Texture dots;
+    private final Label.LabelStyle style;
+    private final Label.LabelStyle bigStyle;
+    private CustomizeConsole console;
+    private boolean touchControlsWanted;
     private boolean jumpQueued;
     private boolean knobArmed = true;
     private float messageTimer;
@@ -70,9 +75,10 @@ public class Hud implements Disposable {
         p.dispose();
         padBase = circleTexture(120, new Color(1f, 1f, 1f, 0.25f), new Color(1f, 1f, 1f, 0.5f));
         padKnob = circleTexture(56, new Color(1f, 1f, 1f, 0.75f), new Color(1f, 1f, 1f, 0.9f));
+        dots = dotsTexture(84);
 
-        Label.LabelStyle style = new Label.LabelStyle(font, Color.WHITE);
-        Label.LabelStyle bigStyle = new Label.LabelStyle(bigFont, Color.WHITE);
+        style = new Label.LabelStyle(font, Color.WHITE);
+        bigStyle = new Label.LabelStyle(bigFont, Color.WHITE);
 
         gaitLabel = new Label("Halt", bigStyle);
         courseLabel = new Label("", style);
@@ -90,7 +96,7 @@ public class Hud implements Disposable {
         root.pad(10f);
         root.top();
         root.add(gaitLabel).left().expandX();
-        root.add(timerLabel).right();
+        root.add(timerLabel).right().padRight(52f);   // clear of the "..." button
         root.row();
         courseLabel.setWrap(true);
         root.add(courseLabel).colspan(2).growX().center().padTop(2f);
@@ -143,6 +149,31 @@ public class Hud implements Disposable {
         setTouchVisible(false);
     }
 
+    /** Rounded translucent square with three dots: the customize button. */
+    private static Texture dotsTexture(int size) {
+        Pixmap pm = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pm.setBlending(Pixmap.Blending.None);
+        pm.setColor(0f, 0f, 0f, 0f);
+        pm.fill();
+        int r = size / 5;
+        pm.setColor(1f, 1f, 1f, 0.3f);
+        pm.fillRectangle(r, 0, size - 2 * r, size);
+        pm.fillRectangle(0, r, size, size - 2 * r);
+        pm.fillCircle(r, r, r);
+        pm.fillCircle(size - r - 1, r, r);
+        pm.fillCircle(r, size - r - 1, r);
+        pm.fillCircle(size - r - 1, size - r - 1, r);
+        pm.setColor(1f, 1f, 1f, 0.95f);
+        int dot = Math.max(2, size / 14);
+        for (int i = -1; i <= 1; i++) {
+            pm.fillCircle(size / 2 + i * (size / 4), size / 2, dot);
+        }
+        Texture t = new Texture(pm);
+        t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pm.dispose();
+        return t;
+    }
+
     private static Texture circleTexture(int size, Color fill, Color ring) {
         Pixmap pm = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pm.setBlending(Pixmap.Blending.None);
@@ -164,14 +195,42 @@ public class Hud implements Disposable {
         jumpLabel.pack();
         jumpLabel.setPosition(bx + (jumpButton.getWidth() - jumpLabel.getWidth()) / 2f,
                 40f + (jumpButton.getHeight() - jumpLabel.getHeight()) / 2f);
+        if (console != null) {
+            console.layout(stage.getViewport().getWorldWidth(),
+                    stage.getViewport().getWorldHeight());
+        }
     }
 
     public void setTouchVisible(boolean visible) {
+        touchControlsWanted = visible;
+        applyTouchVisibility();
+    }
+
+    private void applyTouchVisibility() {
+        boolean visible = touchControlsWanted && (console == null || !console.isOpen());
         touchpad.setVisible(visible);
         jumpButton.setVisible(visible);
         jumpLabel.setVisible(visible);
         jumpButton.setTouchable(visible ? Touchable.enabled : Touchable.disabled);
-        hintLabel.setVisible(!visible);
+        hintLabel.setVisible(!touchControlsWanted && (console == null || !console.isOpen()));
+    }
+
+    /** Builds the customize console; call once after construction. */
+    public void createConsole(com.ranchgame.horse.HorseAppearance appearance,
+                              final CustomizeConsole.Listener listener) {
+        console = new CustomizeConsole(stage, appearance, white, dots, style, bigStyle,
+                new CustomizeConsole.Listener() {
+                    @Override
+                    public void appearanceChanged() {
+                        listener.appearanceChanged();
+                    }
+                });
+        layoutTouchControls();
+        if (com.ranchgame.HorseGame.openConsoleOnStart) console.setOpen(true);
+    }
+
+    public boolean isConsoleOpen() {
+        return console != null && console.isOpen();
     }
 
     // --- Touch input polling ---------------------------------------------
@@ -232,6 +291,7 @@ public class Hud implements Disposable {
     }
 
     public void update(float delta) {
+        applyTouchVisibility();
         if (messageTimer > 0f) {
             messageTimer -= delta;
             if (messageTimer <= 0f) messageLabel.setVisible(false);
@@ -256,5 +316,6 @@ public class Hud implements Disposable {
         white.dispose();
         padBase.dispose();
         padKnob.dispose();
+        dots.dispose();
     }
 }

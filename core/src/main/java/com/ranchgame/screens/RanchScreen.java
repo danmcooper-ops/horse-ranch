@@ -22,7 +22,9 @@ import com.ranchgame.course.CourseManager;
 import com.ranchgame.course.Gate;
 import com.ranchgame.horse.Horse;
 import com.ranchgame.horse.HorseAnimator;
+import com.ranchgame.horse.HorseAppearance;
 import com.ranchgame.horse.HorseModelFactory;
+import com.ranchgame.hud.CustomizeConsole;
 import com.ranchgame.hud.Hud;
 import com.ranchgame.world.ProceduralTextures;
 import com.ranchgame.world.RanchWorld;
@@ -45,6 +47,7 @@ public class RanchScreen extends ScreenAdapter {
     private final Model horseModel;
     private final ModelInstance horseInstance;
     private final HorseAnimator horseAnimator;
+    private final HorseAppearance appearance = new HorseAppearance();
 
     private final Model pastureModel1, pastureModel2;
     private final HorseAnimator pasture1, pasture2;
@@ -105,6 +108,27 @@ public class RanchScreen extends ScreenAdapter {
         world.addObstacle(-18f, -33f, 1.4f, 2.2f);
         world.addObstacle(-13f, -26f, 1.4f, 2.2f);
 
+        final com.badlogic.gdx.Preferences prefs = Gdx.app.getPreferences("horse-ranch");
+        appearance.load(prefs);
+        if (com.ranchgame.HorseGame.presetLook != null) {
+            int[] p = com.ranchgame.HorseGame.presetLook;
+            appearance.coat = p[0];
+            appearance.mane = p[1];
+            appearance.tack = p[2];
+            appearance.pad = p[3];
+            appearance.shirt = p[4];
+            appearance.pants = p[5];
+            appearance.hair = p[6];
+        }
+        appearance.apply(horseInstance);
+        hud.createConsole(appearance, new CustomizeConsole.Listener() {
+            @Override
+            public void appearanceChanged() {
+                appearance.apply(horseInstance);
+                appearance.save(prefs);
+            }
+        });
+
         Gdx.input.setInputProcessor(hud.stage);
         updateTouchMode(Gdx.graphics.getWidth());
 
@@ -134,18 +158,22 @@ public class RanchScreen extends ScreenAdapter {
         float prevX = horse.position.x;
         float prevZ = horse.position.z;
 
-        // --- input ---
+        // --- input (suspended while the customize console is open) ---
+        boolean consoleOpen = hud.isConsoleOpen();
         float turn = 0f;
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) turn += 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) turn -= 1f;
-        turn += hud.touchTurnAxis();
-        turn = MathUtils.clamp(turn, -1f, 1f);
-        int shift = hud.touchGaitShift();
-        boolean gaitUp = shift > 0
-                || Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W);
-        boolean gaitDown = shift < 0
-                || Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S);
-        boolean jump = hud.touchJumpPressed() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+        boolean gaitUp = false, gaitDown = false, jump = false;
+        if (!consoleOpen) {
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) turn += 1f;
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) turn -= 1f;
+            turn += hud.touchTurnAxis();
+            turn = MathUtils.clamp(turn, -1f, 1f);
+            int shift = hud.touchGaitShift();
+            gaitUp = shift > 0
+                    || Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W);
+            gaitDown = shift < 0
+                    || Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S);
+            jump = hud.touchJumpPressed() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+        }
 
         // --- simulation ---
         horse.update(delta, turn, gaitUp, gaitDown, jump);

@@ -13,6 +13,10 @@ public class HorseGame extends Game {
      */
     public static String screenshotPath;
     public static float screenshotDelay = 2.5f;
+    /** Debug aid: open the customize console immediately at startup. */
+    public static boolean openConsoleOnStart;
+    /** Debug aid: force appearance indices (coat,mane,tack,pad,shirt,pants,hair). */
+    public static int[] presetLook;
 
     @Override
     public void create() {

@@ -27,6 +27,22 @@ time is saved between sessions.
 The touch joystick and JUMP button appear automatically on touch devices
 (and on any browser window narrower than ~800dp).
 
+## Customizing your horse and rider
+
+Click the **⋯ button** in the top-right corner to open the customization
+console. Seven colour rows apply instantly to your horse and rider:
+
+| Horse | Rider |
+|---|---|
+| Coat (bay, chestnut, black, palomino, cream, grey) | Shirt |
+| Mane & tail | Trousers |
+| Saddle leather | Hair |
+| Saddle pad | |
+
+Your choices are saved and restored next time you play. Riding controls are
+suspended while the console is open, and the panel sits on the right so you
+can see your horse change as you pick.
+
 ## The jumping course
 
 Ride through the **green flags** east of the spawn trail to start the timer,

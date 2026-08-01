@@ -9,7 +9,18 @@ public class Lwjgl3Launcher {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired(args)) return;
         // debug: --screenshot <path> [seconds] renders briefly, saves a PNG and exits
+        for (int i = 0; i < args.length; i++) {
+            if ("--console".equals(args[i])) HorseGame.openConsoleOnStart = true;
+        }
         for (int i = 0; i < args.length - 1; i++) {
+            if ("--look".equals(args[i])) {
+                String[] parts = args[i + 1].split(",");
+                int[] look = new int[7];
+                for (int k = 0; k < 7 && k < parts.length; k++) {
+                    look[k] = Integer.parseInt(parts[k].trim());
+                }
+                HorseGame.presetLook = look;
+            }
             if ("--screenshot".equals(args[i])) {
                 HorseGame.screenshotPath = args[i + 1];
                 if (i + 2 < args.length) {
