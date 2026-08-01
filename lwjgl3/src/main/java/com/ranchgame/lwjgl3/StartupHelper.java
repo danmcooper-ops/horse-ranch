@@ -18,7 +18,7 @@ public final class StartupHelper {
     private StartupHelper() {
     }
 
-    public static boolean startNewJvmIfRequired() {
+    public static boolean startNewJvmIfRequired(String[] args) {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (!os.contains("mac")) return false;
         if ("1".equals(System.getProperty(RESTARTED_FLAG))) return false;
@@ -34,6 +34,7 @@ public final class StartupHelper {
         command.add("-cp");
         command.add(System.getProperty("java.class.path"));
         command.add(Lwjgl3Launcher.class.getName());
+        for (String arg : args) command.add(arg);   // keep CLI args across the relaunch
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);

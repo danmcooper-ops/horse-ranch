@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.ranchgame.course.CourseManager;
@@ -28,7 +31,7 @@ import com.ranchgame.world.WorldBuilder;
 /** The whole game: free-roam ranch riding plus the show-jumping course. */
 public class RanchScreen extends ScreenAdapter {
 
-    private static final Color SKY = new Color(0.55f, 0.78f, 0.95f, 1f);
+    private static final Color SKY = new Color(0.8f, 0.89f, 0.97f, 1f);
 
     private final ModelBatch batch = new ModelBatch();
     private final Environment environment = new Environment();
@@ -46,8 +49,11 @@ public class RanchScreen extends ScreenAdapter {
     private final Model pastureModel1, pastureModel2;
     private final HorseAnimator pasture1, pasture2;
 
-    private final Model shadowModel;
-    private final ModelInstance horseShadow, pastureShadow1, pastureShadow2;
+    private final DirectionalShadowLight shadowLight;
+    private final ModelBatch shadowBatch;
+    private final Model skyModel, cloudModel;
+    private final ModelInstance skyDome, clouds;
+    private float cloudDrift;
 
     private final float[] collisionPos = new float[2];
     private final Vector3 tmp = new Vector3();
@@ -55,11 +61,18 @@ public class RanchScreen extends ScreenAdapter {
     private CourseManager.State lastState = CourseManager.State.READY;
 
     public RanchScreen() {
-        // warm key light + cool fill, Sims-style soft daylight
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.58f, 0.54f, 1f));
+        // warm shadow-casting key light + cool fill, soft daylight
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.58f, 0.56f, 0.52f, 1f));
         environment.set(new ColorAttribute(ColorAttribute.Fog, SKY.r, SKY.g, SKY.b, 1f));
-        environment.add(new DirectionalLight().set(0.85f, 0.8f, 0.7f, -0.3f, -0.85f, -0.35f));
+        shadowLight = new DirectionalShadowLight(2048, 2048, 70f, 70f, 1f, 120f);
+        shadowLight.set(0.88f, 0.82f, 0.72f, -0.3f, -0.85f, -0.35f);
+        environment.add(shadowLight);
+        environment.shadowMap = shadowLight;
         environment.add(new DirectionalLight().set(0.18f, 0.2f, 0.26f, 0.5f, -0.25f, 0.45f));
+        // render back faces into the depth map: kills self-shadowing acne on lit faces
+        DepthShader.Config depthConfig = new DepthShader.Config();
+        depthConfig.defaultCullFace = GL20.GL_FRONT;
+        shadowBatch = new ModelBatch(new DepthShaderProvider(depthConfig));
 
         camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 0.3f;
@@ -85,12 +98,10 @@ public class RanchScreen extends ScreenAdapter {
         pasture1 = new HorseAnimator(new ModelInstance(pastureModel1));
         pasture2 = new HorseAnimator(new ModelInstance(pastureModel2));
 
-        shadowModel = WorldBuilder.buildShadowDisc();
-        horseShadow = new ModelInstance(shadowModel);
-        pastureShadow1 = new ModelInstance(shadowModel);
-        pastureShadow2 = new ModelInstance(shadowModel);
-        pastureShadow1.transform.setToTranslation(-18f, 0.015f, -33f);
-        pastureShadow2.transform.setToTranslation(-13f, 0.015f, -26f);
+        skyModel = WorldBuilder.buildSkyDome(textures.sky);
+        skyDome = new ModelInstance(skyModel);
+        cloudModel = WorldBuilder.buildClouds();
+        clouds = new ModelInstance(cloudModel);
         world.addObstacle(-18f, -33f, 1.4f, 2.2f);
         world.addObstacle(-13f, -26f, 1.4f, 2.2f);
 
@@ -152,9 +163,9 @@ public class RanchScreen extends ScreenAdapter {
         horseAnimator.update(horse, delta);
         pasture1.graze(-18f, -33f, 70f, delta);
         pasture2.graze(-13f, -26f, 205f, delta);
-        float shrink = Math.max(0.45f, 1f - horse.position.y * 0.22f);
-        horseShadow.transform.setToTranslation(horse.position.x, 0.015f, horse.position.z)
-                .scale(shrink, 1f, shrink);
+        cloudDrift += delta * 0.6f;
+        if (cloudDrift > 250f) cloudDrift -= 500f;
+        clouds.transform.setToTranslation(cloudDrift, 0f, 0f);
 
         // --- camera ---
         horse.forward(tmp);
@@ -168,24 +179,63 @@ public class RanchScreen extends ScreenAdapter {
         camera.up.set(Vector3.Y);
         camera.update();
 
-        // --- render ---
+        // --- shadow pass ---
+        shadowLight.begin(tmp.set(horse.position).add(0f, 0f, 0f), shadowLight.direction);
+        shadowBatch.begin(shadowLight.getCamera());
+        shadowBatch.render(world.instances);
+        shadowBatch.render(course.startLine.instance);
+        for (Gate gate : course.gates) shadowBatch.render(gate.instance);
+        shadowBatch.render(pasture1Instance());
+        shadowBatch.render(pasture2Instance());
+        shadowBatch.render(horseInstance);
+        shadowBatch.end();
+        shadowLight.end();
+
+        // --- main pass ---
         Gdx.gl.glClearColor(SKY.r, SKY.g, SKY.b, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        skyDome.transform.setToTranslation(camera.position.x, 0f, camera.position.z);
         batch.begin(camera);
+        batch.render(skyDome);                       // unlit: no environment
+        batch.render(clouds);
         batch.render(world.instances, environment);
         batch.render(course.startLine.instance, environment);
         for (Gate gate : course.gates) batch.render(gate.instance, environment);
         batch.render(pasture1Instance(), environment);
         batch.render(pasture2Instance(), environment);
         batch.render(horseInstance, environment);
-        batch.render(horseShadow, environment);
-        batch.render(pastureShadow1, environment);
-        batch.render(pastureShadow2, environment);
         batch.end();
 
         hud.setGait(horse.gait.label, horse.speed);
         hud.update(delta);
         hud.draw();
+
+        maybeScreenshot(delta);
+    }
+
+    private float screenshotTimer;
+
+    /** Debug aid: capture one frame to disk and quit (desktop only). */
+    private void maybeScreenshot(float delta) {
+        if (com.ranchgame.HorseGame.screenshotPath == null) return;
+        screenshotTimer += delta;
+        if (screenshotTimer < com.ranchgame.HorseGame.screenshotDelay) return;
+        int w = Gdx.graphics.getBackBufferWidth();
+        int h = Gdx.graphics.getBackBufferHeight();
+        com.badlogic.gdx.graphics.Pixmap raw =
+                com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixmap(0, 0, w, h);
+        // GL's framebuffer origin is bottom-left, so flip into a correctly oriented image
+        com.badlogic.gdx.graphics.Pixmap flipped =
+                new com.badlogic.gdx.graphics.Pixmap(w, h, raw.getFormat());
+        for (int y = 0; y < h; y++) {
+            flipped.drawPixmap(raw, 0, y, 0, h - 1 - y, w, 1);
+        }
+        com.badlogic.gdx.graphics.PixmapIO.writePNG(
+                Gdx.files.absolute(com.ranchgame.HorseGame.screenshotPath), flipped);
+        raw.dispose();
+        flipped.dispose();
+        com.ranchgame.HorseGame.screenshotPath = null;
+        Gdx.app.exit();
     }
 
     private ModelInstance pasture1Instance() {
@@ -246,6 +296,8 @@ public class RanchScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         batch.dispose();
+        shadowBatch.dispose();
+        shadowLight.dispose();
         world.dispose();
         textures.dispose();
         course.dispose();
@@ -253,6 +305,7 @@ public class RanchScreen extends ScreenAdapter {
         horseModel.dispose();
         pastureModel1.dispose();
         pastureModel2.dispose();
-        shadowModel.dispose();
+        skyModel.dispose();
+        cloudModel.dispose();
     }
 }

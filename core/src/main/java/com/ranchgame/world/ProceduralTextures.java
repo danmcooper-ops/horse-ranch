@@ -22,14 +22,16 @@ public class ProceduralTextures implements Disposable {
     public final Texture leaves;
     /** Near-white dappled noise, meant to be tinted by each horse's coat color. */
     public final Texture coat;
+    /** Vertical sky gradient for the sky dome (v=0 bottom pole, v=1 top pole). */
+    public final Texture sky;
 
     private static final int S = 128;
 
     public ProceduralTextures() {
         grass = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
-                float l = 0.82f + n1 * 0.3f + n2 * 0.12f;
-                return new Color(0.36f * l, 0.62f * l, 0.27f * l, 1f);
+                float l = 0.84f + n1 * 0.26f + n2 * 0.12f;
+                return new Color(0.33f * l, 0.55f * l, 0.24f * l, 1f);
             }
         }, 11, 5, 20260722L);
         dirt = make(new Painter() {
@@ -70,10 +72,35 @@ public class ProceduralTextures implements Disposable {
         }, 13, 6, 3434L);
         coat = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
-                float l = 0.9f + n1 * 0.1f + n2 * 0.05f;   // soft dapple, tint later
-                return new Color(l, l * 0.99f, l * 0.97f, 1f);
+                float l = 0.95f + n1 * 0.05f + n2 * 0.025f;   // subtle dapple, tint later
+                return new Color(l, l * 0.995f, l * 0.985f, 1f);
             }
-        }, 5, 9, 606L);
+        }, 9, 14, 606L);
+        sky = makeSky();
+    }
+
+    private static final Color ZENITH = new Color(0.3f, 0.55f, 0.86f, 1f);
+    private static final Color HORIZON = new Color(0.8f, 0.89f, 0.97f, 1f);
+
+    private static Texture makeSky() {
+        int h = 256;
+        Pixmap pm = new Pixmap(4, h, Pixmap.Format.RGBA8888);
+        pm.setBlending(Pixmap.Blending.None);
+        Color c = new Color();
+        for (int y = 0; y < h; y++) {
+            // v: 0 = bottom pole, 0.5 = horizon, 1 = zenith
+            float v = 1f - y / (float) (h - 1);
+            float t = MathUtils.clamp((v - 0.5f) * 2.2f, 0f, 1f);
+            t = t * t * (3f - 2f * t);
+            c.set(HORIZON).lerp(ZENITH, t);
+            pm.setColor(c);
+            pm.drawLine(0, y, 3, y);
+        }
+        Texture t = new Texture(pm, false);
+        pm.dispose();
+        t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        t.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+        return t;
     }
 
     private interface Painter {
@@ -139,5 +166,6 @@ public class ProceduralTextures implements Disposable {
         shingles.dispose();
         leaves.dispose();
         coat.dispose();
+        sky.dispose();
     }
 }

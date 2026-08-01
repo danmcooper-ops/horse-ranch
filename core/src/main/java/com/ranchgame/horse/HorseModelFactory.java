@@ -41,10 +41,12 @@ public final class HorseModelFactory {
         body.id = "body";
         body.translation.set(0f, 1.02f, 0f);
         MeshPartBuilder b = mb.part("body", GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
-        BoxShapeBuilder.build(b, 0f, 0f, 0.05f, 0.72f, 0.72f, 1.65f);
-        // chest and rump caps for a slightly rounded silhouette
-        BoxShapeBuilder.build(b, 0f, -0.02f, 0.78f, 0.6f, 0.62f, 0.3f);
-        BoxShapeBuilder.build(b, 0f, 0.02f, -0.78f, 0.62f, 0.66f, 0.3f);
+        // stacked, offset boxes approximate a rounded barrel-chested silhouette
+        BoxShapeBuilder.build(b, 0f, 0.02f, 0.05f, 0.68f, 0.6f, 1.6f);   // core
+        BoxShapeBuilder.build(b, 0f, -0.15f, 0f, 0.58f, 0.5f, 1.3f);     // belly
+        BoxShapeBuilder.build(b, 0f, 0.33f, 0.02f, 0.5f, 0.2f, 1.4f);    // back/withers
+        BoxShapeBuilder.build(b, 0f, -0.02f, 0.8f, 0.54f, 0.54f, 0.3f);  // chest
+        BoxShapeBuilder.build(b, 0f, 0.04f, -0.78f, 0.58f, 0.6f, 0.32f); // rump
         if (withRider) {
             MeshPartBuilder sd = mb.part("saddle", GL20.GL_TRIANGLES, ATTRS,
                     mat(new Color(0.45f, 0.2f, 0.12f, 1f)));
@@ -61,7 +63,8 @@ public final class HorseModelFactory {
         MeshPartBuilder n = mb.part("neck", GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
         Matrix4 lean = new Matrix4().rotate(Vector3.X, 32f);
         n.setVertexTransform(lean);
-        BoxShapeBuilder.build(n, 0f, 0.32f, 0f, 0.3f, 0.85f, 0.34f);
+        BoxShapeBuilder.build(n, 0f, 0.18f, 0f, 0.34f, 0.55f, 0.4f);    // neck base, wider
+        BoxShapeBuilder.build(n, 0f, 0.52f, 0.02f, 0.26f, 0.45f, 0.3f); // upper neck, tapered
         n.setVertexTransform(null);
         BoxShapeBuilder.build(n, 0f, 0.8f, 0.55f, 0.28f, 0.28f, 0.55f);   // head
         MeshPartBuilder mz = mb.part("muzzle", GL20.GL_TRIANGLES, ATTRS, mat(muzzle));
@@ -124,9 +127,10 @@ public final class HorseModelFactory {
         leg.id = id;
         leg.translation.set(x, 0.95f, z);
         MeshPartBuilder l = mb.part(id, GL20.GL_TRIANGLES, ATTRS_TEX, coatMat(coat, bodyColor));
-        BoxShapeBuilder.build(l, 0f, -0.475f, 0f, 0.2f, 0.95f, 0.2f);
+        BoxShapeBuilder.build(l, 0f, -0.26f, 0f, 0.25f, 0.55f, 0.27f);  // thigh/forearm
+        BoxShapeBuilder.build(l, 0f, -0.7f, 0f, 0.15f, 0.45f, 0.16f);   // cannon, slimmer
         MeshPartBuilder h = mb.part(id + "Hoof", GL20.GL_TRIANGLES, ATTRS, mat(hoofColor));
-        BoxShapeBuilder.build(h, 0f, -0.9f, 0f, 0.22f, 0.13f, 0.22f);
+        BoxShapeBuilder.build(h, 0f, -0.9f, 0f, 0.18f, 0.13f, 0.19f);
     }
 
     private static Material mat(Color c) {

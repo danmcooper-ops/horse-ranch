@@ -12,9 +12,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ConeShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.CylinderShapeBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.SphereShapeBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.RandomXS128;
 
@@ -131,20 +133,89 @@ public final class WorldBuilder {
             float h = 2f + rng.nextFloat() * 1.5f;
             trunks.setVertexTransform(tr.setToTranslation(x, h / 2f, z));
             CylinderShapeBuilder.build(trunks, 0.5f, h, 0.5f, 10);
-            leaves.setVertexTransform(tr.setToTranslation(x, h + 1.2f, z));
-            ConeShapeBuilder.build(leaves, 2.8f, 2.6f, 2.8f, 12);
-            leaves.setVertexTransform(tr.setToTranslation(x, h + 2.9f, z));
-            ConeShapeBuilder.build(leaves, 2f, 2f, 2f, 12);
+            if (planted % 2 == 0) {
+                // conifer
+                leaves.setVertexTransform(tr.setToTranslation(x, h + 1.2f, z));
+                ConeShapeBuilder.build(leaves, 2.8f, 2.6f, 2.8f, 12);
+                leaves.setVertexTransform(tr.setToTranslation(x, h + 2.9f, z));
+                ConeShapeBuilder.build(leaves, 2f, 2f, 2f, 12);
+            } else {
+                // deciduous: irregular cluster of leafy blobs
+                leaves.setVertexTransform(tr.setToTranslation(x, h + 1.3f, z));
+                SphereShapeBuilder.build(leaves, 3.4f, 2.6f, 3.4f, 12, 8);
+                leaves.setVertexTransform(tr.setToTranslation(x + 1f, h + 2f, z + 0.5f));
+                SphereShapeBuilder.build(leaves, 2.2f, 1.8f, 2.2f, 10, 7);
+                leaves.setVertexTransform(tr.setToTranslation(x - 0.9f, h + 2.1f, z - 0.4f));
+                SphereShapeBuilder.build(leaves, 2f, 1.7f, 2f, 10, 7);
+            }
             world.addObstacle(x, z, 1.1f, 1.1f);
             planted++;
         }
         trunks.setVertexTransform(null);
         leaves.setVertexTransform(null);
 
+        // --- Grass tufts (visual only, no collision) -----------------------
+        MeshPartBuilder tufts = mb.part("tufts", GL20.GL_TRIANGLES, ATTRS_TEX,
+                mat(tex.grass, new Color(1.45f, 1.55f, 1.2f, 1f), 0.6f, 0.6f));
+        for (int i = 0; i < 150; i++) {
+            float x = rng.nextFloat() * 212f - 106f;
+            float z = rng.nextFloat() * 212f - 106f;
+            if (Math.abs(x) < 4f && z > -55f && z < 12f) continue;   // not on the trail
+            float s = 0.12f + rng.nextFloat() * 0.14f;
+            // three small crossed blades rather than one cone: reads as a grass clump
+            for (int b = 0; b < 3; b++) {
+                float ox = (rng.nextFloat() - 0.5f) * 0.5f;
+                float oz = (rng.nextFloat() - 0.5f) * 0.5f;
+                tufts.setVertexTransform(tr.setToTranslation(x + ox, s * 1.6f, z + oz)
+                        .rotate(0f, 1f, 0f, rng.nextFloat() * 180f));
+                BoxShapeBuilder.build(tufts, 0f, 0f, 0f, s * 1.1f, s * 2.4f, s * 0.16f);
+            }
+        }
+        tufts.setVertexTransform(null);
+
         Model model = mb.end();
         world.models.add(model);
         world.instances.add(new ModelInstance(model));
         return world;
+    }
+
+    /** Inside-out gradient sphere that follows the camera; render WITHOUT environment. */
+    public static Model buildSkyDome(Texture sky) {
+        ModelBuilder mb = new ModelBuilder();
+        Material m = new Material(
+                TextureAttribute.createDiffuse(sky),
+                ColorAttribute.createDiffuse(Color.WHITE),
+                IntAttribute.createCullFace(GL20.GL_NONE));
+        return mb.createSphere(700f, 700f, 700f, 24, 12, m,
+                Usage.Position | Usage.Normal | Usage.TextureCoordinates);
+    }
+
+    /** A few puffy clouds; render WITHOUT environment so they stay bright. */
+    public static Model buildClouds() {
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+        MeshPartBuilder c = mb.part("clouds", GL20.GL_TRIANGLES, ATTRS,
+                new Material(ColorAttribute.createDiffuse(new Color(1f, 1f, 1f, 1f)),
+                        new BlendingAttribute(0.92f)));
+        Matrix4 tr = new Matrix4();
+        RandomXS128 rng = new RandomXS128(99L);
+        for (int i = 0; i < 7; i++) {
+            float x = rng.nextFloat() * 400f - 200f;
+            float z = rng.nextFloat() * 400f - 200f;
+            float y = 46f + rng.nextFloat() * 18f;
+            float s = 7f + rng.nextFloat() * 8f;
+            tr.setToTranslation(x, y, z);
+            c.setVertexTransform(tr);
+            SphereShapeBuilder.build(c, s * 2.2f, s * 0.75f, s * 1.5f, 10, 7);
+            tr.setToTranslation(x + s * 0.9f, y + s * 0.14f, z + s * 0.3f);
+            c.setVertexTransform(tr);
+            SphereShapeBuilder.build(c, s * 1.4f, s * 0.6f, s * 1.1f, 9, 6);
+            tr.setToTranslation(x - s * 0.8f, y + s * 0.1f, z - s * 0.25f);
+            c.setVertexTransform(tr);
+            SphereShapeBuilder.build(c, s * 1.2f, s * 0.55f, s, 9, 6);
+        }
+        c.setVertexTransform(null);
+        return mb.end();
     }
 
     /** Small translucent disc used as a fake blob shadow. */
