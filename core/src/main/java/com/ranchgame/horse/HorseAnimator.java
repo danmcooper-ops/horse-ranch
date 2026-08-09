@@ -32,6 +32,14 @@ public class HorseAnimator {
         return instance;
     }
 
+    /** Hide or show the mounted rider (used while the player walks on foot). */
+    public void setRiderVisible(boolean visible) {
+        if (rider != null) {
+            float s = visible ? 1f : 0f;
+            rider.scale.set(s, s, s);
+        }
+    }
+
     public void update(Horse horse, float delta) {
         time += delta;
         Gait g = horse.gait;

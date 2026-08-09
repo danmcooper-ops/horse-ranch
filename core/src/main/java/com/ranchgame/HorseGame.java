@@ -23,6 +23,8 @@ public class HorseGame extends Game {
      * peripheral query is unreliable there).
      */
     public static boolean touchDevice;
+    /** Debug aid: start on foot beside the horse. */
+    public static boolean startDismounted;
 
     @Override
     public void create() {

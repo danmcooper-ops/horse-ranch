@@ -63,4 +63,28 @@ public class Horse {
     public Vector3 forward(Vector3 out) {
         return out.set(MathUtils.sinDeg(yaw), 0f, MathUtils.cosDeg(yaw));
     }
+
+    /**
+     * Follow-on-the-lead behaviour: steer toward the target point, walking
+     * when it's a few steps away and trotting to catch up when left behind.
+     */
+    public void updateFollow(float delta, float targetX, float targetZ) {
+        float dx = targetX - position.x;
+        float dz = targetZ - position.z;
+        float dist = (float) Math.sqrt(dx * dx + dz * dz);
+
+        Gait desired = dist > 9f ? Gait.TROT : dist > 1.6f ? Gait.WALK : Gait.HALT;
+        boolean up = desired.ordinal() > gait.ordinal();
+        boolean down = desired.ordinal() < gait.ordinal();
+
+        float turn = 0f;
+        if (dist > 0.6f) {
+            float desiredYaw = MathUtils.atan2(dx, dz) * MathUtils.radiansToDegrees;
+            float diff = desiredYaw - yaw;
+            while (diff > 180f) diff -= 360f;
+            while (diff < -180f) diff += 360f;
+            turn = MathUtils.clamp(diff / 25f, -1f, 1f);
+        }
+        update(delta, turn, up, down, false);
+    }
 }

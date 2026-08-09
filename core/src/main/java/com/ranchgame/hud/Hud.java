@@ -45,6 +45,10 @@ public class Hud implements Disposable {
     private final Touchpad touchpad;
     private final Image jumpButton;
     private final Label jumpLabel;
+    private final Image actionButton;
+    private final Label actionLabel;
+    private boolean actionQueued;
+    private boolean actionAvailable;
     private final Texture dots;
     private final Label.LabelStyle style;
     private final Label.LabelStyle bigStyle;
@@ -88,7 +92,7 @@ public class Hud implements Disposable {
         messageLabel = new Label("", bigStyle);
         messageLabel.setAlignment(Align.center);
         messageLabel.setColor(1f, 0.9f, 0.3f, 1f);
-        hintLabel = new Label("Arrows: steer & change gait   Space: jump", style);
+        hintLabel = new Label("Arrows: steer & change gait   Space: jump   E: dismount / ride", style);
         hintLabel.setColor(1f, 1f, 1f, 0.75f);
 
         Table root = new Table();
@@ -145,6 +149,20 @@ public class Hud implements Disposable {
         jumpLabel.setTouchable(Touchable.disabled);
         stage.addActor(jumpLabel);
 
+        actionButton = new Image(new TextureRegionDrawable(new TextureRegion(padBase)));
+        actionButton.setSize(74f, 74f);
+        actionButton.addListener(new ClickListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float sx, float sy, int pointer, int button) {
+                actionQueued = true;
+                return true;
+            }
+        });
+        stage.addActor(actionButton);
+        actionLabel = new Label("OFF", style);
+        actionLabel.setTouchable(Touchable.disabled);
+        stage.addActor(actionLabel);
+
         layoutTouchControls();
         setTouchVisible(false);
     }
@@ -195,6 +213,12 @@ public class Hud implements Disposable {
         jumpLabel.pack();
         jumpLabel.setPosition(bx + (jumpButton.getWidth() - jumpLabel.getWidth()) / 2f,
                 40f + (jumpButton.getHeight() - jumpLabel.getHeight()) / 2f);
+        float ax = stage.getViewport().getWorldWidth() - actionButton.getWidth() - 34f;
+        float ay = 40f + jumpButton.getHeight() + 18f;
+        actionButton.setPosition(ax, ay);
+        actionLabel.pack();
+        actionLabel.setPosition(ax + (actionButton.getWidth() - actionLabel.getWidth()) / 2f,
+                ay + (actionButton.getHeight() - actionLabel.getHeight()) / 2f);
         if (console != null) {
             console.layout(stage.getViewport().getWorldWidth(),
                     stage.getViewport().getWorldHeight());
@@ -212,7 +236,27 @@ public class Hud implements Disposable {
         jumpButton.setVisible(visible);
         jumpLabel.setVisible(visible);
         jumpButton.setTouchable(visible ? Touchable.enabled : Touchable.disabled);
+        boolean action = visible && actionAvailable;
+        actionButton.setVisible(action);
+        actionLabel.setVisible(action);
+        actionButton.setTouchable(action ? Touchable.enabled : Touchable.disabled);
         hintLabel.setVisible(!touchControlsWanted && (console == null || !console.isOpen()));
+    }
+
+    /** Show/hide the mount button and set its label ("OFF" to dismount, "RIDE" to mount). */
+    public void setAction(boolean available, String label) {
+        actionAvailable = available;
+        if (label != null && !label.contentEquals(actionLabel.getText())) {
+            actionLabel.setText(label);
+            actionLabel.pack();
+            layoutTouchControls();
+        }
+    }
+
+    public boolean touchActionPressed() {
+        boolean a = actionQueued;
+        actionQueued = false;
+        return a;
     }
 
     /** Builds the customize console; call once after construction. */

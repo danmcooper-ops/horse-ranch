@@ -24,6 +24,8 @@ import com.ranchgame.horse.Horse;
 import com.ranchgame.horse.HorseAnimator;
 import com.ranchgame.horse.HorseAppearance;
 import com.ranchgame.horse.HorseModelFactory;
+import com.ranchgame.horse.RiderModelFactory;
+import com.ranchgame.horse.Walker;
 import com.ranchgame.hud.CustomizeConsole;
 import com.ranchgame.hud.Hud;
 import com.ranchgame.world.ProceduralTextures;
@@ -48,6 +50,11 @@ public class RanchScreen extends ScreenAdapter {
     private final ModelInstance horseInstance;
     private final HorseAnimator horseAnimator;
     private final HorseAppearance appearance = new HorseAppearance();
+
+    private final Model riderModel;
+    private final Walker walker;
+    private boolean mounted = true;
+    private static final float MOUNT_RANGE = 4f;
 
     private final Model pastureModel1, pastureModel2;
     private final HorseAnimator pasture1, pasture2;
@@ -108,6 +115,9 @@ public class RanchScreen extends ScreenAdapter {
         world.addObstacle(-18f, -33f, 1.4f, 2.2f);
         world.addObstacle(-13f, -26f, 1.4f, 2.2f);
 
+        riderModel = RiderModelFactory.create();
+        walker = new Walker(new ModelInstance(riderModel));
+
         final com.badlogic.gdx.Preferences prefs = Gdx.app.getPreferences("horse-ranch");
         appearance.load(prefs);
         if (com.ranchgame.HorseGame.presetLook != null) {
@@ -121,13 +131,23 @@ public class RanchScreen extends ScreenAdapter {
             appearance.hair = p[6];
         }
         appearance.apply(horseInstance);
+        appearance.apply(walker.instance());
         hud.createConsole(appearance, new CustomizeConsole.Listener() {
             @Override
             public void appearanceChanged() {
                 appearance.apply(horseInstance);
+                appearance.apply(walker.instance());
                 appearance.save(prefs);
             }
         });
+
+        if (com.ranchgame.HorseGame.startDismounted) {
+            mounted = false;
+            horse.forward(tmp);
+            walker.position.set(horse.position).add(tmp.z * 1.2f, 0f, -tmp.x * 1.2f);
+            walker.yaw = horse.yaw;
+            horseAnimator.setRiderVisible(false);
+        }
 
         Gdx.input.setInputProcessor(hud.stage);
         updateTouchMode(Gdx.graphics.getWidth());
@@ -175,19 +195,51 @@ public class RanchScreen extends ScreenAdapter {
                     || Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S);
             jump = hud.touchJumpPressed() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
         }
+        boolean mountToggle = !consoleOpen
+                && (hud.touchActionPressed() || Gdx.input.isKeyJustPressed(Input.Keys.E));
+
+        // --- mount / dismount ---
+        float distToHorse = tmp.set(walker.position).sub(horse.position).len();
+        if (mountToggle) {
+            if (mounted && horse.grounded) {
+                mounted = false;
+                horse.forward(tmp);
+                // step off to the horse's left side, facing the same way
+                walker.position.set(horse.position)
+                        .add(tmp.z * 1.2f, 0f, -tmp.x * 1.2f);
+                walker.yaw = horse.yaw;
+                walker.pace = 0;
+                walker.speed = 0f;
+                horseAnimator.setRiderVisible(false);
+            } else if (!mounted && distToHorse < MOUNT_RANGE) {
+                mounted = true;
+                horseAnimator.setRiderVisible(true);
+            }
+        }
 
         // --- simulation ---
-        horse.update(delta, turn, gaitUp, gaitDown, jump);
-        collisionPos[0] = horse.position.x;
-        collisionPos[1] = horse.position.z;
-        world.resolveCollision(collisionPos, Horse.RADIUS);
-        horse.position.x = MathUtils.clamp(collisionPos[0], -WorldBuilder.HALF + 0.8f, WorldBuilder.HALF - 0.8f);
-        horse.position.z = MathUtils.clamp(collisionPos[1], -WorldBuilder.HALF + 0.8f, WorldBuilder.HALF - 0.8f);
-
-        course.update(delta, prevX, prevZ, horse.position.x, horse.position.z,
-                horse.position.y, horse.grounded);
+        if (mounted) {
+            horse.update(delta, turn, gaitUp, gaitDown, jump);
+            resolveEntity(horse.position, Horse.RADIUS);
+            course.update(delta, prevX, prevZ, horse.position.x, horse.position.z,
+                    horse.position.y, horse.grounded);
+        } else {
+            walker.update(delta, turn, gaitUp, gaitDown);
+            resolveEntity(walker.position, Walker.RADIUS);
+            // the horse trails behind on the lead
+            walker.forward(tmp);
+            float tx = walker.position.x - tmp.x * 1.9f + tmp.z * 0.7f;
+            float tz = walker.position.z - tmp.z * 1.9f - tmp.x * 0.7f;
+            horse.updateFollow(delta, tx, tz);
+            resolveEntity(horse.position, Horse.RADIUS);
+            // course crossings can't happen on foot, but a running clock keeps ticking
+            course.update(delta, horse.position.x, horse.position.z,
+                    horse.position.x, horse.position.z, horse.position.y, horse.grounded);
+        }
         if (course.event != null) hud.showMessage(course.event);
         syncHudWithCourse();
+
+        hud.setAction(mounted || distToHorse < MOUNT_RANGE, mounted ? "OFF" : "RIDE");
 
         horseAnimator.update(horse, delta);
         pasture1.graze(-18f, -33f, 70f, delta);
@@ -196,14 +248,21 @@ public class RanchScreen extends ScreenAdapter {
         if (cloudDrift > 250f) cloudDrift -= 500f;
         clouds.transform.setToTranslation(cloudDrift, 0f, 0f);
 
-        // --- camera ---
-        horse.forward(tmp);
-        float dist = 7f + horse.speed * 0.35f;
-        float height = 3.2f + horse.speed * 0.12f;
-        camTarget.set(horse.position).mulAdd(tmp, -dist).add(0f, height, 0f);
+        // --- camera (follows whoever the player is) ---
+        if (mounted) {
+            horse.forward(tmp);
+            float dist = 7f + horse.speed * 0.35f;
+            float height = 3.2f + horse.speed * 0.12f;
+            camTarget.set(horse.position).mulAdd(tmp, -dist).add(0f, height, 0f);
+            tmp.set(horse.position).add(0f, 1.5f, 0f).mulAdd(horse.forward(new Vector3()), 2.5f);
+        } else {
+            walker.forward(tmp);
+            float dist = 4.6f + walker.speed * 0.3f;
+            camTarget.set(walker.position).mulAdd(tmp, -dist).add(0f, 2.3f, 0f);
+            tmp.set(walker.position).add(0f, 1.3f, 0f).mulAdd(walker.forward(new Vector3()), 2f);
+        }
         float alpha = 1f - (float) Math.exp(-4.5f * delta);
         camera.position.lerp(camTarget, alpha);
-        tmp.set(horse.position).add(0f, 1.5f, 0f).mulAdd(horse.forward(new Vector3()), 2.5f);
         camera.direction.set(tmp).sub(camera.position).nor();
         camera.up.set(Vector3.Y);
         camera.update();
@@ -217,6 +276,7 @@ public class RanchScreen extends ScreenAdapter {
         shadowBatch.render(pasture1Instance());
         shadowBatch.render(pasture2Instance());
         shadowBatch.render(horseInstance);
+        if (!mounted) shadowBatch.render(walker.instance());
         shadowBatch.end();
         shadowLight.end();
 
@@ -233,9 +293,11 @@ public class RanchScreen extends ScreenAdapter {
         batch.render(pasture1Instance(), environment);
         batch.render(pasture2Instance(), environment);
         batch.render(horseInstance, environment);
+        if (!mounted) batch.render(walker.instance(), environment);
         batch.end();
 
-        hud.setGait(horse.gait.label, horse.speed);
+        if (mounted) hud.setGait(horse.gait.label, horse.speed);
+        else hud.setGait(walker.paceLabel(), walker.speed);
         hud.update(delta);
         hud.draw();
 
@@ -265,6 +327,15 @@ public class RanchScreen extends ScreenAdapter {
         flipped.dispose();
         com.ranchgame.HorseGame.screenshotPath = null;
         Gdx.app.exit();
+    }
+
+    /** Push an entity out of obstacles and keep it inside the fenced area. */
+    private void resolveEntity(Vector3 pos, float radius) {
+        collisionPos[0] = pos.x;
+        collisionPos[1] = pos.z;
+        world.resolveCollision(collisionPos, radius);
+        pos.x = MathUtils.clamp(collisionPos[0], -WorldBuilder.HALF + 0.8f, WorldBuilder.HALF - 0.8f);
+        pos.z = MathUtils.clamp(collisionPos[1], -WorldBuilder.HALF + 0.8f, WorldBuilder.HALF - 0.8f);
     }
 
     private ModelInstance pasture1Instance() {
@@ -332,6 +403,7 @@ public class RanchScreen extends ScreenAdapter {
         course.dispose();
         hud.dispose();
         horseModel.dispose();
+        riderModel.dispose();
         pastureModel1.dispose();
         pastureModel2.dispose();
         skyModel.dispose();

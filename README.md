@@ -22,7 +22,12 @@ time is saved between sessions.
 | Gait up (walk → trot → canter → gallop) | ↑ (or W) | flick joystick up |
 | Gait down / stop | ↓ (or S) | flick joystick down |
 | Jump | Space | JUMP button |
+| Dismount / mount | E | OFF / RIDE button |
 | Teleport to course start (debug) | T | — |
+
+On foot you walk or jog with the same steering, and your horse follows
+along on the lead. Walk it anywhere on the ranch, then hop back on —
+the RIDE button appears whenever the horse is beside you.
 
 The touch joystick and JUMP button appear automatically on touch devices
 (and on any browser window narrower than ~800dp).

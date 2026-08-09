@@ -11,6 +11,7 @@ public class Lwjgl3Launcher {
         // debug: --screenshot <path> [seconds] renders briefly, saves a PNG and exits
         for (int i = 0; i < args.length; i++) {
             if ("--console".equals(args[i])) HorseGame.openConsoleOnStart = true;
+            if ("--walk".equals(args[i])) HorseGame.startDismounted = true;
         }
         for (int i = 0; i < args.length - 1; i++) {
             if ("--look".equals(args[i])) {
