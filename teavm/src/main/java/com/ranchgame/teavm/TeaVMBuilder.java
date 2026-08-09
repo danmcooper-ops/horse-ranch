@@ -48,7 +48,13 @@ public class TeaVMBuilder {
                 // page is hidden at load; fall back to a timer so the game still starts.
                 + "<script>if(document.visibilityState==='hidden'){"
                 + "window.requestAnimationFrame=function(cb){return setTimeout(function(){"
-                + "cb(performance.now());},16);};}</script>\n";
+                + "cb(performance.now());},16);};}\n"
+                // surface fatal startup errors on screen (mobile browsers hide the console)
+                + "window.addEventListener('error',function(e){var d=document.createElement('div');"
+                + "d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99;background:#b00;"
+                + "color:#fff;font:12px monospace;padding:6px;white-space:pre-wrap;';"
+                + "d.textContent='Error: '+(e.message||'unknown');document.body.appendChild(d);});"
+                + "</script>\n";
         html = html.replace("<title>gdx-teavm</title>", "<title>Horse Ranch</title>");
         if (html.contains("</head>")) {
             html = html.replace("</head>", inject + "</head>");

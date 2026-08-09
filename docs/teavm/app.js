@@ -33728,6 +33728,7 @@ cr_HorseGame_screenshotPath = null,
 cr_HorseGame_screenshotDelay = 0.0,
 cr_HorseGame_openConsoleOnStart = 0,
 cr_HorseGame_presetLook = null,
+cr_HorseGame_touchDevice = 0,
 cr_HorseGame_$callClinit = () => {
     cr_HorseGame_$callClinit = $rt_eraseClinit(cr_HorseGame);
     cr_HorseGame__clinit_();
@@ -53249,8 +53250,11 @@ crt_TeaVMLauncher_$callClinit = () => {
     crt_TeaVMLauncher__clinit_();
 },
 crt_TeaVMLauncher_main = $args => {
-    let $config;
+    let var$2, $config;
     crt_TeaVMLauncher_$callClinit();
+    var$2 = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 1 : 0;
+    cr_HorseGame_$callClinit();
+    cr_HorseGame_touchDevice = var$2;
     $config = cgxgbt_TeaApplicationConfiguration__init_0($rt_s(934));
     $config.$width3 = 0;
     $config.$height2 = 0;
@@ -53841,19 +53845,29 @@ crs_RanchScreen__init_0 = () => {
     return var_0;
 },
 crs_RanchScreen_updateTouchMode = ($this, $width) => {
-    let var$2, $touch, var$4, $smallWeb;
+    let var$2, var$3, $touch, var$5, $smallWeb;
     a: {
-        var$2 = cbg_Gdx_input;
-        cbg_Input$Peripheral_$callClinit();
-        $touch = var$2.$isPeripheralAvailable(cbg_Input$Peripheral_MultitouchScreen);
-        var$2 = cbg_Gdx_app.$getType1();
-        cbg_Application$ApplicationType_$callClinit();
-        if (var$2 === cbg_Application$ApplicationType_WebGL) {
-            var$4 = $width;
-            var$2 = cbg_Gdx_graphics;
-            if (var$4 / jl_Math_max(1.0, var$2.$getDensity()) < 800.0) {
-                $smallWeb = 1;
+        cr_HorseGame_$callClinit();
+        if (!cr_HorseGame_touchDevice) {
+            var$2 = cbg_Gdx_input;
+            cbg_Input$Peripheral_$callClinit();
+            var$3 = cbg_Input$Peripheral_MultitouchScreen;
+            if (!var$2.$isPeripheralAvailable(var$3)) {
+                $touch = 0;
                 break a;
+            }
+        }
+        $touch = 1;
+    }
+    b: {
+        var$3 = cbg_Gdx_app.$getType1();
+        cbg_Application$ApplicationType_$callClinit();
+        if (var$3 === cbg_Application$ApplicationType_WebGL) {
+            var$5 = $width;
+            var$3 = cbg_Gdx_graphics;
+            if (var$5 / jl_Math_max(1.0, var$3.$getDensity()) < 800.0) {
+                $smallWeb = 1;
+                break b;
             }
         }
         $smallWeb = 0;

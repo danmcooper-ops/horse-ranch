@@ -141,7 +141,8 @@ public class RanchScreen extends ScreenAdapter {
     }
 
     private void updateTouchMode(int width) {
-        boolean touch = Gdx.input.isPeripheralAvailable(Input.Peripheral.MultitouchScreen);
+        boolean touch = com.ranchgame.HorseGame.touchDevice
+                || Gdx.input.isPeripheralAvailable(Input.Peripheral.MultitouchScreen);
         boolean smallWeb = Gdx.app.getType() == Application.ApplicationType.WebGL
                 && width / Math.max(1f, Gdx.graphics.getDensity()) < 800f;
         hud.setTouchVisible(touch || smallWeb);

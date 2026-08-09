@@ -17,6 +17,12 @@ public class HorseGame extends Game {
     public static boolean openConsoleOnStart;
     /** Debug aid: force appearance indices (coat,mane,tack,pad,shirt,pants,hair). */
     public static int[] presetLook;
+    /**
+     * True when the platform launcher detected a touch device (set by the
+     * web launcher via navigator.maxTouchPoints; the backend's own
+     * peripheral query is unreliable there).
+     */
+    public static boolean touchDevice;
 
     @Override
     public void create() {
