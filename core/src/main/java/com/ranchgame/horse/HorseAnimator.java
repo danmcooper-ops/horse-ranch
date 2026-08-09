@@ -79,7 +79,7 @@ public class HorseAnimator {
     /** Idle grazing pose for pasture horses: head down, slow bob and tail swish. */
     public void graze(float x, float z, float yawDeg, float delta) {
         time += delta;
-        neck.rotation.setFromAxis(Vector3.X, 52f + MathUtils.sin(time * 0.7f) * 7f);
+        neck.rotation.setFromAxis(Vector3.X, 64f + MathUtils.sin(time * 0.7f) * 7f);
         tail.rotation.setFromAxis(0f, 0f, 1f, MathUtils.sin(time * 1.1f) * 10f);
         instance.calculateTransforms();
         instance.transform.setToRotation(Vector3.Y, yawDeg).setTranslation(x, 0f, z);

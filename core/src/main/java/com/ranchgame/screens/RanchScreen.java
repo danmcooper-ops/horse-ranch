@@ -147,6 +147,9 @@ public class RanchScreen extends ScreenAdapter {
             walker.position.set(horse.position).add(tmp.z * 1.2f, 0f, -tmp.x * 1.2f);
             walker.yaw = horse.yaw;
             horseAnimator.setRiderVisible(false);
+            // stage the pair facing each other for a clear screenshot
+            horse.position.set(walker.position).mulAdd(walker.forward(tmp), 5f);
+            horse.yaw = walker.yaw + 180f;
         }
 
         Gdx.input.setInputProcessor(hud.stage);
@@ -226,10 +229,11 @@ public class RanchScreen extends ScreenAdapter {
         } else {
             walker.update(delta, turn, gaitUp, gaitDown);
             resolveEntity(walker.position, Walker.RADIUS);
-            // the horse trails behind on the lead
+            // the horse walks at the rider's side-back on the lead
+            // (well off the camera axis so it never blocks the view)
             walker.forward(tmp);
-            float tx = walker.position.x - tmp.x * 1.9f + tmp.z * 0.7f;
-            float tz = walker.position.z - tmp.z * 1.9f - tmp.x * 0.7f;
+            float tx = walker.position.x - tmp.x * 1.1f + tmp.z * 1.4f;
+            float tz = walker.position.z - tmp.z * 1.1f - tmp.x * 1.4f;
             horse.updateFollow(delta, tx, tz);
             resolveEntity(horse.position, Horse.RADIUS);
             // course crossings can't happen on foot, but a running clock keeps ticking

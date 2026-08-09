@@ -10,7 +10,7 @@ two targets:
 - **Browser build** (plays on iPhone, Android and any PC browser) via TeaVM —
   no plugins, just a static web page
 
-Explore a low-poly ranch on horseback, work through the gaits from walk to
+Explore the ranch on horseback as a young rider and her horse, work through the gaits from walk to
 gallop, and ride the show-jumping course against the clock. Your best total
 time is saved between sessions.
 
