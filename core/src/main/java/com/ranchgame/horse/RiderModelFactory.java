@@ -52,9 +52,12 @@ public final class RiderModelFactory {
         ball(det, -0.045f, 0.71f, 0.105f, 0.016f, 0.018f, 0.012f);     // eye L
         MeshPartBuilder hair = mb.part("hair", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
-        ball(hair, 0f, 0.74f, -0.03f, 0.115f, 0.11f, 0.115f);          // hair cap
         ballX(hair, 0f, 0.58f, -0.15f, 0.055f, 0.16f, 0.06f, 14f);     // ponytail
         ballX(hair, 0f, 0.40f, -0.19f, 0.04f, 0.12f, 0.045f, 8f);      // ponytail tip
+        MeshPartBuilder helm = mb.part("helmet", GL20.GL_TRIANGLES, ATTRS,
+                mat("helmet", new Color(0.16f, 0.17f, 0.22f, 1f)));
+        ball(helm, 0f, 0.755f, -0.01f, 0.117f, 0.10f, 0.122f);         // helmet dome
+        ballX(helm, 0f, 0.715f, 0.105f, 0.088f, 0.02f, 0.07f, -8f);    // brim
 
         // --- Arms (pivot at the shoulder) ----------------------------------
         buildArm(mb, "armL", -0.20f);

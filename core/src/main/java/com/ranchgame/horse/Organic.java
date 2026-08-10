@@ -18,7 +18,7 @@ final class Organic {
     static void ball(MeshPartBuilder p, float cx, float cy, float cz,
                      float rx, float ry, float rz) {
         p.setVertexTransform(M.setToTranslation(cx, cy, cz));
-        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 14, 10);
+        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 28, 18);
         p.setVertexTransform(null);
     }
 
@@ -26,7 +26,7 @@ final class Organic {
     static void ballX(MeshPartBuilder p, float cx, float cy, float cz,
                       float rx, float ry, float rz, float pitchDeg) {
         p.setVertexTransform(M.setToTranslation(cx, cy, cz).rotate(Vector3.X, pitchDeg));
-        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 14, 10);
+        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 28, 18);
         p.setVertexTransform(null);
     }
 
@@ -34,7 +34,7 @@ final class Organic {
     static void ballZ(MeshPartBuilder p, float cx, float cy, float cz,
                       float rx, float ry, float rz, float rollDeg) {
         p.setVertexTransform(M.setToTranslation(cx, cy, cz).rotate(Vector3.Z, rollDeg));
-        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 14, 10);
+        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 28, 18);
         p.setVertexTransform(null);
     }
 
@@ -42,7 +42,7 @@ final class Organic {
     static void puck(MeshPartBuilder p, float cx, float cy, float cz,
                      float radius, float height) {
         p.setVertexTransform(M.setToTranslation(cx, cy, cz));
-        CylinderShapeBuilder.build(p, radius * 2f, height, radius * 2f, 12);
+        CylinderShapeBuilder.build(p, radius * 2f, height, radius * 2f, 20);
         p.setVertexTransform(null);
     }
 }

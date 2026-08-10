@@ -86,22 +86,27 @@ public final class HorseModelFactory {
         MeshPartBuilder mn = mb.part("mane", GL20.GL_TRIANGLES, ATTRS, mat("mane", maneColor));
         ballZ(mn, 0.05f, 0.84f, 0.50f, 0.028f, 0.09f, 0.05f, -16f);   // ear R
         ballZ(mn, -0.05f, 0.84f, 0.50f, 0.028f, 0.09f, 0.05f, 16f);   // ear L
-        ballX(mn, 0f, 0.76f, 0.62f, 0.055f, 0.05f, 0.10f, -25f);      // forelock
-        // mane lumps flowing down the crest
-        ballX(mn, 0f, 0.70f, 0.44f, 0.055f, 0.13f, 0.09f, 35f);
-        ballX(mn, 0f, 0.50f, 0.28f, 0.06f, 0.15f, 0.09f, 38f);
-        ballX(mn, 0f, 0.28f, 0.12f, 0.06f, 0.15f, 0.09f, 40f);
-        ballX(mn, 0f, 0.06f, -0.05f, 0.055f, 0.14f, 0.09f, 42f);
+        ball(mn, 0f, 0.78f, 0.60f, 0.042f, 0.045f, 0.05f);            // braided forelock knob
+        // button braids: a row of tight knobs along the crest
+        for (int i = 0; i < 8; i++) {
+            float ft = i / 7f;
+            float y = 0.72f - 0.68f * ft;
+            float z = 0.46f - 0.53f * ft;
+            ball(mn, 0f, y, z, 0.05f, 0.058f, 0.052f);
+        }
 
         // --- Tail ----------------------------------------------------------
         Node tail = mb.node();
         tail.id = "tail";
         tail.translation.set(0f, 1.5f, -0.88f);
         MeshPartBuilder t = mb.part("tail", GL20.GL_TRIANGLES, ATTRS, mat("mane_tail", maneColor));
-        ballX(t, 0f, -0.06f, -0.02f, 0.075f, 0.16f, 0.09f, 18f);
-        ballX(t, 0f, -0.3f, -0.09f, 0.075f, 0.24f, 0.09f, 8f);
-        ballX(t, 0f, -0.62f, -0.13f, 0.06f, 0.22f, 0.07f, 4f);
-        ballX(t, 0f, -0.88f, -0.15f, 0.045f, 0.16f, 0.05f, 0f);
+        // braided tail: a tapering column of knots with a tassel at the tip
+        ball(t, 0f, -0.06f, -0.03f, 0.075f, 0.09f, 0.08f);
+        ball(t, 0f, -0.22f, -0.07f, 0.068f, 0.09f, 0.072f);
+        ball(t, 0f, -0.38f, -0.10f, 0.06f, 0.085f, 0.064f);
+        ball(t, 0f, -0.53f, -0.12f, 0.052f, 0.08f, 0.056f);
+        ball(t, 0f, -0.67f, -0.135f, 0.045f, 0.075f, 0.048f);
+        ballX(t, 0f, -0.82f, -0.145f, 0.036f, 0.1f, 0.038f, 2f);   // tassel
 
         // --- Legs (pivot at shoulder / hip) --------------------------------
         buildLeg(mb, "legFL", -0.20f, 0.45f, false, bodyColor, hoof, coat);
@@ -145,9 +150,12 @@ public final class HorseModelFactory {
             ball(rdet, -0.045f, 0.67f, 0.115f, 0.016f, 0.018f, 0.012f);    // eye L
             MeshPartBuilder hair = mb.part("riderHair", GL20.GL_TRIANGLES, ATTRS,
                     mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
-            ball(hair, 0f, 0.70f, -0.02f, 0.115f, 0.11f, 0.115f);          // hair cap
             ballX(hair, 0f, 0.55f, -0.14f, 0.055f, 0.15f, 0.06f, 18f);     // ponytail
             ballX(hair, 0f, 0.38f, -0.19f, 0.04f, 0.11f, 0.045f, 10f);     // ponytail tip
+            MeshPartBuilder helm = mb.part("riderHelmet", GL20.GL_TRIANGLES, ATTRS,
+                    mat("helmet", new Color(0.16f, 0.17f, 0.22f, 1f)));
+            ball(helm, 0f, 0.715f, 0f, 0.117f, 0.10f, 0.122f);             // helmet dome
+            ballX(helm, 0f, 0.675f, 0.115f, 0.088f, 0.02f, 0.07f, -8f);    // brim
         }
 
         return mb.end();
@@ -180,8 +188,8 @@ public final class HorseModelFactory {
      */
     private static Material coatMat(String id, Texture coat, Color tint) {
         TextureAttribute ta = TextureAttribute.createDiffuse(coat);
-        ta.scaleU = 1.5f;
-        ta.scaleV = 1.5f;
+        ta.scaleU = 1f;
+        ta.scaleV = 1f;
         return new Material(id, ta, ColorAttribute.createDiffuse(tint));
     }
 }
