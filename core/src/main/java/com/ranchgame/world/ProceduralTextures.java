@@ -16,6 +16,8 @@ public class ProceduralTextures implements Disposable {
 
     public final Texture grass;
     public final Texture dirt;
+    /** Painterly cobblestones with grassy grout, Star Stable style. */
+    public final Texture cobble;
     public final Texture wood;
     public final Texture planks;
     public final Texture shingles;
@@ -30,10 +32,12 @@ public class ProceduralTextures implements Disposable {
     public ProceduralTextures() {
         grass = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
-                float l = 0.84f + n1 * 0.26f + n2 * 0.12f;
-                return new Color(0.33f * l, 0.55f * l, 0.24f * l, 1f);
+                // bold painterly blotches in a warm saturated spring green
+                float l = 0.86f + n1 * 0.34f + n2 * 0.1f;
+                return new Color(0.32f * l, 0.60f * l, 0.22f * l, 1f);
             }
         }, 11, 5, 20260722L);
+        cobble = makeCobble();
         dirt = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
                 float l = 0.85f + n1 * 0.22f + n2 * 0.18f;
@@ -72,11 +76,78 @@ public class ProceduralTextures implements Disposable {
         }, 13, 6, 3434L);
         coat = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
-                float l = 0.95f + n1 * 0.05f + n2 * 0.025f;   // subtle dapple, tint later
+                // soft base shading plus clustered lighter dapple spots
+                float spot = MathUtils.clamp((n2 - 0.1f) / 0.09f, 0f, 1f);
+                spot = spot * spot * (3f - 2f * spot);
+                float l = 0.93f + n1 * 0.05f + spot * 0.075f;
                 return new Color(l, l * 0.995f, l * 0.985f, 1f);
             }
         }, 9, 14, 606L);
         sky = makeSky();
+    }
+
+    /**
+     * Worley-noise cobblestones: warm grey stones of varied tone with dark
+     * grassy grout between them, wrapping seamlessly.
+     */
+    private static Texture makeCobble() {
+        int size = 256;
+        int cells = 6;
+        RandomXS128 rng = new RandomXS128(4242L);
+        float[][] ptx = new float[cells][cells];
+        float[][] pty = new float[cells][cells];
+        float[][] tone = new float[cells][cells];
+        for (int cy = 0; cy < cells; cy++) {
+            for (int cx = 0; cx < cells; cx++) {
+                ptx[cy][cx] = (cx + 0.2f + rng.nextFloat() * 0.6f) / cells;
+                pty[cy][cx] = (cy + 0.2f + rng.nextFloat() * 0.6f) / cells;
+                tone[cy][cx] = rng.nextFloat();
+            }
+        }
+        float[][] n = noiseGrid(24, 999L);
+        Pixmap pm = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pm.setBlending(Pixmap.Blending.None);
+        Color grout = new Color(0.33f, 0.36f, 0.26f, 1f);
+        Color c = new Color();
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                float fx = x / (float) size;
+                float fy = y / (float) size;
+                int cellX = (int) (fx * cells);
+                int cellY = (int) (fy * cells);
+                float f1 = Float.MAX_VALUE, f2 = Float.MAX_VALUE;
+                float nearTone = 0f;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int nx = ((cellX + dx) % cells + cells) % cells;
+                        int ny = ((cellY + dy) % cells + cells) % cells;
+                        // shift the wrapped point into this neighborhood
+                        float px = ptx[ny][nx] + (cellX + dx < 0 ? -1f : cellX + dx >= cells ? 1f : 0f);
+                        float py = pty[ny][nx] + (cellY + dy < 0 ? -1f : cellY + dy >= cells ? 1f : 0f);
+                        float d = (fx - px) * (fx - px) + (fy - py) * (fy - py);
+                        if (d < f1) {
+                            f2 = f1;
+                            f1 = d;
+                            nearTone = tone[ny][nx];
+                        } else if (d < f2) {
+                            f2 = d;
+                        }
+                    }
+                }
+                float edge = (float) (Math.sqrt(f2) - Math.sqrt(f1));
+                float t = MathUtils.clamp((edge - 0.008f) / 0.022f, 0f, 1f);
+                t = t * t * (3f - 2f * t);
+                float l = 0.6f + nearTone * 0.38f + sampleAt(n, x, y, size) * 0.15f;
+                c.set(0.74f * l, 0.71f * l, 0.66f * l, 1f).lerp(grout, 1f - t);
+                pm.setColor(c);
+                pm.drawPixel(x, y);
+            }
+        }
+        Texture t = new Texture(pm, true);
+        pm.dispose();
+        t.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+        t.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        return t;
     }
 
     private static final Color ZENITH = new Color(0.3f, 0.55f, 0.86f, 1f);
@@ -140,9 +211,13 @@ public class ProceduralTextures implements Disposable {
     }
 
     private static float sample(float[][] g, int px, int py) {
+        return sampleAt(g, px, py, S);
+    }
+
+    private static float sampleAt(float[][] g, int px, int py, int size) {
         int cells = g.length;
-        float fx = px * (float) cells / S;
-        float fy = py * (float) cells / S;
+        float fx = px * (float) cells / size;
+        float fy = py * (float) cells / size;
         int x0 = (int) fx, y0 = (int) fy;
         float tx = smooth(fx - x0), ty = smooth(fy - y0);
         int x1 = (x0 + 1) % cells, y1 = (y0 + 1) % cells;
@@ -161,6 +236,7 @@ public class ProceduralTextures implements Disposable {
     public void dispose() {
         grass.dispose();
         dirt.dispose();
+        cobble.dispose();
         wood.dispose();
         planks.dispose();
         shingles.dispose();

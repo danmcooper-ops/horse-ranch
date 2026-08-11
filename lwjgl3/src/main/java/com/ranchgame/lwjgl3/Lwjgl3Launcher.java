@@ -16,8 +16,8 @@ public class Lwjgl3Launcher {
         for (int i = 0; i < args.length - 1; i++) {
             if ("--look".equals(args[i])) {
                 String[] parts = args[i + 1].split(",");
-                int[] look = new int[7];
-                for (int k = 0; k < 7 && k < parts.length; k++) {
+                int[] look = new int[Math.max(10, parts.length)];
+                for (int k = 0; k < parts.length; k++) {
                     look[k] = Integer.parseInt(parts[k].trim());
                 }
                 HorseGame.presetLook = look;

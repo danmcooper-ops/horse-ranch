@@ -11,8 +11,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.MathUtils;
 
 import static com.ranchgame.horse.Organic.ball;
+import static com.ranchgame.horse.Organic.ballLow;
+import static com.ranchgame.horse.Organic.ballLowX;
 import static com.ranchgame.horse.Organic.ballX;
 import static com.ranchgame.horse.Organic.ballZ;
 import static com.ranchgame.horse.Organic.puck;
@@ -63,6 +66,13 @@ public final class HorseModelFactory {
             // girth strap around the barrel
             ballZ(sd, 0.30f, 0.18f, 0.06f, 0.03f, 0.30f, 0.09f, 8f);
             ballZ(sd, -0.30f, 0.18f, 0.06f, 0.03f, 0.30f, 0.09f, -8f);
+            // stirrup leathers + metal irons
+            ballZ(sd, 0.33f, 0.36f, 0.02f, 0.022f, 0.16f, 0.05f, 6f);
+            ballZ(sd, -0.33f, 0.36f, 0.02f, 0.022f, 0.16f, 0.05f, -6f);
+            MeshPartBuilder iron = mb.part("stirrups", GL20.GL_TRIANGLES, ATTRS,
+                    mat("stirrup_metal", new Color(0.72f, 0.74f, 0.78f, 1f)));
+            ballLow(iron, 0.34f, 0.20f, 0.02f, 0.045f, 0.055f, 0.02f);
+            ballLow(iron, -0.34f, 0.20f, 0.02f, 0.045f, 0.055f, 0.02f);
         }
 
         // --- Neck + head (pivot at the neck base) --------------------------
@@ -79,10 +89,43 @@ public final class HorseModelFactory {
         MeshPartBuilder mz = mb.part("muzzle", GL20.GL_TRIANGLES, ATTRS, mat("muzzle", muzzle));
         ballX(mz, 0f, 0.565f, 0.78f, 0.07f, 0.085f, 0.14f, -30f);
         MeshPartBuilder det = mb.part("detail", GL20.GL_TRIANGLES, ATTRS, mat("detail", DETAIL));
-        ball(det, 0.105f, 0.68f, 0.64f, 0.03f, 0.036f, 0.03f);     // eye R
-        ball(det, -0.105f, 0.68f, 0.64f, 0.03f, 0.036f, 0.03f);    // eye L
+        ball(det, 0.105f, 0.68f, 0.64f, 0.033f, 0.04f, 0.033f);    // eye R
+        ball(det, -0.105f, 0.68f, 0.64f, 0.033f, 0.04f, 0.033f);   // eye L
         ball(det, 0.04f, 0.545f, 0.875f, 0.016f, 0.02f, 0.016f);   // nostril R
         ball(det, -0.04f, 0.545f, 0.875f, 0.016f, 0.02f, 0.016f);  // nostril L
+        MeshPartBuilder glint = mb.part("eyeGlint", GL20.GL_TRIANGLES, ATTRS,
+                mat("eye_glint", new Color(0.95f, 0.95f, 0.98f, 1f)));
+        ballLow(glint, 0.118f, 0.695f, 0.655f, 0.01f, 0.012f, 0.01f);   // catchlight R
+        ballLow(glint, -0.118f, 0.695f, 0.655f, 0.01f, 0.012f, 0.01f);  // catchlight L
+
+        // face markings, toggled by the customize console via NodePart.enabled
+        MeshPartBuilder star = mb.part("markingStar", GL20.GL_TRIANGLES, ATTRS,
+                mat("marking", new Color(0.96f, 0.95f, 0.92f, 1f)));
+        ballLowX(star, 0f, 0.755f, 0.71f, 0.045f, 0.05f, 0.02f, -30f);
+        MeshPartBuilder blaze = mb.part("markingBlaze", GL20.GL_TRIANGLES, ATTRS,
+                mat("marking", new Color(0.96f, 0.95f, 0.92f, 1f)));
+        ballLowX(blaze, 0f, 0.75f, 0.715f, 0.035f, 0.085f, 0.025f, -32f);
+        ballLowX(blaze, 0f, 0.63f, 0.80f, 0.03f, 0.09f, 0.028f, -38f);
+
+        if (withRider) {
+            // bridle: flat straps that hug the head, plus thin rein ropes
+            MeshPartBuilder br = mb.part("bridle", GL20.GL_TRIANGLES, ATTRS,
+                    mat("tack_leather_bridle", new Color(0.45f, 0.2f, 0.12f, 1f)));
+            ballLowX(br, 0f, 0.575f, 0.79f, 0.082f, 0.022f, 0.152f, -32f);     // noseband
+            ballLowX(br, 0.093f, 0.655f, 0.68f, 0.011f, 0.065f, 0.013f, -32f); // cheek strap R
+            ballLowX(br, -0.093f, 0.655f, 0.68f, 0.011f, 0.065f, 0.013f, -32f);// cheek strap L
+            ballLow(br, 0f, 0.75f, 0.555f, 0.10f, 0.012f, 0.035f);             // browband
+            // reins: thin rope segments hugging the neck sides down to the withers
+            for (int i = 0; i < 8; i++) {
+                float ft = i / 7f;
+                float sag = MathUtils.sin(ft * MathUtils.PI) * 0.05f;
+                float y = 0.55f * (1f - ft) + 0.16f * ft - sag;
+                float z = 0.78f * (1f - ft) + 0.06f * ft;
+                float x = 0.09f + 0.035f * MathUtils.sin(ft * MathUtils.PI);
+                ballLowX(br, x, y, z, 0.009f, 0.014f, 0.055f, -28f);
+                ballLowX(br, -x, y, z, 0.009f, 0.014f, 0.055f, -28f);
+            }
+        }
         MeshPartBuilder mn = mb.part("mane", GL20.GL_TRIANGLES, ATTRS, mat("mane", maneColor));
         ballZ(mn, 0.05f, 0.84f, 0.50f, 0.028f, 0.09f, 0.05f, -16f);   // ear R
         ballZ(mn, -0.05f, 0.84f, 0.50f, 0.028f, 0.09f, 0.05f, 16f);   // ear L
@@ -131,31 +174,45 @@ public final class HorseModelFactory {
                     mat("rider_boots", new Color(0.3f, 0.18f, 0.1f, 1f)));
             ball(boots, 0.29f, -0.42f, 0.20f, 0.05f, 0.07f, 0.12f);
             ball(boots, -0.29f, -0.42f, 0.20f, 0.05f, 0.07f, 0.12f);
+            ballX(boots, 0.285f, -0.30f, 0.165f, 0.052f, 0.115f, 0.06f, 10f);  // shaft R
+            ballX(boots, -0.285f, -0.30f, 0.165f, 0.052f, 0.115f, 0.06f, 10f); // shaft L
+            MeshPartBuilder bootTop = mb.part("bootTops", GL20.GL_TRIANGLES, ATTRS,
+                    mat("boot_top", new Color(0.9f, 0.85f, 0.78f, 1f)));
+            ballLow(bootTop, 0.285f, -0.185f, 0.15f, 0.054f, 0.024f, 0.062f);
+            ballLow(bootTop, -0.285f, -0.185f, 0.15f, 0.054f, 0.024f, 0.062f);
 
             MeshPartBuilder shirt = mb.part("riderTorso", GL20.GL_TRIANGLES, ATTRS,
-                    mat("rider_shirt", new Color(0.25f, 0.55f, 0.85f, 1f)));
-            ball(shirt, 0f, 0.30f, 0f, 0.145f, 0.26f, 0.115f);            // torso
+                    mat("rider_shirt", new Color(0.45f, 0.55f, 0.72f, 1f)));
+            ball(shirt, 0f, 0.30f, 0f, 0.145f, 0.26f, 0.115f);            // jacket torso
+            ball(shirt, 0f, 0.06f, -0.02f, 0.165f, 0.09f, 0.135f);        // jacket skirt flare
             ballX(shirt, 0.185f, 0.36f, 0.03f, 0.05f, 0.16f, 0.055f, -20f); // upper arm R
             ballX(shirt, -0.185f, 0.36f, 0.03f, 0.05f, 0.16f, 0.055f, -20f);// upper arm L
+            MeshPartBuilder trim = mb.part("jacketTrim", GL20.GL_TRIANGLES, ATTRS,
+                    mat("jacket_trim", new Color(0.93f, 0.85f, 0.78f, 1f)));
+            ballZ(trim, 0.05f, 0.47f, 0.10f, 0.042f, 0.072f, 0.02f, -24f);  // lapel R
+            ballZ(trim, -0.05f, 0.47f, 0.10f, 0.042f, 0.072f, 0.02f, 24f);  // lapel L
+            ballLow(trim, 0.19f, 0.225f, 0.10f, 0.052f, 0.028f, 0.056f);    // cuff R
+            ballLow(trim, -0.19f, 0.225f, 0.10f, 0.052f, 0.028f, 0.056f);   // cuff L
+            MeshPartBuilder buttons = mb.part("jacketButtons", GL20.GL_TRIANGLES, ATTRS,
+                    mat("buttons", new Color(0.82f, 0.66f, 0.32f, 1f)));
+            ballLow(buttons, 0f, 0.42f, 0.118f, 0.013f, 0.013f, 0.008f);
+            ballLow(buttons, 0f, 0.34f, 0.121f, 0.013f, 0.013f, 0.008f);
+            ballLow(buttons, 0f, 0.26f, 0.118f, 0.013f, 0.013f, 0.008f);
             MeshPartBuilder skin = mb.part("riderSkin", GL20.GL_TRIANGLES, ATTRS,
                     mat("rider_skin", new Color(0.94f, 0.78f, 0.62f, 1f)));
             ballX(skin, 0.19f, 0.17f, 0.16f, 0.042f, 0.14f, 0.05f, -42f);  // forearm R
             ballX(skin, -0.19f, 0.17f, 0.16f, 0.042f, 0.14f, 0.05f, -42f); // forearm L
-            ball(skin, 0.17f, 0.07f, 0.27f, 0.045f, 0.045f, 0.05f);        // hand R
-            ball(skin, -0.17f, 0.07f, 0.27f, 0.045f, 0.045f, 0.05f);       // hand L
             ball(skin, 0f, 0.66f, 0.02f, 0.105f, 0.115f, 0.105f);          // head
-            MeshPartBuilder rdet = mb.part("riderDetail", GL20.GL_TRIANGLES, ATTRS,
-                    mat("detail", DETAIL));
-            ball(rdet, 0.045f, 0.67f, 0.115f, 0.016f, 0.018f, 0.012f);     // eye R
-            ball(rdet, -0.045f, 0.67f, 0.115f, 0.016f, 0.018f, 0.012f);    // eye L
+            MeshPartBuilder glove = mb.part("gloves", GL20.GL_TRIANGLES, ATTRS,
+                    mat("gloves", new Color(0.92f, 0.9f, 0.86f, 1f)));
+            ballLow(glove, 0.17f, 0.07f, 0.27f, 0.045f, 0.045f, 0.05f);    // hand R
+            ballLow(glove, -0.17f, 0.07f, 0.27f, 0.045f, 0.045f, 0.05f);   // hand L
+            RiderBits.buildFace(mb, 0f, 0.66f, 0.02f);
             MeshPartBuilder hair = mb.part("riderHair", GL20.GL_TRIANGLES, ATTRS,
                     mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
             ballX(hair, 0f, 0.55f, -0.14f, 0.055f, 0.15f, 0.06f, 18f);     // ponytail
             ballX(hair, 0f, 0.38f, -0.19f, 0.04f, 0.11f, 0.045f, 10f);     // ponytail tip
-            MeshPartBuilder helm = mb.part("riderHelmet", GL20.GL_TRIANGLES, ATTRS,
-                    mat("helmet", new Color(0.16f, 0.17f, 0.22f, 1f)));
-            ball(helm, 0f, 0.715f, 0f, 0.117f, 0.10f, 0.122f);             // helmet dome
-            ballX(helm, 0f, 0.675f, 0.115f, 0.088f, 0.02f, 0.07f, -8f);    // brim
+            RiderBits.buildHelmet(mb, 0f, 0.715f, 0f);
         }
 
         return mb.end();
@@ -173,6 +230,12 @@ public final class HorseModelFactory {
         ball(l, 0f, -0.42f, 0f, 0.062f, 0.09f, 0.07f);                              // knee/hock
         ball(l, 0f, -0.62f, 0f, 0.048f, 0.20f, 0.052f);                             // cannon
         ball(l, 0f, -0.82f, 0.01f, 0.055f, 0.06f, 0.06f);                           // fetlock
+        // leg wraps: stacked bands over the cannon, toggled by the console
+        MeshPartBuilder w = mb.part("wrap_" + id, GL20.GL_TRIANGLES, ATTRS,
+                mat("wraps", new Color(0.93f, 0.72f, 0.72f, 1f)));
+        ballLow(w, 0f, -0.56f, 0f, 0.057f, 0.05f, 0.061f);
+        ballLow(w, 0f, -0.64f, 0f, 0.058f, 0.05f, 0.062f);
+        ballLow(w, 0f, -0.72f, 0f, 0.06f, 0.05f, 0.064f);
         MeshPartBuilder h = mb.part(id + "Hoof", GL20.GL_TRIANGLES, ATTRS,
                 mat("hoof_" + id, hoofColor));
         puck(h, 0f, -0.905f, 0.015f, 0.068f, 0.09f);

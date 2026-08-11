@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.ranchgame.horse.HorseAppearance;
@@ -39,6 +40,7 @@ public class CustomizeConsole {
     private final HorseAppearance appearance;
     private final Listener listener;
     private final TextureRegionDrawable white;
+    private final Drawable panelBackground;
     private final Label.LabelStyle captionStyle;
     private final Image button;
     private final Table panel;
@@ -48,11 +50,13 @@ public class CustomizeConsole {
     private boolean open;
 
     public CustomizeConsole(Stage stage, HorseAppearance appearance, Texture whiteTex,
-                            Texture dotsTex, Label.LabelStyle captionStyle,
+                            Texture dotsTex, Drawable panelBackground,
+                            Label.LabelStyle captionStyle,
                             Label.LabelStyle titleStyle, Listener listener) {
         this.appearance = appearance;
         this.listener = listener;
         this.captionStyle = captionStyle;
+        this.panelBackground = panelBackground;
         this.white = new TextureRegionDrawable(new TextureRegion(whiteTex));
 
         // --- "..." button -------------------------------------------------
@@ -95,6 +99,18 @@ public class CustomizeConsole {
             public int get() { return CustomizeConsole.this.appearance.hair; }
             public void set(int i) { CustomizeConsole.this.appearance.hair = i; }
         });
+        addRow("Helmet", HorseAppearance.HELMET, new Selector() {
+            public int get() { return CustomizeConsole.this.appearance.helmet; }
+            public void set(int i) { CustomizeConsole.this.appearance.helmet = i; }
+        });
+        addRow("Face marking (1st = none)", HorseAppearance.MARKING, new Selector() {
+            public int get() { return CustomizeConsole.this.appearance.marking; }
+            public void set(int i) { CustomizeConsole.this.appearance.marking = i; }
+        });
+        addRow("Leg wraps (1st = none)", HorseAppearance.WRAPS, new Selector() {
+            public int get() { return CustomizeConsole.this.appearance.wraps; }
+            public void set(int i) { CustomizeConsole.this.appearance.wraps = i; }
+        });
 
         // --- panel ---------------------------------------------------------
         ScrollPane scroll = new ScrollPane(rows);
@@ -103,7 +119,7 @@ public class CustomizeConsole {
         scroll.setOverscroll(false, false);
 
         Table doneButton = new Table();
-        doneButton.setBackground(white.tint(new Color(1f, 1f, 1f, 0.22f)));
+        doneButton.setBackground(white.tint(new Color(0.45f, 0.33f, 0.22f, 0.35f)));
         doneButton.add(new Label("Done", captionStyle)).pad(6f, 24f, 6f, 24f);
         doneButton.setTouchable(Touchable.enabled);
         doneButton.addListener(new ClickListener() {
@@ -114,7 +130,7 @@ public class CustomizeConsole {
         });
 
         panel = new Table();
-        panel.setBackground(white.tint(new Color(0.08f, 0.09f, 0.12f, 0.92f)));
+        panel.setBackground(panelBackground);
         panel.pad(14f);
         panel.add(new Label("Customize", titleStyle)).left().padBottom(6f).row();
         scrollCell = panel.add(scroll).growX();
@@ -147,7 +163,7 @@ public class CustomizeConsole {
                 @Override
                 public void run() {
                     cell.setBackground(selector.get() == index
-                            ? white.tint(new Color(1f, 1f, 1f, 0.95f)) : null);
+                            ? white.tint(new Color(0.45f, 0.33f, 0.22f, 0.9f)) : null);
                 }
             });
             swatches.add(cell).padRight(2f);

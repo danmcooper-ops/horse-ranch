@@ -38,6 +38,22 @@ final class Organic {
         p.setVertexTransform(null);
     }
 
+    /** Low-poly ellipsoid for small detail parts (straps, buttons, eyes, petals). */
+    static void ballLow(MeshPartBuilder p, float cx, float cy, float cz,
+                        float rx, float ry, float rz) {
+        p.setVertexTransform(M.setToTranslation(cx, cy, cz));
+        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 12, 8);
+        p.setVertexTransform(null);
+    }
+
+    /** Low-poly ellipsoid pitched around the X axis. */
+    static void ballLowX(MeshPartBuilder p, float cx, float cy, float cz,
+                         float rx, float ry, float rz, float pitchDeg) {
+        p.setVertexTransform(M.setToTranslation(cx, cy, cz).rotate(Vector3.X, pitchDeg));
+        SphereShapeBuilder.build(p, rx * 2f, ry * 2f, rz * 2f, 12, 8);
+        p.setVertexTransform(null);
+    }
+
     /** Squat cylinder (hooves, hat brims). */
     static void puck(MeshPartBuilder p, float cx, float cy, float cz,
                      float radius, float height) {

@@ -72,10 +72,10 @@ public class RanchScreen extends ScreenAdapter {
 
     public RanchScreen() {
         // warm shadow-casting key light + cool fill, soft daylight
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.58f, 0.56f, 0.52f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.62f, 0.59f, 0.53f, 1f));
         environment.set(new ColorAttribute(ColorAttribute.Fog, SKY.r, SKY.g, SKY.b, 1f));
         shadowLight = new DirectionalShadowLight(2048, 2048, 70f, 70f, 1f, 120f);
-        shadowLight.set(0.88f, 0.82f, 0.72f, -0.3f, -0.85f, -0.35f);
+        shadowLight.set(0.95f, 0.86f, 0.7f, -0.3f, -0.85f, -0.35f);
         environment.add(shadowLight);
         environment.shadowMap = shadowLight;
         environment.add(new DirectionalLight().set(0.18f, 0.2f, 0.26f, 0.5f, -0.25f, 0.45f));
@@ -107,6 +107,8 @@ public class RanchScreen extends ScreenAdapter {
                 textures.coat);
         pasture1 = new HorseAnimator(new ModelInstance(pastureModel1));
         pasture2 = new HorseAnimator(new ModelInstance(pastureModel2));
+        HorseAppearance.disableExtras(pasture1.instance());
+        HorseAppearance.disableExtras(pasture2.instance());
 
         skyModel = WorldBuilder.buildSkyDome(textures.sky);
         skyDome = new ModelInstance(skyModel);
@@ -129,6 +131,9 @@ public class RanchScreen extends ScreenAdapter {
             appearance.shirt = p[4];
             appearance.pants = p[5];
             appearance.hair = p[6];
+            if (p.length > 7) appearance.wraps = p[7];
+            if (p.length > 8) appearance.marking = p[8];
+            if (p.length > 9) appearance.helmet = p[9];
         }
         appearance.apply(horseInstance);
         appearance.apply(walker.instance());

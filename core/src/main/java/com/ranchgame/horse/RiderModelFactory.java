@@ -11,7 +11,9 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import static com.ranchgame.horse.Organic.ball;
+import static com.ranchgame.horse.Organic.ballLow;
 import static com.ranchgame.horse.Organic.ballX;
+import static com.ranchgame.horse.Organic.ballZ;
 
 /**
  * The girl on her own two feet, sculpted from smooth ellipsoids with a
@@ -39,25 +41,29 @@ public final class RiderModelFactory {
                 mat("rider_pants", new Color(0.2f, 0.25f, 0.45f, 1f)));
         ball(pants, 0f, 0.05f, 0f, 0.15f, 0.13f, 0.11f);               // hips
         MeshPartBuilder shirt = mb.part("torso", GL20.GL_TRIANGLES, ATTRS,
-                mat("rider_shirt", new Color(0.25f, 0.55f, 0.85f, 1f)));
-        ball(shirt, 0f, 0.30f, 0f, 0.145f, 0.27f, 0.11f);              // torso
+                mat("rider_shirt", new Color(0.45f, 0.55f, 0.72f, 1f)));
+        ball(shirt, 0f, 0.30f, 0f, 0.145f, 0.27f, 0.11f);              // jacket torso
         ball(shirt, 0f, 0.50f, 0f, 0.155f, 0.09f, 0.115f);             // shoulders
+        ball(shirt, 0f, 0.10f, 0f, 0.163f, 0.085f, 0.125f);            // jacket skirt flare
+        MeshPartBuilder trim = mb.part("jacketTrim", GL20.GL_TRIANGLES, ATTRS,
+                mat("jacket_trim", new Color(0.93f, 0.85f, 0.78f, 1f)));
+        ballZ(trim, 0.05f, 0.465f, 0.095f, 0.042f, 0.072f, 0.02f, -24f);  // lapel R
+        ballZ(trim, -0.05f, 0.465f, 0.095f, 0.042f, 0.072f, 0.02f, 24f);  // lapel L
+        MeshPartBuilder buttons = mb.part("jacketButtons", GL20.GL_TRIANGLES, ATTRS,
+                mat("buttons", new Color(0.82f, 0.66f, 0.32f, 1f)));
+        ballLow(buttons, 0f, 0.40f, 0.112f, 0.013f, 0.013f, 0.008f);
+        ballLow(buttons, 0f, 0.32f, 0.116f, 0.013f, 0.013f, 0.008f);
+        ballLow(buttons, 0f, 0.24f, 0.112f, 0.013f, 0.013f, 0.008f);
         MeshPartBuilder skin = mb.part("head", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_skin", new Color(0.94f, 0.78f, 0.62f, 1f)));
         ball(skin, 0f, 0.585f, 0f, 0.045f, 0.055f, 0.045f);            // neck
         ball(skin, 0f, 0.70f, 0.01f, 0.105f, 0.115f, 0.105f);          // head
-        MeshPartBuilder det = mb.part("detail", GL20.GL_TRIANGLES, ATTRS,
-                mat("detail", DETAIL));
-        ball(det, 0.045f, 0.71f, 0.105f, 0.016f, 0.018f, 0.012f);      // eye R
-        ball(det, -0.045f, 0.71f, 0.105f, 0.016f, 0.018f, 0.012f);     // eye L
+        RiderBits.buildFace(mb, 0f, 0.70f, 0.01f);
         MeshPartBuilder hair = mb.part("hair", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
         ballX(hair, 0f, 0.58f, -0.15f, 0.055f, 0.16f, 0.06f, 14f);     // ponytail
         ballX(hair, 0f, 0.40f, -0.19f, 0.04f, 0.12f, 0.045f, 8f);      // ponytail tip
-        MeshPartBuilder helm = mb.part("helmet", GL20.GL_TRIANGLES, ATTRS,
-                mat("helmet", new Color(0.16f, 0.17f, 0.22f, 1f)));
-        ball(helm, 0f, 0.755f, -0.01f, 0.117f, 0.10f, 0.122f);         // helmet dome
-        ballX(helm, 0f, 0.715f, 0.105f, 0.088f, 0.02f, 0.07f, -8f);    // brim
+        RiderBits.buildHelmet(mb, 0f, 0.755f, -0.01f);
 
         // --- Arms (pivot at the shoulder) ----------------------------------
         buildArm(mb, "armL", -0.20f);
@@ -75,13 +81,18 @@ public final class RiderModelFactory {
         arm.id = id;
         arm.translation.set(x * 0.9f, 1.33f, 0f);
         MeshPartBuilder sleeve = mb.part(id, GL20.GL_TRIANGLES, ATTRS,
-                mat("rider_shirt", new Color(0.25f, 0.55f, 0.85f, 1f)));
+                mat("rider_shirt", new Color(0.45f, 0.55f, 0.72f, 1f)));
         ball(sleeve, 0f, -0.02f, 0f, 0.055f, 0.07f, 0.055f);           // shoulder
         ball(sleeve, 0f, -0.13f, 0f, 0.046f, 0.15f, 0.05f);            // upper arm
+        MeshPartBuilder cuff = mb.part(id + "Cuff", GL20.GL_TRIANGLES, ATTRS,
+                mat("jacket_trim", new Color(0.93f, 0.85f, 0.78f, 1f)));
+        ballLow(cuff, 0f, -0.255f, 0f, 0.048f, 0.028f, 0.052f);        // cuff
         MeshPartBuilder skin = mb.part(id + "Skin", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_skin", new Color(0.94f, 0.78f, 0.62f, 1f)));
         ball(skin, 0f, -0.32f, 0f, 0.038f, 0.13f, 0.042f);             // forearm
-        ball(skin, 0f, -0.46f, 0f, 0.042f, 0.052f, 0.042f);            // hand
+        MeshPartBuilder glove = mb.part(id + "Glove", GL20.GL_TRIANGLES, ATTRS,
+                mat("gloves", new Color(0.92f, 0.9f, 0.86f, 1f)));
+        ballLow(glove, 0f, -0.46f, 0f, 0.042f, 0.052f, 0.042f);        // gloved hand
     }
 
     private static void buildLeg(ModelBuilder mb, String id, float x) {
@@ -94,7 +105,11 @@ public final class RiderModelFactory {
         ball(pants, 0f, -0.52f, 0f, 0.055f, 0.20f, 0.06f);             // calf
         MeshPartBuilder boot = mb.part(id + "Boot", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_boots", new Color(0.3f, 0.18f, 0.1f, 1f)));
-        ball(boot, 0f, -0.76f, 0.05f, 0.055f, 0.065f, 0.12f);          // boot
+        ball(boot, 0f, -0.76f, 0.05f, 0.055f, 0.065f, 0.12f);          // foot
+        ball(boot, 0f, -0.60f, 0.01f, 0.058f, 0.15f, 0.062f);          // tall shaft
+        MeshPartBuilder top = mb.part(id + "BootTop", GL20.GL_TRIANGLES, ATTRS,
+                mat("boot_top", new Color(0.9f, 0.85f, 0.78f, 1f)));
+        ballLow(top, 0f, -0.475f, 0.01f, 0.06f, 0.024f, 0.064f);       // pale top band
     }
 
     private static Material mat(String id, Color c) {

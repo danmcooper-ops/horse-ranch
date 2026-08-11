@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -34,6 +36,8 @@ public class Hud implements Disposable {
     private final Texture padBase;
     private final Texture padKnob;
 
+    private Table timerPill;
+    private Table coursePill;
     private final Label gaitLabel;
     private final Label courseLabel;
     private final Label timerLabel;
@@ -50,8 +54,12 @@ public class Hud implements Disposable {
     private boolean actionQueued;
     private boolean actionAvailable;
     private final Texture dots;
+    private final Texture panelTex;
+    private NinePatchDrawable panelBg;
     private final Label.LabelStyle style;
     private final Label.LabelStyle bigStyle;
+    private Label.LabelStyle darkStyle;
+    private Label.LabelStyle darkBigStyle;
     private CustomizeConsole console;
     private boolean touchControlsWanted;
     private boolean jumpQueued;
@@ -80,18 +88,23 @@ public class Hud implements Disposable {
         padBase = circleTexture(120, new Color(1f, 1f, 1f, 0.25f), new Color(1f, 1f, 1f, 0.5f));
         padKnob = circleTexture(56, new Color(1f, 1f, 1f, 0.75f), new Color(1f, 1f, 1f, 0.9f));
         dots = dotsTexture(84);
+        panelTex = panelTexture(64);
+        panelBg = new NinePatchDrawable(new NinePatch(new TextureRegion(panelTex), 20, 20, 20, 20));
 
         style = new Label.LabelStyle(font, Color.WHITE);
         bigStyle = new Label.LabelStyle(bigFont, Color.WHITE);
+        Color ink = new Color(0.32f, 0.24f, 0.16f, 1f);   // warm brown text on cream
+        darkStyle = new Label.LabelStyle(font, ink);
+        darkBigStyle = new Label.LabelStyle(bigFont, ink);
 
-        gaitLabel = new Label("Halt", bigStyle);
-        courseLabel = new Label("", style);
+        gaitLabel = new Label("Halt", darkBigStyle);
+        courseLabel = new Label("", darkStyle);
         courseLabel.setAlignment(Align.center);
-        timerLabel = new Label("", style);
+        timerLabel = new Label("", darkStyle);
         timerLabel.setAlignment(Align.right);
         messageLabel = new Label("", bigStyle);
         messageLabel.setAlignment(Align.center);
-        messageLabel.setColor(1f, 0.9f, 0.3f, 1f);
+        messageLabel.setColor(1f, 0.85f, 0.35f, 1f);
         hintLabel = new Label("Arrows: steer & change gait   Space: jump   E: dismount / ride", style);
         hintLabel.setColor(1f, 1f, 1f, 0.75f);
 
@@ -99,11 +112,20 @@ public class Hud implements Disposable {
         root.setFillParent(true);
         root.pad(10f);
         root.top();
-        root.add(gaitLabel).left().expandX();
-        root.add(timerLabel).right().padRight(52f);   // clear of the "..." button
+        Table gaitPill = new Table();
+        gaitPill.setBackground(panelBg);
+        gaitPill.add(gaitLabel).pad(0f, 14f, 2f, 14f);
+        timerPill = new Table();
+        timerPill.setBackground(panelBg);
+        timerPill.add(timerLabel).pad(0f, 14f, 2f, 14f);
+        root.add(gaitPill).left().expandX();
+        root.add(timerPill).right().padRight(52f);    // clear of the "..." button
         root.row();
         courseLabel.setWrap(true);
-        root.add(courseLabel).colspan(2).growX().center().padTop(2f);
+        coursePill = new Table();
+        coursePill.setBackground(panelBg);
+        coursePill.add(courseLabel).growX().pad(0f, 16f, 2f, 16f);
+        root.add(coursePill).colspan(2).center().padTop(6f).minWidth(260f);
         root.row();
         root.add(messageLabel).colspan(2).padTop(14f);
         stage.addActor(root);
@@ -114,14 +136,13 @@ public class Hud implements Disposable {
         bottom.add(hintLabel);
         stage.addActor(bottom);
 
-        TextureRegionDrawable panelBg = new TextureRegionDrawable(new TextureRegion(white));
         resultsPanel = new Table();
         resultsPanel.setFillParent(true);
         resultsPanel.center();
-        resultsLabel = new Label("", bigStyle);
+        resultsLabel = new Label("", darkBigStyle);
         resultsLabel.setAlignment(Align.center);
         Table inner = new Table();
-        inner.setBackground(panelBg.tint(new Color(0f, 0f, 0f, 0.65f)));
+        inner.setBackground(panelBg);
         inner.pad(24f);
         inner.add(resultsLabel);
         resultsPanel.add(inner);
@@ -132,10 +153,12 @@ public class Hud implements Disposable {
         padStyle.background = new TextureRegionDrawable(new TextureRegion(padBase));
         padStyle.knob = new TextureRegionDrawable(new TextureRegion(padKnob));
         touchpad = new Touchpad(6f, padStyle);
+        touchpad.setColor(1f, 0.94f, 0.82f, 1f);
         touchpad.setSize(128f, 128f);
         stage.addActor(touchpad);
 
         jumpButton = new Image(new TextureRegionDrawable(new TextureRegion(padBase)));
+        jumpButton.setColor(1f, 0.94f, 0.82f, 1f);
         jumpButton.setSize(86f, 86f);
         jumpButton.addListener(new ClickListener() {
             @Override
@@ -145,7 +168,7 @@ public class Hud implements Disposable {
             }
         });
         stage.addActor(jumpButton);
-        jumpLabel = new Label("JUMP", style);
+        jumpLabel = new Label("JUMP", darkStyle);
         jumpLabel.setTouchable(Touchable.disabled);
         stage.addActor(jumpLabel);
 
@@ -167,21 +190,21 @@ public class Hud implements Disposable {
         setTouchVisible(false);
     }
 
-    /** Rounded translucent square with three dots: the customize button. */
+    /** Rounded cream square with three brown dots: the customize button. */
     private static Texture dotsTexture(int size) {
         Pixmap pm = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pm.setBlending(Pixmap.Blending.None);
         pm.setColor(0f, 0f, 0f, 0f);
         pm.fill();
         int r = size / 5;
-        pm.setColor(1f, 1f, 1f, 0.3f);
+        pm.setColor(0.95f, 0.9f, 0.8f, 0.92f);
         pm.fillRectangle(r, 0, size - 2 * r, size);
         pm.fillRectangle(0, r, size, size - 2 * r);
         pm.fillCircle(r, r, r);
         pm.fillCircle(size - r - 1, r, r);
         pm.fillCircle(r, size - r - 1, r);
         pm.fillCircle(size - r - 1, size - r - 1, r);
-        pm.setColor(1f, 1f, 1f, 0.95f);
+        pm.setColor(0.42f, 0.31f, 0.2f, 1f);
         int dot = Math.max(2, size / 14);
         for (int i = -1; i <= 1; i++) {
             pm.fillCircle(size / 2 + i * (size / 4), size / 2, dot);
@@ -190,6 +213,33 @@ public class Hud implements Disposable {
         t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pm.dispose();
         return t;
+    }
+
+    /** Rounded parchment panel with a wood-brown border, stretched as a 9-patch. */
+    private static Texture panelTexture(int size) {
+        Pixmap pm = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pm.setBlending(Pixmap.Blending.None);
+        pm.setColor(0f, 0f, 0f, 0f);
+        pm.fill();
+        int r = size / 4;
+        // border layer (wood brown), then inset fill (warm cream)
+        fillRounded(pm, 0, size, r, new Color(0.45f, 0.33f, 0.22f, 0.96f));
+        fillRounded(pm, 3, size, r - 3, new Color(0.96f, 0.92f, 0.82f, 0.96f));
+        Texture t = new Texture(pm);
+        t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        pm.dispose();
+        return t;
+    }
+
+    private static void fillRounded(Pixmap pm, int inset, int size, int radius, Color c) {
+        pm.setColor(c);
+        int a = inset, b = size - inset - 1;
+        pm.fillRectangle(a + radius, a, b - a - 2 * radius + 1, b - a + 1);
+        pm.fillRectangle(a, a + radius, b - a + 1, b - a - 2 * radius + 1);
+        pm.fillCircle(a + radius, a + radius, radius);
+        pm.fillCircle(b - radius, a + radius, radius);
+        pm.fillCircle(a + radius, b - radius, radius);
+        pm.fillCircle(b - radius, b - radius, radius);
     }
 
     private static Texture circleTexture(int size, Color fill, Color ring) {
@@ -262,7 +312,7 @@ public class Hud implements Disposable {
     /** Builds the customize console; call once after construction. */
     public void createConsole(com.ranchgame.horse.HorseAppearance appearance,
                               final CustomizeConsole.Listener listener) {
-        console = new CustomizeConsole(stage, appearance, white, dots, style, bigStyle,
+        console = new CustomizeConsole(stage, appearance, white, dots, panelBg, darkStyle, darkBigStyle,
                 new CustomizeConsole.Listener() {
                     @Override
                     public void appearanceChanged() {
@@ -361,5 +411,6 @@ public class Hud implements Disposable {
         padBase.dispose();
         padKnob.dispose();
         dots.dispose();
+        panelTex.dispose();
     }
 }
