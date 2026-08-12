@@ -22,6 +22,12 @@ public class Lwjgl3Launcher {
                 }
                 HorseGame.presetLook = look;
             }
+            if ("--pose".equals(args[i])) {
+                // --pose <gaitIndex>,<phase 0..1 of the stride cycle>
+                String[] pp = args[i + 1].split(",");
+                HorseGame.poseGait = Integer.parseInt(pp[0].trim());
+                HorseGame.posePhase = Float.parseFloat(pp[1].trim());
+            }
             if ("--screenshot".equals(args[i])) {
                 HorseGame.screenshotPath = args[i + 1];
                 if (i + 2 < args.length) {

@@ -1480,7 +1480,7 @@ function cbgss_Group() {
     a.$worldTransform0 = null;
     a.$computedTransform = null;
     a.$oldTransform = null;
-    a.$transform = 0;
+    a.$transform0 = 0;
     a.$cullingArea = null;
 }
 let cbgss_Group_tmp = null,
@@ -1495,7 +1495,7 @@ cbgss_Group__init_ = $this => {
     $this.$worldTransform0 = cbgm_Affine2__init_0();
     $this.$computedTransform = cbgm_Matrix4__init_();
     $this.$oldTransform = cbgm_Matrix4__init_();
-    $this.$transform = 1;
+    $this.$transform0 = 1;
 },
 cbgss_Group__init_0 = () => {
     let var_0 = new cbgss_Group();
@@ -1515,10 +1515,10 @@ cbgss_Group_act = ($this, $delta) => {
     $this.$children0.$end();
 },
 cbgss_Group_draw = ($this, $batch, $parentAlpha) => {
-    if ($this.$transform)
+    if ($this.$transform0)
         $this.$applyTransform($batch, $this.$computeTransform());
     $this.$drawChildren($batch, $parentAlpha);
-    if ($this.$transform)
+    if ($this.$transform0)
         $this.$resetTransform($batch);
 },
 cbgss_Group_drawChildren = ($this, $batch, $parentAlpha) => {
@@ -1528,7 +1528,7 @@ cbgss_Group_drawChildren = ($this, $batch, $parentAlpha) => {
     $actors = $children.$begin0();
     $cullingArea = $this.$cullingArea;
     if ($cullingArea === null) {
-        if ($this.$transform) {
+        if ($this.$transform0) {
             $i = 0;
             $n = $children.$size2;
             while ($i < $n) {
@@ -1565,7 +1565,7 @@ cbgss_Group_drawChildren = ($this, $batch, $parentAlpha) => {
         $cullRight = $cullLeft + $cullingArea.$width;
         $cullBottom = $cullingArea.$y1;
         $cullTop = $cullBottom + $cullingArea.$height;
-        if ($this.$transform) {
+        if ($this.$transform0) {
             $i = 0;
             $n = $children.$size2;
             while ($i < $n) {
@@ -1608,17 +1608,17 @@ cbgss_Group_drawChildren = ($this, $batch, $parentAlpha) => {
 },
 cbgss_Group_drawDebug = ($this, $shapes) => {
     $this.$drawDebugBounds($shapes);
-    if ($this.$transform)
+    if ($this.$transform0)
         $this.$applyTransform0($shapes, $this.$computeTransform());
     $this.$drawDebugChildren($shapes);
-    if ($this.$transform)
+    if ($this.$transform0)
         $this.$resetTransform0($shapes);
 },
 cbgss_Group_drawDebugChildren = ($this, $shapes) => {
     let $children, $actors, $i, $n, $child, $offsetX, $offsetY, $cx, $cy;
     $children = $this.$children0;
     $actors = $children.$begin0();
-    if ($this.$transform) {
+    if ($this.$transform0) {
         $i = 0;
         $n = $children.$size2;
         while ($i < $n) {
@@ -1666,7 +1666,7 @@ cbgss_Group_computeTransform = $this => {
         while (true) {
             if ($parentGroup === null)
                 break a;
-            if ($parentGroup.$transform)
+            if ($parentGroup.$transform0)
                 break;
             $parentGroup = $parentGroup.$parent0;
         }
@@ -1797,10 +1797,10 @@ cbgss_Group_getChildren = $this => {
     return $this.$children0;
 },
 cbgss_Group_setTransform = ($this, $transform) => {
-    $this.$transform = $transform;
+    $this.$transform0 = $transform;
 },
 cbgss_Group_isTransform = $this => {
-    return $this.$transform;
+    return $this.$transform0;
 },
 cbgss_Group_setDebug = ($this, $enabled, $recursively) => {
     let var$3, $child;
@@ -13632,7 +13632,7 @@ crh_Walker_update = ($this, $delta, $turnAxis, $paceUp, $paceDown) => {
     $this.$torso.$rotation.$setFromAxis(cbgm_Vector3_X, $this.$speed0 * 1.2000000476837158);
     $this.$instance4.$calculateTransforms();
     $bob = jl_Math_abs(cbgm_MathUtils_sin($this.$phase0)) * 0.03500000014901161 * $stride;
-    var$7 = $this.$instance4.$transform0.$setToRotation(cbgm_Vector3_Y, $this.$yaw0);
+    var$7 = $this.$instance4.$transform.$setToRotation(cbgm_Vector3_Y, $this.$yaw0);
     var$12 = $this.$position11.$x;
     var$14 = $this.$position11.$y + $bob;
     var$15 = $this.$position11.$z;
@@ -18784,6 +18784,10 @@ function crh_Gait() {
     a.$bounce = 0.0;
     a.$rock = 0.0;
     a.$legPhase = null;
+    a.$kneeFold = 0.0;
+    a.$frontAmp = 0.0;
+    a.$headBobFreq = 0;
+    a.$singleBounce = 0;
     a.$label = null;
 }
 let crh_Gait_HALT = null,
@@ -18800,7 +18804,7 @@ crh_Gait_values = () => {
     crh_Gait_$callClinit();
     return crh_Gait_$VALUES.$clone0();
 },
-crh_Gait__init_0 = ($this, var$1, var$2, $maxSpeed, $strideFreq, $legAmplitude, $bounce, $rock, $legPhase, $label) => {
+crh_Gait__init_0 = ($this, var$1, var$2, $maxSpeed, $strideFreq, $legAmplitude, $bounce, $rock, $legPhase, $kneeFold, $frontAmp, $headBobFreq, $singleBounce, $label) => {
     crh_Gait_$callClinit();
     jl_Enum__init_($this, var$1, var$2);
     $this.$maxSpeed = $maxSpeed;
@@ -18809,12 +18813,16 @@ crh_Gait__init_0 = ($this, var$1, var$2, $maxSpeed, $strideFreq, $legAmplitude, 
     $this.$bounce = $bounce;
     $this.$rock = $rock;
     $this.$legPhase = $legPhase;
+    $this.$kneeFold = $kneeFold;
+    $this.$frontAmp = $frontAmp;
+    $this.$headBobFreq = $headBobFreq;
+    $this.$singleBounce = $singleBounce;
     $this.$label = $label;
 },
-crh_Gait__init_ = (var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, var_8) => {
-    let var_9 = new crh_Gait();
-    crh_Gait__init_0(var_9, var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, var_8);
-    return var_9;
+crh_Gait__init_ = (var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, var_8, var_9, var_10, var_11, var_12) => {
+    let var_13 = new crh_Gait();
+    crh_Gait__init_0(var_13, var_0, var_1, var_2, var_3, var_4, var_5, var_6, var_7, var_8, var_9, var_10, var_11, var_12);
+    return var_13;
 },
 crh_Gait_faster = $this => {
     let $i;
@@ -18843,11 +18851,11 @@ crh_Gait_$values = () => {
     return var$1;
 },
 crh_Gait__clinit_ = () => {
-    crh_Gait_HALT = crh_Gait__init_($rt_s(359), 0, 0.0, 0.0, 0.0, 0.0, 0.0, $rt_createFloatArrayFromData([0.0, 0.0, 0.0, 0.0]), $rt_s(360));
-    crh_Gait_WALK = crh_Gait__init_($rt_s(361), 1, 1.7000000476837158, 5.5, 24.0, 0.012000000104308128, 0.0, $rt_createFloatArrayFromData([1.5707999467849731, 4.712399959564209, 0.0, 3.1415998935699463]), $rt_s(362));
-    crh_Gait_TROT = crh_Gait__init_($rt_s(363), 2, 4.0, 9.0, 32.0, 0.03500000014901161, 2.0, $rt_createFloatArrayFromData([0.0, 3.1415998935699463, 3.1415998935699463, 0.0]), $rt_s(364));
-    crh_Gait_CANTER = crh_Gait__init_($rt_s(365), 3, 6.800000190734863, 10.5, 42.0, 0.07000000029802322, 5.0, $rt_createFloatArrayFromData([0.6000000238418579, 0.0, 3.7416000366210938, 3.1415998935699463]), $rt_s(366));
-    crh_Gait_GALLOP = crh_Gait__init_($rt_s(367), 4, 10.5, 12.5, 50.0, 0.10000000149011612, 8.0, $rt_createFloatArrayFromData([0.0, 0.4000000059604645, 3.1415998935699463, 3.541599988937378]), $rt_s(368));
+    crh_Gait_HALT = crh_Gait__init_($rt_s(359), 0, 0.0, 0.0, 0.0, 0.0, 0.0, $rt_createFloatArrayFromData([0.0, 0.0, 0.0, 0.0]), 0.0, 1.0, 1, 0, $rt_s(360));
+    crh_Gait_WALK = crh_Gait__init_($rt_s(361), 1, 1.7000000476837158, 5.5, 22.0, 0.00800000037997961, 0.0, $rt_createFloatArrayFromData([1.5707999467849731, 4.712399959564209, 0.0, 3.1415998935699463]), 18.0, 1.0, 2, 0, $rt_s(362));
+    crh_Gait_TROT = crh_Gait__init_($rt_s(363), 2, 4.0, 9.0, 30.0, 0.03500000014901161, 2.0, $rt_createFloatArrayFromData([0.0, 3.1415998935699463, 3.1415998935699463, 0.0]), 35.0, 1.0, 1, 0, $rt_s(364));
+    crh_Gait_CANTER = crh_Gait__init_($rt_s(365), 3, 6.800000190734863, 10.5, 38.0, 0.07000000029802322, 5.0, $rt_createFloatArrayFromData([2.0, 4.0, 0.0, 2.0]), 48.0, 1.149999976158142, 1, 1, $rt_s(366));
+    crh_Gait_GALLOP = crh_Gait__init_($rt_s(367), 4, 10.5, 12.5, 42.0, 0.10999999940395355, 8.0, $rt_createFloatArrayFromData([1.7999999523162842, 2.4000000953674316, 0.0, 0.6000000238418579]), 65.0, 1.2999999523162842, 1, 1, $rt_s(368));
     crh_Gait_$VALUES = crh_Gait_$values();
 },
 jur_AbstractLineTerminator = $rt_classWithoutFields(),
@@ -19513,7 +19521,7 @@ function cbggg_ModelInstance() {
     a.$nodes = null;
     a.$animations = null;
     a.$model1 = null;
-    a.$transform0 = null;
+    a.$transform = null;
     a.$userData0 = null;
 }
 let cbggg_ModelInstance_defaultShareKeyframes = 0,
@@ -19548,7 +19556,7 @@ cbggg_ModelInstance__init_1 = ($this, $model, $transform, $rootNodeIds) => {
     $this.$model1 = $model;
     if ($transform === null)
         $transform = cbgm_Matrix4__init_();
-    $this.$transform0 = $transform;
+    $this.$transform = $transform;
     if ($rootNodeIds !== null)
         cbggg_ModelInstance_copyNodes($this, $model.$nodes0, $rootNodeIds);
     else
@@ -19722,12 +19730,12 @@ cbggg_ModelInstance_getRenderables0 = ($this, $renderables, $pool) => {
 },
 cbggg_ModelInstance_getRenderable = ($this, $out, $node, $nodePart) => {
     $nodePart.$setRenderable($out);
-    if ($nodePart.$bones0 === null && $this.$transform0 !== null)
-        ($out.$worldTransform.$set3($this.$transform0)).$mul2($node.$globalTransform);
-    else if ($this.$transform0 === null)
+    if ($nodePart.$bones0 === null && $this.$transform !== null)
+        ($out.$worldTransform.$set3($this.$transform)).$mul2($node.$globalTransform);
+    else if ($this.$transform === null)
         $out.$worldTransform.$idt();
     else
-        $out.$worldTransform.$set3($this.$transform0);
+        $out.$worldTransform.$set3($this.$transform);
     $out.$userData = $this.$userData0;
     return $out;
 },
@@ -21220,7 +21228,7 @@ cbguv_Viewport_apply = ($this, $centerCamera) => {
     $this.$camera1.$viewportWidth = $this.$worldWidth;
     $this.$camera1.$viewportHeight = $this.$worldHeight;
     if ($centerCamera)
-        $this.$camera1.$position10.$set10($this.$worldWidth / 2.0, $this.$worldHeight / 2.0, 0.0);
+        $this.$camera1.$position8.$set10($this.$worldWidth / 2.0, $this.$worldHeight / 2.0, 0.0);
     $this.$camera1.$update0();
 },
 cbguv_Viewport_unproject = ($this, $touchCoords) => {
@@ -22663,7 +22671,7 @@ let crc_Gate__init_ = ($this, $x, $z, $headingDeg, $startLine) => {
     }
     $this.$model0 = $mb.$end2();
     $this.$instance2 = cbggg_ModelInstance__init_($this.$model0);
-    ($this.$instance2.$transform0.$setToRotation0(0.0, 1.0, 0.0, $headingDeg)).$setTranslation($x, 0.0, $z);
+    ($this.$instance2.$transform.$setToRotation0(0.0, 1.0, 0.0, $headingDeg)).$setTranslation($x, 0.0, $z);
     $this.$railMaterial = $this.$instance2.$materials.$get(1);
 },
 crc_Gate__init_0 = (var_0, var_1, var_2, var_3) => {
@@ -23029,7 +23037,7 @@ function ju_StringTokenizer() {
     a.$string0 = null;
     a.$delimiters = null;
     a.$returnDelimiters = 0;
-    a.$position8 = 0;
+    a.$position9 = 0;
 }
 let ju_StringTokenizer__init_1 = ($this, $string, $delimiters) => {
     ju_StringTokenizer__init_0($this, $string, $delimiters, 0);
@@ -23046,7 +23054,7 @@ ju_StringTokenizer__init_0 = ($this, $string, $delimiters, $returnDelimiters) =>
     $this.$string0 = $string;
     $this.$delimiters = $delimiters;
     $this.$returnDelimiters = $returnDelimiters;
-    $this.$position8 = 0;
+    $this.$position9 = 0;
 },
 ju_StringTokenizer__init_2 = (var_0, var_1, var_2) => {
     let var_3 = new ju_StringTokenizer();
@@ -23059,10 +23067,10 @@ ju_StringTokenizer_hasMoreTokens = $this => {
         $rt_throw(jl_NullPointerException__init_());
     a: {
         $length = $this.$string0.$length();
-        if ($this.$position8 < $length) {
+        if ($this.$position9 < $length) {
             if ($this.$returnDelimiters)
                 return 1;
-            $i = $this.$position8;
+            $i = $this.$position9;
             while (true) {
                 if ($i >= $length)
                     break a;
@@ -23078,21 +23086,21 @@ ju_StringTokenizer_nextToken = $this => {
     let $i, $length, var$3, var$4, var$5;
     if ($this.$delimiters === null)
         $rt_throw(jl_NullPointerException__init_());
-    $i = $this.$position8;
+    $i = $this.$position9;
     $length = $this.$string0.$length();
     if ($i < $length) {
         if ($this.$returnDelimiters) {
-            if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position8), 0) >= 0) {
+            if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position9), 0) >= 0) {
                 var$3 = $this.$string0;
-                var$4 = $this.$position8;
-                $this.$position8 = var$4 + 1 | 0;
+                var$4 = $this.$position9;
+                $this.$position9 = var$4 + 1 | 0;
                 return jl_String_valueOf2(var$3.$charAt(var$4));
             }
-            $this.$position8 = $this.$position8 + 1 | 0;
-            while ($this.$position8 < $length) {
-                if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position8), 0) >= 0)
-                    return $this.$string0.$substring($i, $this.$position8);
-                $this.$position8 = $this.$position8 + 1 | 0;
+            $this.$position9 = $this.$position9 + 1 | 0;
+            while ($this.$position9 < $length) {
+                if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position9), 0) >= 0)
+                    return $this.$string0.$substring($i, $this.$position9);
+                $this.$position9 = $this.$position9 + 1 | 0;
             }
             return $this.$string0.$substring0($i);
         }
@@ -23104,13 +23112,13 @@ ju_StringTokenizer_nextToken = $this => {
                 break;
             $i = $i + 1 | 0;
         }
-        $this.$position8 = $i;
+        $this.$position9 = $i;
         if (var$5 < 0) {
-            $this.$position8 = $this.$position8 + 1 | 0;
-            while ($this.$position8 < $length) {
-                if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position8), 0) >= 0)
-                    return $this.$string0.$substring($i, $this.$position8);
-                $this.$position8 = $this.$position8 + 1 | 0;
+            $this.$position9 = $this.$position9 + 1 | 0;
+            while ($this.$position9 < $length) {
+                if ($this.$delimiters.$indexOf1($this.$string0.$charAt($this.$position9), 0) >= 0)
+                    return $this.$string0.$substring($i, $this.$position9);
+                $this.$position9 = $this.$position9 + 1 | 0;
             }
             return $this.$string0.$substring0($i);
         }
@@ -24902,13 +24910,13 @@ cbgggus_CylinderShapeBuilder_build0 = ($builder, $width, $height, $depth, $divis
         var$13 = $i;
         var$14 = $ao + $step * var$13;
         var$22 = 1.0 - $us * var$13;
-        $curr1.$position9.$set10(cbgm_MathUtils_cos(var$14) * $hw, 0.0, cbgm_MathUtils_sin(var$14) * $hd);
-        ($curr1.$normal.$set9($curr1.$position9)).$nor0();
-        $curr1.$position9.$y =  -$hh;
+        $curr1.$position10.$set10(cbgm_MathUtils_cos(var$14) * $hw, 0.0, cbgm_MathUtils_sin(var$14) * $hd);
+        ($curr1.$normal.$set9($curr1.$position10)).$nor0();
+        $curr1.$position10.$y =  -$hh;
         $curr1.$uv.$set4(var$22, 1.0);
-        $curr2.$position9.$set9($curr1.$position9);
+        $curr2.$position10.$set9($curr1.$position10);
         $curr2.$normal.$set9($curr1.$normal);
-        $curr2.$position9.$y = $hh;
+        $curr2.$position10.$y = $hh;
         $curr2.$uv.$set4(var$22, 0.0);
         $i2 = $builder.$vertex0($curr1);
         $i1 = $builder.$vertex0($curr2);
@@ -27871,7 +27879,7 @@ jur_AbstractCharClass$LazyJavaLowerCase$1_contains = ($this, $ch) => {
 };
 function cbgg_Camera() {
     let a = this; jl_Object.call(a);
-    a.$position10 = null;
+    a.$position8 = null;
     a.$direction0 = null;
     a.$up = null;
     a.$projection = null;
@@ -27888,7 +27896,7 @@ function cbgg_Camera() {
 }
 let cbgg_Camera__init_ = $this => {
     jl_Object__init_($this);
-    $this.$position10 = cbgm_Vector3__init_();
+    $this.$position8 = cbgm_Vector3__init_();
     $this.$direction0 = cbgm_Vector3__init_0(0.0, 0.0, (-1.0));
     $this.$up = cbgm_Vector3__init_0(0.0, 1.0, 0.0);
     $this.$projection = cbgm_Matrix4__init_();
@@ -27905,7 +27913,7 @@ let cbgg_Camera__init_ = $this => {
 },
 cbgg_Camera_lookAt = ($this, $x, $y, $z) => {
     let $dot;
-    (($this.$tmpVec.$set10($x, $y, $z)).$sub($this.$position10)).$nor0();
+    (($this.$tmpVec.$set10($x, $y, $z)).$sub($this.$position8)).$nor0();
     if (!$this.$tmpVec.$isZero()) {
         $dot = $this.$tmpVec.$dot($this.$up);
         if (jl_Math_abs($dot - 1.0) < 9.999999717180685E-10)
@@ -27963,7 +27971,7 @@ cbgg_PerspectiveCamera_update0 = ($this, $updateFrustum) => {
     let $aspect;
     $aspect = $this.$viewportWidth / $this.$viewportHeight;
     $this.$projection.$setToProjection(jl_Math_abs($this.$near), jl_Math_abs($this.$far), $this.$fieldOfView, $aspect);
-    $this.$view.$setToLookAt($this.$position10, ($this.$tmp3.$set9($this.$position10)).$add5($this.$direction0), $this.$up);
+    $this.$view.$setToLookAt($this.$position8, ($this.$tmp3.$set9($this.$position8)).$add5($this.$direction0), $this.$up);
     $this.$combined.$set3($this.$projection);
     cbgm_Matrix4_mul($this.$combined.$val, $this.$view.$val);
     if ($updateFrustum) {
@@ -29181,7 +29189,7 @@ cbgggu_MeshBuilder_vertex0 = ($this, $pos, $nor, $col, $uv) => {
 },
 cbgggu_MeshBuilder_vertex = ($this, $info) => {
     let var$2, var$3, var$4, var$5;
-    var$2 = !$info.$hasPosition ? null : $info.$position9;
+    var$2 = !$info.$hasPosition ? null : $info.$position10;
     var$3 = !$info.$hasNormal ? null : $info.$normal;
     var$4 = !$info.$hasColor ? null : $info.$color8;
     var$5 = !$info.$hasUV ? null : $info.$uv;
@@ -34657,6 +34665,8 @@ cr_HorseGame_openConsoleOnStart = 0,
 cr_HorseGame_presetLook = null,
 cr_HorseGame_touchDevice = 0,
 cr_HorseGame_startDismounted = 0,
+cr_HorseGame_poseGait = 0,
+cr_HorseGame_posePhase = 0.0,
 cr_HorseGame_$callClinit = () => {
     cr_HorseGame_$callClinit = $rt_eraseClinit(cr_HorseGame);
     cr_HorseGame__clinit_();
@@ -34680,6 +34690,7 @@ cr_HorseGame_dispose = $this => {
 },
 cr_HorseGame__clinit_ = () => {
     cr_HorseGame_screenshotDelay = 2.5;
+    cr_HorseGame_poseGait = (-1);
 },
 cbgm_Interpolation$PowOut = $rt_classWithoutFields(cbgm_Interpolation$Pow),
 cbgm_Interpolation$PowOut__init_0 = ($this, $power) => {
@@ -36287,9 +36298,9 @@ cbgggus_ConeShapeBuilder_build0 = ($builder, $width, $height, $depth, $divisions
         var$13 = $i;
         var$22 = $ao + $step * var$13;
         var$23 = 1.0 - $us * var$13;
-        $curr1.$position9.$set10(cbgm_MathUtils_cos(var$22) * $hw, 0.0, cbgm_MathUtils_sin(var$22) * $hd);
-        ($curr1.$normal.$set9($curr1.$position9)).$nor0();
-        $curr1.$position9.$y =  -$hh;
+        $curr1.$position10.$set10(cbgm_MathUtils_cos(var$22) * $hw, 0.0, cbgm_MathUtils_sin(var$22) * $hd);
+        ($curr1.$normal.$set9($curr1.$position10)).$nor0();
+        $curr1.$position10.$y =  -$hh;
         $curr1.$uv.$set4(var$23, 1.0);
         $i1 = $builder.$vertex0($curr1);
         if ($i)
@@ -38320,7 +38331,7 @@ cbgg_OrthographicCamera_update = $this => {
 cbgg_OrthographicCamera_update0 = ($this, $updateFrustum) => {
     $this.$projection.$setToOrtho($this.$zoom1 *  -$this.$viewportWidth / 2.0, $this.$zoom1 * $this.$viewportWidth / 2.0, $this.$zoom1 *  -($this.$viewportHeight / 2.0), $this.$zoom1 * $this.$viewportHeight / 2.0, $this.$near, $this.$far);
     $this.$view.$setToLookAt0($this.$direction0, $this.$up);
-    $this.$view.$translate1( -$this.$position10.$x,  -$this.$position10.$y,  -$this.$position10.$z);
+    $this.$view.$translate1( -$this.$position8.$x,  -$this.$position8.$y,  -$this.$position8.$z);
     $this.$combined.$set3($this.$projection);
     cbgm_Matrix4_mul($this.$combined.$val, $this.$view.$val);
     if ($updateFrustum) {
@@ -40050,7 +40061,7 @@ cbggge_DirectionalShadowLight__init_0 = (var_0, var_1, var_2, var_3, var_4, var_
     return var_6;
 },
 cbggge_DirectionalShadowLight_update = ($this, $center, $forward) => {
-    (($this.$cam.$position10.$set9($this.$direction)).$scl( -$this.$halfDepth)).$add5($center);
+    (($this.$cam.$position8.$set9($this.$direction)).$scl( -$this.$halfDepth)).$add5($center);
     ($this.$cam.$direction0.$set9($this.$direction)).$nor0();
     $this.$cam.$normalizeUp();
     $this.$cam.$update0();
@@ -40378,7 +40389,7 @@ cbgggu_DefaultRenderableSorter_compare = ($this, $o1, $o2) => {
         return !$b1 ? (-1) : 1;
     cbgggu_DefaultRenderableSorter_getTranslation($this, $o1.$worldTransform, $o1.$meshPart.$center1, $this.$tmpV1);
     cbgggu_DefaultRenderableSorter_getTranslation($this, $o2.$worldTransform, $o2.$meshPart.$center1, $this.$tmpV2);
-    $dst = (1000.0 * $this.$camera3.$position10.$dst2($this.$tmpV1) | 0) - (1000.0 * $this.$camera3.$position10.$dst2($this.$tmpV2) | 0) | 0;
+    $dst = (1000.0 * $this.$camera3.$position8.$dst2($this.$tmpV1) | 0) - (1000.0 * $this.$camera3.$position8.$dst2($this.$tmpV2) | 0) | 0;
     var$8 = $rt_compare($dst, 0.0);
     $result = var$8 < 0 ? (-1) : var$8 <= 0 ? 0 : 1;
     if ($b1)
@@ -47323,24 +47334,50 @@ function crh_HorseAnimator() {
     a.$body = null;
     a.$neck = null;
     a.$tail = null;
-    a.$legFL = null;
-    a.$legFR = null;
-    a.$legBL = null;
-    a.$legBR = null;
     a.$rider = null;
+    a.$hips = null;
+    a.$knees = null;
+    a.$hipX = null;
+    a.$hipY = null;
+    a.$hipZ = null;
     a.$time = 0.0;
 }
 let crh_HorseAnimator__init_0 = ($this, $instance) => {
+    let $ids, var$3, $i, var$5, var$6, var$7;
     jl_Object__init_($this);
+    $this.$hips = $rt_createArray(cbgggm_Node, 4);
+    $this.$knees = $rt_createArray(cbgggm_Node, 4);
+    $this.$hipX = $rt_createFloatArray(4);
+    $this.$hipY = $rt_createFloatArray(4);
+    $this.$hipZ = $rt_createFloatArray(4);
     $this.$instance3 = $instance;
     $this.$body = $instance.$getNode($rt_s(884), 1);
     $this.$neck = $instance.$getNode($rt_s(885), 1);
     $this.$tail = $instance.$getNode($rt_s(886), 1);
-    $this.$legFL = $instance.$getNode($rt_s(887), 1);
-    $this.$legFR = $instance.$getNode($rt_s(888), 1);
-    $this.$legBL = $instance.$getNode($rt_s(889), 1);
-    $this.$legBR = $instance.$getNode($rt_s(890), 1);
-    $this.$rider = $instance.$getNode($rt_s(891), 1);
+    $this.$rider = $instance.$getNode($rt_s(887), 1);
+    $ids = $rt_createArray(jl_String, 4);
+    var$3 = $ids.data;
+    var$3[0] = $rt_s(888);
+    var$3[1] = $rt_s(889);
+    var$3[2] = $rt_s(890);
+    var$3[3] = $rt_s(891);
+    $i = 0;
+    while ($i < 4) {
+        var$5 = $this.$hips.data;
+        var$6 = var$3[$i];
+        var$7 = jl_StringBuilder__init_();
+        jl_StringBuilder_append(jl_StringBuilder_append(var$7, $rt_s(892)), var$6);
+        var$5[$i] = $instance.$getNode(jl_StringBuilder_toString(var$7), 1);
+        var$5 = $this.$knees.data;
+        var$6 = var$3[$i];
+        var$7 = jl_StringBuilder__init_();
+        jl_StringBuilder_append(jl_StringBuilder_append(var$7, $rt_s(893)), var$6);
+        var$5[$i] = $instance.$getNode(jl_StringBuilder_toString(var$7), 1);
+        $this.$hipX.data[$i] = $this.$hips.data[$i].$translation.$x;
+        $this.$hipY.data[$i] = $this.$hips.data[$i].$translation.$y;
+        $this.$hipZ.data[$i] = $this.$hips.data[$i].$translation.$z;
+        $i = $i + 1 | 0;
+    }
 },
 crh_HorseAnimator__init_ = var_0 => {
     let var_1 = new crh_HorseAnimator();
@@ -47357,33 +47394,56 @@ crh_HorseAnimator_setRiderVisible = ($this, $visible) => {
         $this.$rider.$scale.$set10($s, $s, $s);
     }
 },
+crh_HorseAnimator_poseLeg = ($this, $i, $hipDeg, $kneeFoldDeg) => {
+    let var$4, $rad, var$6, var$7, var$8;
+    var$4 = $this.$hips.data[$i].$rotation;
+    cbgm_Vector3_$callClinit();
+    var$4.$setFromAxis(cbgm_Vector3_X, $hipDeg);
+    $rad = $hipDeg * 0.01745329238474369;
+    var$4 = $this.$knees.data[$i].$translation;
+    var$6 = $this.$hipX.data[$i];
+    var$7 = $this.$hipY.data[$i];
+    var$7 = var$7 - 0.41999998688697815 * cbgm_MathUtils_cos($rad);
+    var$8 = $this.$hipZ.data[$i];
+    var$8 = var$8 - 0.41999998688697815 * cbgm_MathUtils_sin($rad);
+    var$4.$set10(var$6, var$7, var$8);
+    $this.$knees.data[$i].$rotation.$setFromAxis(cbgm_Vector3_X, $hipDeg + $kneeFoldDeg);
+},
 crh_HorseAnimator_update = ($this, $horse, $delta) => {
-    let $g, $amp, var$5, var$6, var$7, $lean, $bounce, var$10, var$11;
+    let $g, $amp, var$5, $i, $front, $legAmp, $ph, $hip, $protract, $fold, var$13, var$14, $extend, $nod, $lean, $bounce, $bPhase, var$20, var$21;
     $this.$time = $this.$time + $delta;
     $g = $horse.$gait;
     $amp = $g.$legAmplitude * $horse.$strideScale;
     if (!$horse.$grounded) {
-        var$5 = $this.$legFL.$rotation;
+        crh_HorseAnimator_poseLeg($this, 0, (-22.0), 88.0);
+        crh_HorseAnimator_poseLeg($this, 1, (-16.0), 82.0);
+        crh_HorseAnimator_poseLeg($this, 2, 42.0, 34.0);
+        crh_HorseAnimator_poseLeg($this, 3, 36.0, 30.0);
+        var$5 = $this.$body.$rotation;
         cbgm_Vector3_$callClinit();
-        var$5.$setFromAxis(cbgm_Vector3_X, 48.0);
-        $this.$legFR.$rotation.$setFromAxis(cbgm_Vector3_X, 42.0);
-        $this.$legBL.$rotation.$setFromAxis(cbgm_Vector3_X, (-38.0));
-        $this.$legBR.$rotation.$setFromAxis(cbgm_Vector3_X, (-32.0));
-        $this.$body.$rotation.$setFromAxis(cbgm_Vector3_X,  -cbgm_MathUtils_clamp($horse.$verticalVelocity * 3.0, (-14.0), 14.0));
+        var$5.$setFromAxis(cbgm_Vector3_X,  -cbgm_MathUtils_clamp($horse.$verticalVelocity * 3.0, (-14.0), 14.0));
         $this.$neck.$rotation.$setFromAxis(cbgm_Vector3_X, (-18.0));
     } else {
-        var$5 = $this.$legFL.$rotation;
+        $i = 0;
+        while ($i < 4) {
+            $front = $i >= 2 ? 0 : 1;
+            $legAmp = $amp * (!$front ? 1.0 : $g.$frontAmp);
+            $ph = $horse.$phase + $g.$legPhase.data[$i];
+            $hip = cbgm_MathUtils_sin($ph) * $legAmp;
+            $protract = jl_Math_max(0.0, cbgm_MathUtils_cos($ph));
+            $fold = $protract * $g.$kneeFold * $horse.$strideScale * (!$front ? 0.550000011920929 : 1.0);
+            crh_HorseAnimator_poseLeg($this, $i, $hip, $fold);
+            $i = $i + 1 | 0;
+        }
+        var$5 = $this.$body.$rotation;
         cbgm_Vector3_$callClinit();
-        var$5.$setFromAxis(cbgm_Vector3_X, cbgm_MathUtils_sin($horse.$phase + $g.$legPhase.data[0]) * $amp);
-        $this.$legFR.$rotation.$setFromAxis(cbgm_Vector3_X, cbgm_MathUtils_sin($horse.$phase + $g.$legPhase.data[1]) * $amp);
-        $this.$legBL.$rotation.$setFromAxis(cbgm_Vector3_X, cbgm_MathUtils_sin($horse.$phase + $g.$legPhase.data[2]) * $amp);
-        $this.$legBR.$rotation.$setFromAxis(cbgm_Vector3_X, cbgm_MathUtils_sin($horse.$phase + $g.$legPhase.data[3]) * $amp);
-        $this.$body.$rotation.$setFromAxis(cbgm_Vector3_X, cbgm_MathUtils_sin($horse.$phase) * $g.$rock * $horse.$strideScale);
-        var$5 = $this.$neck.$rotation;
-        var$6 = cbgm_Vector3_X;
-        var$7 = $horse.$phase;
-        var$7 = cbgm_MathUtils_sin(var$7) * (2.0 + $g.$rock * 0.800000011920929) * $horse.$strideScale;
-        var$5.$setFromAxis(var$6, var$7);
+        var$13 = cbgm_Vector3_X;
+        var$14 = $horse.$phase + 1.0;
+        var$14 = cbgm_MathUtils_sin(var$14) * $g.$rock * $horse.$strideScale;
+        var$5.$setFromAxis(var$13, var$14);
+        $extend = !$g.$singleBounce ? 0.0 :  -(6.0 + $g.$rock * 1.5) * $horse.$strideScale;
+        $nod = cbgm_MathUtils_sin($horse.$phase * $g.$headBobFreq) * (2.0 + $g.$rock * 0.800000011920929) * $horse.$strideScale;
+        $this.$neck.$rotation.$setFromAxis(cbgm_Vector3_X, $extend + $nod);
     }
     $this.$tail.$rotation.$setFromAxis0(0.0, 0.0, 1.0, cbgm_MathUtils_sin($this.$time * 1.600000023841858) * 9.0);
     if ($this.$rider !== null) {
@@ -47393,24 +47453,33 @@ crh_HorseAnimator_update = ($this, $horse, $delta) => {
         var$5.$setFromAxis(cbgm_Vector3_X, $lean);
     }
     $this.$instance3.$calculateTransforms();
-    $bounce = !$horse.$grounded ? 0.0 : jl_Math_abs(cbgm_MathUtils_sin($horse.$phase)) * $g.$bounce * $horse.$strideScale;
-    var$5 = $this.$instance3.$transform0;
+    $bounce = 0.0;
+    if ($horse.$grounded) {
+        $bPhase = !$g.$singleBounce ? $horse.$phase : $horse.$phase * 0.5 + 1.2000000476837158;
+        $bounce = jl_Math_abs(cbgm_MathUtils_sin($bPhase)) * $g.$bounce * $horse.$strideScale;
+    }
+    var$5 = $this.$instance3.$transform;
     cbgm_Vector3_$callClinit();
     var$5 = var$5.$setToRotation(cbgm_Vector3_Y, $horse.$yaw);
-    var$7 = $horse.$position7.$x;
-    var$10 = $horse.$position7.$y + $bounce;
-    var$11 = $horse.$position7.$z;
-    var$5.$setTranslation(var$7, var$10, var$11);
+    var$14 = $horse.$position7.$x;
+    var$20 = $horse.$position7.$y + $bounce;
+    var$21 = $horse.$position7.$z;
+    var$5.$setTranslation(var$14, var$20, var$21);
 },
 crh_HorseAnimator_graze = ($this, $x, $z, $yawDeg, $delta) => {
-    let var$5;
+    let var$5, $i;
     $this.$time = $this.$time + $delta;
     var$5 = $this.$neck.$rotation;
     cbgm_Vector3_$callClinit();
     var$5.$setFromAxis(cbgm_Vector3_X, 64.0 + cbgm_MathUtils_sin($this.$time * 0.699999988079071) * 7.0);
     $this.$tail.$rotation.$setFromAxis0(0.0, 0.0, 1.0, cbgm_MathUtils_sin($this.$time * 1.100000023841858) * 10.0);
+    $i = 0;
+    while ($i < 4) {
+        crh_HorseAnimator_poseLeg($this, $i, 0.0, 0.0);
+        $i = $i + 1 | 0;
+    }
     $this.$instance3.$calculateTransforms();
-    ($this.$instance3.$transform0.$setToRotation(cbgm_Vector3_Y, $yawDeg)).$setTranslation($x, 0.0, $z);
+    ($this.$instance3.$transform.$setToRotation(cbgm_Vector3_Y, $yawDeg)).$setTranslation($x, 0.0, $z);
 },
 crw_WorldBuilder = $rt_classWithoutFields(),
 crw_WorldBuilder_build = $tex => {
@@ -47424,12 +47493,12 @@ crw_WorldBuilder_build = $tex => {
     cbgg_Color_$callClinit();
     var$7 = cbgg_Color_WHITE;
     var$7 = crw_WorldBuilder_mat(var$6, var$7, 44.0, 44.0);
-    $grass = $mb.$part($rt_s(892), 4, Long_fromInt(25), var$7);
+    $grass = $mb.$part($rt_s(894), 4, Long_fromInt(25), var$7);
     cbgggus_BoxShapeBuilder_build($grass, 0.0, (-0.05000000074505806), 0.0, 250.0, 0.10000000149011612, 250.0);
     var$7 = $tex.$grass;
     var$6 = cbgg_Color__init_(0.8799999952316284, 0.9399999976158142, 0.8199999928474426, 1.0);
     var$7 = crw_WorldBuilder_mat(var$7, var$6, 3.0, 3.0);
-    $patches = $mb.$part($rt_s(893), 4, Long_fromInt(25), var$7);
+    $patches = $mb.$part($rt_s(895), 4, Long_fromInt(25), var$7);
     $i = 0;
     while ($i < 40) {
         $x = $rng.$nextFloat() * 200.0 - 100.0;
@@ -47442,21 +47511,21 @@ crw_WorldBuilder_build = $tex => {
     var$15 = $tex.$cobble;
     var$6 = cbgg_Color_WHITE;
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 26.0, 1.5);
-    $path = $mb.$part($rt_s(894), 4, Long_fromInt(25), var$15);
+    $path = $mb.$part($rt_s(896), 4, Long_fromInt(25), var$15);
     cbgggus_BoxShapeBuilder_build($path, 0.0, 0.00800000037997961, (-20.0), 3.4000000953674316, 0.012000000104308128, 60.0);
     var$15 = $tex.$cobble;
     var$6 = cbgg_Color_WHITE;
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 1.5, 14.0);
-    $path2 = $mb.$part($rt_s(895), 4, Long_fromInt(25), var$15);
+    $path2 = $mb.$part($rt_s(897), 4, Long_fromInt(25), var$15);
     cbgggus_BoxShapeBuilder_build($path2, (-16.0), 0.00800000037997961, (-20.0), 32.0, 0.012000000104308128, 3.4000000953674316);
     var$15 = $tex.$wood;
     var$6 = cbgg_Color_WHITE;
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 1.0, 1.0);
-    $posts = $mb.$part($rt_s(896), 4, Long_fromInt(25), var$15);
+    $posts = $mb.$part($rt_s(898), 4, Long_fromInt(25), var$15);
     var$15 = $tex.$wood;
     var$6 = cbgg_Color__init_(1.0, 0.9599999785423279, 0.8999999761581421, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 26.0, 1.0);
-    $rails = $mb.$part($rt_s(897), 4, Long_fromInt(25), var$15);
+    $rails = $mb.$part($rt_s(899), 4, Long_fromInt(25), var$15);
     $side = 0;
     while ($side < 4) {
         $horizontal = $side >= 2 ? 0 : 1;
@@ -47494,12 +47563,12 @@ crw_WorldBuilder_build = $tex => {
     var$15 = $tex.$planks;
     var$6 = cbgg_Color_WHITE;
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 3.0, 1.399999976158142);
-    $barn = $mb.$part($rt_s(898), 4, Long_fromInt(25), var$15);
+    $barn = $mb.$part($rt_s(900), 4, Long_fromInt(25), var$15);
     cbgggus_BoxShapeBuilder_build($barn, $bx, 2.5, $bz, 10.0, 5.0, 14.0);
     var$15 = $tex.$shingles;
     var$6 = cbgg_Color_WHITE;
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 4.0, 2.0);
-    $roof = $mb.$part($rt_s(899), 4, Long_fromInt(25), var$15);
+    $roof = $mb.$part($rt_s(901), 4, Long_fromInt(25), var$15);
     $roof.$setVertexTransform(($tr.$setToTranslation((-34.70000076293945), 5.900000095367432, $bz)).$rotate1(0.0, 0.0, 1.0, 35.0));
     cbgggus_BoxShapeBuilder_build($roof, 0.0, 0.0, 0.0, 6.599999904632568, 0.25, 14.800000190734863);
     $roof.$setVertexTransform(($tr.$setToTranslation((-29.299999237060547), 5.900000095367432, $bz)).$rotate1(0.0, 0.0, 1.0, (-35.0)));
@@ -47508,40 +47577,40 @@ crw_WorldBuilder_build = $tex => {
     var$15 = $tex.$wood;
     var$6 = cbgg_Color__init_(0.550000011920929, 0.3799999952316284, 0.2800000011920929, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 4.0, 3.0);
-    $door = $mb.$part($rt_s(900), 4, Long_fromInt(25), var$15);
+    $door = $mb.$part($rt_s(902), 4, Long_fromInt(25), var$15);
     cbgggus_BoxShapeBuilder_build($door, $bx, 1.600000023841858, (-12.979999542236328), 3.5999999046325684, 3.200000047683716, 0.10000000149011612);
-    $trim = $mb.$part($rt_s(901), 4, Long_fromInt(9), crw_WorldBuilder_mat0(cbgg_Color_WHITE));
+    $trim = $mb.$part($rt_s(903), 4, Long_fromInt(9), crw_WorldBuilder_mat0(cbgg_Color_WHITE));
     cbgggus_BoxShapeBuilder_build($trim, $bx, 3.5999999046325684, (-12.979999542236328), 4.199999809265137, 0.30000001192092896, 0.10000000149011612);
     $world.$addObstacle($bx, $bz, 10.399999618530273, 14.399999618530273);
     var$15 = $tex.$coat0;
     var$6 = cbgg_Color__init_(0.8700000047683716, 0.7400000095367432, 0.36000001430511475, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 2.0, 2.0);
-    $hay = $mb.$part($rt_s(902), 4, Long_fromInt(25), var$15);
+    $hay = $mb.$part($rt_s(904), 4, Long_fromInt(25), var$15);
     cbgggus_BoxShapeBuilder_build($hay, (-24.0), 0.5, (-10.0), 1.7999999523162842, 1.0, 1.2000000476837158);
     cbgggus_BoxShapeBuilder_build($hay, (-22.200000762939453), 0.5, (-10.600000381469727), 1.7999999523162842, 1.0, 1.2000000476837158);
     cbgggus_BoxShapeBuilder_build($hay, (-23.100000381469727), 1.399999976158142, (-10.300000190734863), 1.7000000476837158, 0.8999999761581421, 1.100000023841858);
     $world.$addObstacle((-23.100000381469727), (-10.300000190734863), 4.0, 2.0);
     var$15 = cbgg_Color__init_(0.5, 0.5199999809265137, 0.550000011920929, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $trough = $mb.$part($rt_s(903), 4, Long_fromInt(9), var$15);
+    $trough = $mb.$part($rt_s(905), 4, Long_fromInt(9), var$15);
     cbgggus_BoxShapeBuilder_build($trough, (-24.0), 0.3499999940395355, (-26.0), 2.5999999046325684, 0.699999988079071, 1.100000023841858);
     var$15 = cbgg_Color__init_(0.3499999940395355, 0.6000000238418579, 0.8500000238418579, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $water = $mb.$part($rt_s(904), 4, Long_fromInt(9), var$15);
+    $water = $mb.$part($rt_s(906), 4, Long_fromInt(9), var$15);
     cbgggus_BoxShapeBuilder_build($water, (-24.0), 0.6200000047683716, (-26.0), 2.299999952316284, 0.10000000149011612, 0.800000011920929);
     $world.$addObstacle((-24.0), (-26.0), 3.0, 1.5);
     var$15 = $tex.$wood;
     var$6 = cbgg_Color__init_(0.6200000047683716, 0.5, 0.41999998688697815, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 1.0, 2.0);
-    $trunks = $mb.$part($rt_s(905), 4, Long_fromInt(25), var$15);
+    $trunks = $mb.$part($rt_s(907), 4, Long_fromInt(25), var$15);
     var$15 = $tex.$leaves;
     var$6 = cbgg_Color__init_(0.8199999928474426, 0.8799999952316284, 0.7200000286102295, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 2.0, 1.5);
-    $leaves = $mb.$part($rt_s(906), 4, Long_fromInt(25), var$15);
+    $leaves = $mb.$part($rt_s(908), 4, Long_fromInt(25), var$15);
     var$15 = $tex.$leaves;
     var$6 = cbgg_Color__init_(1.25, 1.399999976158142, 0.949999988079071, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 2.4000000953674316, 1.7999999523162842);
-    $leavesHi = $mb.$part($rt_s(907), 4, Long_fromInt(25), var$15);
+    $leavesHi = $mb.$part($rt_s(909), 4, Long_fromInt(25), var$15);
     $planted = 0;
     while ($planted < 26) {
         $x = $rng.$nextFloat() * 210.0 - 105.0;
@@ -47594,10 +47663,10 @@ crw_WorldBuilder_build = $tex => {
     $leavesHi.$setVertexTransform(null);
     var$15 = cbgg_Color__init_(0.9700000286102295, 0.949999988079071, 0.8999999761581421, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $petals = $mb.$part($rt_s(908), 4, Long_fromInt(9), var$15);
+    $petals = $mb.$part($rt_s(910), 4, Long_fromInt(9), var$15);
     var$15 = cbgg_Color__init_(0.9800000190734863, 0.800000011920929, 0.25, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $centers = $mb.$part($rt_s(909), 4, Long_fromInt(9), var$15);
+    $centers = $mb.$part($rt_s(911), 4, Long_fromInt(9), var$15);
     $i = 0;
     while ($i < 60) {
         $x = $rng.$nextFloat() * 205.0 - 102.0;
@@ -47627,7 +47696,7 @@ crw_WorldBuilder_build = $tex => {
     $centers.$setVertexTransform(null);
     var$15 = cbgg_Color__init_(0.5799999833106995, 0.5799999833106995, 0.6000000238418579, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $rocks = $mb.$part($rt_s(910), 4, Long_fromInt(9), var$15);
+    $rocks = $mb.$part($rt_s(912), 4, Long_fromInt(9), var$15);
     $i = 0;
     while ($i < 14) {
         $x = $rng.$nextFloat() * 200.0 - 100.0;
@@ -47651,7 +47720,7 @@ crw_WorldBuilder_build = $tex => {
     $rocks.$setVertexTransform(null);
     var$15 = cbgg_Color__init_(0.4000000059604645, 0.5799999833106995, 0.3199999928474426, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $hills = $mb.$part($rt_s(911), 4, Long_fromInt(9), var$15);
+    $hills = $mb.$part($rt_s(913), 4, Long_fromInt(9), var$15);
     $i = 0;
     while ($i < 11) {
         $a = $i * 6.2831854820251465 / 11.0 + 0.20000000298023224;
@@ -47665,7 +47734,7 @@ crw_WorldBuilder_build = $tex => {
     $hills.$setVertexTransform(null);
     var$15 = cbgg_Color__init_(0.5199999809265137, 0.550000011920929, 0.6200000047683716, 1.0);
     var$15 = crw_WorldBuilder_mat0(var$15);
-    $mountains = $mb.$part($rt_s(912), 4, Long_fromInt(9), var$15);
+    $mountains = $mb.$part($rt_s(914), 4, Long_fromInt(9), var$15);
     $i = 0;
     while ($i < 5) {
         $a = $i * 6.2831854820251465 / 5.0 + 0.8999999761581421;
@@ -47680,7 +47749,7 @@ crw_WorldBuilder_build = $tex => {
     var$15 = $tex.$grass;
     var$6 = cbgg_Color__init_(1.4500000476837158, 1.5499999523162842, 1.2000000476837158, 1.0);
     var$15 = crw_WorldBuilder_mat(var$15, var$6, 0.6000000238418579, 0.6000000238418579);
-    $tufts = $mb.$part($rt_s(913), 4, Long_fromInt(25), var$15);
+    $tufts = $mb.$part($rt_s(915), 4, Long_fromInt(25), var$15);
     $i = 0;
     while ($i < 150) {
         a: {
@@ -47735,7 +47804,7 @@ crw_WorldBuilder_buildClouds = () => {
     var$4[0] = cbggga_ColorAttribute_createDiffuse(var$5);
     var$4[1] = cbggga_BlendingAttribute__init_3(0.9200000166893005);
     cbggg_Material__init_(var$2, var$3);
-    $c = $mb.$part($rt_s(914), 4, Long_fromInt(9), var$2);
+    $c = $mb.$part($rt_s(916), 4, Long_fromInt(9), var$2);
     $tr = cbgm_Matrix4__init_();
     $rng = cbgm_RandomXS128__init_(Long_fromInt(99));
     $i = 0;
@@ -47884,7 +47953,7 @@ let cbgg_VertexAttributes__init_0 = ($this, $attributes) => {
     $this.$textureCoordinates = (-1);
     var$3 = var$2.length;
     if (!var$3)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(915)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(917)));
     $list = $rt_createArray(cbgg_VertexAttribute, var$3);
     $i = 0;
     while ($i < var$3) {
@@ -48045,7 +48114,7 @@ cbggg_ModelBatch__init_3 = () => {
 },
 cbggg_ModelBatch_begin = ($this, $cam) => {
     if ($this.$camera2 !== null)
-        $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(916)));
+        $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(918)));
     $this.$camera2 = $cam;
     if ($this.$ownContext)
         $this.$context1.$begin();
@@ -48681,8 +48750,8 @@ cbggg_HdpiMode_$values = () => {
     return var$1;
 },
 cbggg_HdpiMode__clinit_ = () => {
-    cbggg_HdpiMode_Logical = cbggg_HdpiMode__init_($rt_s(917), 0);
-    cbggg_HdpiMode_Pixels = cbggg_HdpiMode__init_($rt_s(918), 1);
+    cbggg_HdpiMode_Logical = cbggg_HdpiMode__init_($rt_s(919), 0);
+    cbggg_HdpiMode_Pixels = cbggg_HdpiMode__init_($rt_s(920), 1);
     cbggg_HdpiMode_$VALUES = cbggg_HdpiMode_$values();
 };
 function cbgssu_Label$LabelStyle() {
@@ -48811,7 +48880,7 @@ cbgggm_Node_insertChild = ($this, $index, $child) => {
         if ($p === null) {
             $p = $child.$getParent0();
             if ($p !== null && !$p.$removeChild($child))
-                $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(919)));
+                $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(921)));
             if ($index >= 0 && $index < $this.$children1.$size2)
                 $this.$children1.$insert21($index, $child);
             else {
@@ -48825,7 +48894,7 @@ cbgggm_Node_insertChild = ($this, $index, $child) => {
             break;
         $p = $p.$getParent0();
     }
-    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(920)));
+    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(922)));
 },
 cbgggm_Node_removeChild = ($this, $child) => {
     if (!$this.$children1.$removeValue($child, 1))
@@ -49082,16 +49151,16 @@ cgxgbt_TeaApplication_init = $this => {
     var$1 = cgxgbta_TeaWebAgent_computeAgentInfo();
     cgxgbt_TeaApplication_$callClinit();
     cgxgbt_TeaApplication_agentInfo = var$1;
-    jl_System_setProperty($rt_s(921), $rt_s(61));
-    jl_System_setProperty($rt_s(922), $rt_str(cgxgbt_TeaApplication_agentInfo.userAgent));
+    jl_System_setProperty($rt_s(923), $rt_s(61));
+    jl_System_setProperty($rt_s(924), $rt_str(cgxgbt_TeaApplication_agentInfo.userAgent));
     if (cgxgbt_TeaApplication_agentInfo.windows ? 1 : 0)
-        jl_System_setProperty($rt_s(923), $rt_s(924));
+        jl_System_setProperty($rt_s(925), $rt_s(926));
     else if (cgxgbt_TeaApplication_agentInfo.macOS ? 1 : 0)
-        jl_System_setProperty($rt_s(923), $rt_s(925));
+        jl_System_setProperty($rt_s(925), $rt_s(927));
     else if (!(cgxgbt_TeaApplication_agentInfo.linux ? 1 : 0))
-        jl_System_setProperty($rt_s(923), $rt_s(926));
+        jl_System_setProperty($rt_s(925), $rt_s(928));
     else
-        jl_System_setProperty($rt_s(923), $rt_s(927));
+        jl_System_setProperty($rt_s(925), $rt_s(929));
     $this.$graphics = cgxgbt_TeaGraphics__init_0($this.$config);
     $assetDownload = cgxgbta_AssetDownloadImpl__init_0($this.$config.$showDownloadLogs);
     cgxgbta_AssetInstance_setInstance($assetDownload);
@@ -49121,12 +49190,12 @@ cgxgbt_TeaApplication_init = $this => {
     cbg_Gdx_net = $this.$net;
     $this.$audio = cgxgbt_DefaultTeaAudio__init_0();
     cbg_Gdx_audio = $this.$audio;
-    $this.$window0.$addEventListener($rt_s(928), otji_JSWrapper_unwrap(cgxgbt_TeaApplication$1__init_0($this)));
+    $this.$window0.$addEventListener($rt_s(930), otji_JSWrapper_unwrap(cgxgbt_TeaApplication$1__init_0($this)));
     var$1 = $this.$window0.$getDocument();
     var$6 = cgxgbt_TeaApplication$2__init_0($this);
     var$1.addEventListener("visibilitychange", otji_JS_function(otji_JSWrapper_unwrap(var$6), "handleEvent"));
     if ($this.$config.$isAutoSizeApplication())
-        $this.$window0.$addEventListener($rt_s(929), otji_JSWrapper_unwrap(cgxgbt_TeaApplication$3__init_0($this)));
+        $this.$window0.$addEventListener($rt_s(931), otji_JSWrapper_unwrap(cgxgbt_TeaApplication$3__init_0($this)));
     $this.$window0.$requestAnimationFrame($this);
 },
 cgxgbt_TeaApplication_run = $this => {
@@ -49154,7 +49223,7 @@ cgxgbt_TeaApplication_run = $this => {
                             default:
                                 break b;
                         }
-                        $this.$assetLoader.$preload($this.$config, $rt_s(930));
+                        $this.$assetLoader.$preload($this.$config, $rt_s(932));
                         cgxgbt_TeaApplication$AppState_$callClinit();
                         $this.$initState = cgxgbt_TeaApplication$AppState_DOWNLOAD_ASSETS;
                         break b;
@@ -49313,14 +49382,14 @@ cgxgbt_TeaApplication_addLifecycleListener = ($this, $listener) => {
     $rt_throw(var$3);
 },
 cgxgbt_TeaApplication_initGdx = $this => {
-    $this.$assetLoader.$loadScript0($rt_s(931), cgxgbt_TeaApplication$4__init_0($this));
+    $this.$assetLoader.$loadScript0($rt_s(933), cgxgbt_TeaApplication$4__init_0($this));
 },
 cgxgbt_TeaApplication_initSound = $this => {
-    $this.$assetLoader.$loadScript0($rt_s(932), cgxgbt_TeaApplication$5__init_0($this));
+    $this.$assetLoader.$loadScript0($rt_s(934), cgxgbt_TeaApplication$5__init_0($this));
 },
 cgxgbt_TeaApplication__clinit_ = () => {
-    cgxgbt_TeaApplication_WEB_SCRIPT_PATH = $rt_s(933);
-    cgxgbt_TeaApplication_WEB_ASSET_PATH = $rt_s(934);
+    cgxgbt_TeaApplication_WEB_SCRIPT_PATH = $rt_s(935);
+    cgxgbt_TeaApplication_WEB_ASSET_PATH = $rt_s(936);
 };
 function jur_AbstractCharClass$LazyJavaIdentifierIgnorable$1() {
     jur_AbstractCharClass.call(this);
@@ -49446,7 +49515,7 @@ cbgggus_EllipseShapeBuilder_build = ($builder, $width, $height, $innerWidth, $in
                 $builder.$ensureIndices(var$22);
                 if ($builder.$getPrimitiveType() == 1)
                     break a;
-                $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(935)));
+                $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(937)));
             }
             var$23 = $divisions + 1 | 0;
             $builder.$ensureVertices(var$23 * 2 | 0);
@@ -49468,14 +49537,14 @@ cbgggus_EllipseShapeBuilder_build = ($builder, $width, $height, $innerWidth, $in
     $currIn.$hasPosition = 1;
     $currIn.$hasUV = 1;
     $currIn.$uv.$set4(0.5, 0.5);
-    $currIn.$position9.$set10($centerX, $centerY, $centerZ);
+    $currIn.$position10.$set10($centerX, $centerY, $centerZ);
     $currIn.$normal.$set10($normalX, $normalY, $normalZ);
     $currEx = cbgggus_BaseShapeBuilder_vertTmp4.$set28(null, null, null, null);
     $currEx.$hasNormal = 1;
     $currEx.$hasPosition = 1;
     $currEx.$hasUV = 1;
     $currEx.$uv.$set4(0.5, 0.5);
-    $currEx.$position9.$set10($centerX, $centerY, $centerZ);
+    $currEx.$position10.$set10($centerX, $centerY, $centerZ);
     $currEx.$normal.$set10($normalX, $normalY, $normalZ);
     $center = $builder.$vertex0($currEx);
     $us = 0.5 * $innerWidth / $width;
@@ -49488,12 +49557,12 @@ cbgggus_EllipseShapeBuilder_build = ($builder, $width, $height, $innerWidth, $in
         var$39 = $ao + $step * $i;
         $x = cbgm_MathUtils_cos(var$39);
         $y = cbgm_MathUtils_sin(var$39);
-        ($currEx.$position9.$set10($centerX, $centerY, $centerZ)).$add13($sxEx.$x * $x + $syEx.$x * $y, $sxEx.$y * $x + $syEx.$y * $y, $sxEx.$z * $x + $syEx.$z * $y);
+        ($currEx.$position10.$set10($centerX, $centerY, $centerZ)).$add13($sxEx.$x * $x + $syEx.$x * $y, $sxEx.$y * $x + $syEx.$y * $y, $sxEx.$z * $x + $syEx.$z * $y);
         $currEx.$uv.$set4(0.5 + 0.5 * $x, 0.5 + 0.5 * $y);
         $i1 = $builder.$vertex0($currEx);
         if (var$21 > 0 && $innerHeight > 0.0) {
             if (!($innerWidth === $width && $innerHeight === $height)) {
-                ($currIn.$position9.$set10($centerX, $centerY, $centerZ)).$add13($sxIn.$x * $x + $syIn.$x * $y, $sxIn.$y * $x + $syIn.$y * $y, $sxIn.$z * $x + $syIn.$z * $y);
+                ($currIn.$position10.$set10($centerX, $centerY, $centerZ)).$add13($sxIn.$x * $x + $syIn.$x * $y, $sxIn.$y * $x + $syIn.$y * $y, $sxIn.$z * $x + $syIn.$z * $y);
                 $currIn.$uv.$set4(0.5 + $us * $x, 0.5 + $vs * $y);
                 var$22 = $builder.$vertex0($currIn);
                 if ($i)
@@ -49613,7 +49682,7 @@ juz_Deflater_deflate = ($this, $buf, $off, $nbytes, $flushParam) => {
             }
             var$9 = new jl_RuntimeException;
             var$10 = jl_StringBuilder__init_();
-            jl_StringBuilder_append0(jl_StringBuilder_append(var$10, $rt_s(936)), $err);
+            jl_StringBuilder_append0(jl_StringBuilder_append(var$10, $rt_s(938)), $err);
             jl_RuntimeException__init_0(var$9, jl_StringBuilder_toString(var$10));
             $rt_throw(var$9);
         }
@@ -49852,7 +49921,7 @@ cbgg_Mesh_render1 = ($this, $shader, $primitiveType, $offset, $count, $autoBind)
         } else {
             if (($count + $offset | 0) > $this.$indices0.$getNumMaxIndices()) {
                 var$9 = new cbgu_GdxRuntimeException;
-                var$10 = (((((jl_StringBuilder__init_()).$append1($rt_s(937))).$append2($count)).$append1($rt_s(938))).$append2($offset)).$append1($rt_s(939));
+                var$10 = (((((jl_StringBuilder__init_()).$append1($rt_s(939))).$append2($count)).$append1($rt_s(940))).$append2($offset)).$append1($rt_s(941));
                 var$11 = $this.$indices0;
                 cbgu_GdxRuntimeException__init_0(var$9, ((var$10.$append2(var$11.$getNumMaxIndices())).$append1($rt_s(542))).$toString());
                 $rt_throw(var$9);
@@ -49912,11 +49981,11 @@ cbgu_ObjectSet = $rt_classWithoutFields(),
 cbgu_ObjectSet_tableSize = ($capacity, $loadFactor) => {
     let $tableSize;
     if ($capacity < 0)
-        $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append1($rt_s(940))).$append2($capacity)).$toString()));
+        $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append1($rt_s(942))).$append2($capacity)).$toString()));
     $tableSize = cbgm_MathUtils_nextPowerOfTwo(jl_Math_max0(2, jl_Math_ceil($capacity / $loadFactor) | 0));
     if ($tableSize <= 1073741824)
         return $tableSize;
-    $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append1($rt_s(941))).$append2($capacity)).$toString()));
+    $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append1($rt_s(943))).$append2($capacity)).$toString()));
 };
 function crh_CustomizeConsole$6() {
     jl_Object.call(this);
@@ -49978,7 +50047,7 @@ jur_EOISet_hasConsumed = ($this, $matchResult) => {
     return 0;
 },
 jur_EOISet_getName = $this => {
-    return $rt_s(942);
+    return $rt_s(944);
 };
 function crh_CustomizeConsole$4() {
     jl_Object.call(this);
@@ -50499,7 +50568,7 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
     let $type, $mouseEvent, $target, $canvas2, $equals, $button, $relativeX, $relativeY, var$10, $mouseX, $mouseY, $wheel, $wheelDelta, $touchEvent, $touches, $i, $j, $touch, $real, var$21, var$22, $touchId;
     a: {
         $type = $rt_str($e.type);
-        if ($type.$equals($rt_s(943))) {
+        if ($type.$equals($rt_s(945))) {
             window.focus();
             $mouseEvent = $e;
             $target = $e.target;
@@ -50538,7 +50607,7 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
                 $this.$hasFocus = 0;
             return;
         }
-        if ($type.$equals($rt_s(944))) {
+        if ($type.$equals($rt_s(946))) {
             $mouseEvent = $e;
             if (!$this.$touched.data[0])
                 return;
@@ -50560,15 +50629,15 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
             $this.$touched.data[0] = 0;
             if ($this.$processor !== null)
                 $this.$processor.$touchUp1($this.$touchX.data[0], $this.$touchY.data[0], 0, cgxgbtu_KeyCodes_getButton($mouseEvent.button));
-        } else if (!$type.$equals($rt_s(945))) {
-            if ($type.$equals($rt_s(946))) {
+        } else if (!$type.$equals($rt_s(947))) {
+            if ($type.$equals($rt_s(948))) {
                 $wheel = $e;
                 if ($this.$processor !== null) {
                     $wheelDelta = cgxgbt_TeaInput_getMouseWheelVelocity($wheel);
                     $this.$processor.$scrolled0(0.0, $wheelDelta | 0);
                 }
                 $this.$currentEventTimeStamp = cbgu_TimeUtils_nanoTime();
-            } else if ($type.$equals($rt_s(947))) {
+            } else if ($type.$equals($rt_s(949))) {
                 $this.$justTouched = 1;
                 $touchEvent = $e;
                 $touches = $touchEvent.changedTouches;
@@ -50616,7 +50685,7 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
             }
         }
     }
-    if ($type.$equals($rt_s(948))) {
+    if ($type.$equals($rt_s(950))) {
         $touchEvent = $e;
         $touches = $touchEvent.changedTouches;
         $i = 0;
@@ -50635,7 +50704,7 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
         $this.$currentEventTimeStamp = cbgu_TimeUtils_nanoTime();
         $e.preventDefault();
     }
-    if ($type.$equals($rt_s(949))) {
+    if ($type.$equals($rt_s(951))) {
         $touchEvent = $e;
         $touches = $touchEvent.changedTouches;
         $i = 0;
@@ -50658,7 +50727,7 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
         $this.$currentEventTimeStamp = cbgu_TimeUtils_nanoTime();
         $e.preventDefault();
     }
-    if ($type.$equals($rt_s(950))) {
+    if ($type.$equals($rt_s(952))) {
         $touchEvent = $e;
         $touches = $touchEvent.changedTouches;
         $i = 0;
@@ -50685,8 +50754,8 @@ cgxgbt_TeaInput_handleMouseEvents = ($this, $e) => {
 cgxgbt_TeaInput_handleKeyboardEvents = ($this, $e) => {
     let $type, $keyboardEvent, $c, $code, $keyChar;
     $type = $rt_str($e.type);
-    if (!($type.$equals($rt_s(951)) && $this.$hasFocus)) {
-        if ($type.$equals($rt_s(952)) && $this.$hasFocus) {
+    if (!($type.$equals($rt_s(953)) && $this.$hasFocus)) {
+        if ($type.$equals($rt_s(954)) && $this.$hasFocus) {
             $keyboardEvent = $e;
             $c = $keyboardEvent.charCode & 65535;
             if ($this.$processor !== null)
@@ -50695,7 +50764,7 @@ cgxgbt_TeaInput_handleKeyboardEvents = ($this, $e) => {
                 $e.preventDefault();
                 $e.stopPropagation();
             }
-        } else if ($type.$equals($rt_s(953)) && $this.$hasFocus) {
+        } else if ($type.$equals($rt_s(955)) && $this.$hasFocus) {
             $keyboardEvent = $e;
             $code = cgxgbtu_KeyCodes_keyForCode($keyboardEvent.keyCode);
             if ($this.$isCatchKey($code))
@@ -50800,7 +50869,7 @@ cgxgbt_TeaInput_setDelta = ($this, $touchId, $x, $y) => {
 cgxgbt_TeaInput_getCompatMode = ($this, $element) => {
     let $compatMode, $isComp;
     $compatMode = $rt_str($element.compatMode);
-    $isComp = $compatMode.$equals($rt_s(954));
+    $isComp = $compatMode.$equals($rt_s(956));
     if ($isComp)
         $element = $element.documentElement;
     return $element;
@@ -51203,7 +51272,7 @@ cbgggu_ModelBuilder_node = $this => {
     let $node;
     $node = cbgggm_Node__init_();
     $this.$node0($node);
-    $node.$id = (((jl_StringBuilder__init_()).$append1($rt_s(955))).$append2($this.$model.$nodes0.$size2)).$toString();
+    $node.$id = (((jl_StringBuilder__init_()).$append1($rt_s(957))).$append2($this.$model.$nodes0.$size2)).$toString();
     return $node;
 },
 cbgggu_ModelBuilder_part1 = ($this, $meshpart, $material) => {
@@ -51228,7 +51297,7 @@ cbgggu_ModelBuilder_createSphere1 = ($this, $width, $height, $depth, $divisionsU
 },
 cbgggu_ModelBuilder_createSphere0 = ($this, $width, $height, $depth, $divisionsU, $divisionsV, $primitiveType, $material, $attributes, $angleUFrom, $angleUTo, $angleVFrom, $angleVTo) => {
     $this.$begin();
-    ($this.$part($rt_s(956), $primitiveType, $attributes, $material)).$sphere($width, $height, $depth, $divisionsU, $divisionsV, $angleUFrom, $angleUTo, $angleVFrom, $angleVTo);
+    ($this.$part($rt_s(958), $primitiveType, $attributes, $material)).$sphere($width, $height, $depth, $divisionsU, $divisionsV, $angleUFrom, $angleUTo, $angleVFrom, $angleVTo);
     return $this.$end2();
 },
 cbgggu_ModelBuilder_rebuildReferences0 = $model => {
@@ -51265,7 +51334,7 @@ cbgggu_ModelBuilder_rebuildReferences = ($model, $node) => {
 oti_AsyncCallback = $rt_classWithoutFields(0),
 otja_XMLHttpRequest = $rt_classWithoutFields(),
 otja_XMLHttpRequest_onProgress$static = ($this, $eventListener) => {
-    return otjde_EventTarget_onEvent$static($this, $rt_s(957), $eventListener);
+    return otjde_EventTarget_onEvent$static($this, $rt_s(959), $eventListener);
 },
 cbgggus_SphereShapeBuilder = $rt_classWithoutFields(cbgggus_BaseShapeBuilder),
 cbgggus_SphereShapeBuilder_tmpIndices = null,
@@ -51331,9 +51400,9 @@ cbgggus_SphereShapeBuilder_build1 = ($builder, $transform, $width, $height, $dep
             var$22 = $iu;
             var$37 = $auo + $stepU * var$22;
             var$22 = !(!$iv && $closedVFrom) && !(!var$32 && $closedVTo) ? 1.0 - $us * var$22 : 1.0 - $us * (var$22 - 0.5);
-            $curr1.$position9.$set10(cbgm_MathUtils_cos(var$37) * $hw * $t, $h, cbgm_MathUtils_sin(var$37) * $hd * $t);
-            (($curr1.$normal.$set9($curr1.$position9)).$mul3(cbgggus_SphereShapeBuilder_normalTransform)).$nor0();
-            $curr1.$position9.$mul1($transform);
+            $curr1.$position10.$set10(cbgm_MathUtils_cos(var$37) * $hw * $t, $h, cbgm_MathUtils_sin(var$37) * $hd * $t);
+            (($curr1.$normal.$set9($curr1.$position10)).$mul3(cbgggus_SphereShapeBuilder_normalTransform)).$nor0();
+            $curr1.$position10.$mul1($transform);
             $curr1.$uv.$set4(var$22, var$33);
             cbgggus_SphereShapeBuilder_tmpIndices.$set53($tempOffset, $builder.$vertex0($curr1));
             $o = $tempOffset + $s | 0;
@@ -51436,7 +51505,7 @@ jl_System_arraycopy = ($src, $srcPos, $dest, $destPos, $length) => {
         }
         $rt_throw(jl_IndexOutOfBoundsException__init_());
     }
-    $rt_throw(jl_NullPointerException__init_1($rt_s(958)));
+    $rt_throw(jl_NullPointerException__init_1($rt_s(960)));
 },
 jl_System_fastArraycopy = ($src, $srcPos, $dest, $destPos, $length) => {
     let var$6;
@@ -51473,19 +51542,19 @@ jl_System_initPropertiesIfNeeded = () => {
     let var$1;
     if (jl_System_properties === null) {
         var$1 = ju_Properties__init_1();
-        var$1.$put($rt_s(959), $rt_s(960));
-        var$1.$put($rt_s(923), $rt_s(961));
-        var$1.$put($rt_s(962), $rt_s(34));
-        var$1.$put($rt_s(963), $rt_s(964));
-        var$1.$put($rt_s(965), jl_System_lineSeparator());
-        var$1.$put($rt_s(966), jl_System_getTempDir());
-        var$1.$put($rt_s(967), $rt_s(960));
-        var$1.$put($rt_s(968), jl_System_getHomeDir());
+        var$1.$put($rt_s(961), $rt_s(962));
+        var$1.$put($rt_s(925), $rt_s(963));
+        var$1.$put($rt_s(964), $rt_s(34));
+        var$1.$put($rt_s(965), $rt_s(966));
+        var$1.$put($rt_s(967), jl_System_lineSeparator());
+        var$1.$put($rt_s(968), jl_System_getTempDir());
+        var$1.$put($rt_s(969), $rt_s(962));
+        var$1.$put($rt_s(970), jl_System_getHomeDir());
         jl_System_properties = ju_Properties__init_2(var$1);
     }
 },
 jl_System_getTempDir = () => {
-    return $rt_s(969);
+    return $rt_s(971);
 },
 jl_System_getHomeDir = () => {
     return $rt_s(34);
@@ -51909,7 +51978,7 @@ jur_DotAllSet_matches = ($this, $stringIndex, $testString, $matchResult) => {
     return $this.$next1.$matches(var$5, $testString, $matchResult);
 },
 jur_DotAllSet_getName = $this => {
-    return $rt_s(970);
+    return $rt_s(972);
 },
 jur_DotAllSet_setNext = ($this, $next) => {
     $this.$next1 = $next;
@@ -52017,7 +52086,7 @@ jur_HangulDecomposedCharSet_getName = $this => {
     let var$1, var$2;
     var$1 = jur_HangulDecomposedCharSet_getDecomposedChar($this);
     var$2 = jl_StringBuilder__init_();
-    jl_StringBuilder_append(jl_StringBuilder_append(var$2, $rt_s(971)), var$1);
+    jl_StringBuilder_append(jl_StringBuilder_append(var$2, $rt_s(973)), var$1);
     return jl_StringBuilder_toString(var$2);
 },
 jur_HangulDecomposedCharSet_matches = ($this, $strIndex, $testString, $matchResult) => {
@@ -52205,7 +52274,7 @@ jur_WordBoundary_hasConsumed = ($this, $matchResult) => {
     return 0;
 },
 jur_WordBoundary_getName = $this => {
-    return $rt_s(972);
+    return $rt_s(974);
 },
 jur_WordBoundary_isSpace = ($this, $ch, $index, $leftBound, $testString) => {
     let var$5;
@@ -52237,7 +52306,7 @@ cbggga_SpotLightsAttribute_$callClinit = () => {
     cbggga_SpotLightsAttribute__clinit_();
 },
 cbggga_SpotLightsAttribute__clinit_ = () => {
-    cbggga_SpotLightsAttribute_Type = cbggg_Attribute_register($rt_s(973));
+    cbggga_SpotLightsAttribute_Type = cbggg_Attribute_register($rt_s(975));
 },
 cbgggus_BaseShapeBuilder$2 = $rt_classWithoutFields(cbgu_FlushablePool),
 cbgggus_BaseShapeBuilder$2__init_ = $this => {
@@ -52293,7 +52362,7 @@ cbgu_BufferUtils_asFloatBuffer = $data => {
         $buffer = $data;
     if ($buffer !== null)
         return $buffer;
-    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(974)));
+    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(976)));
 },
 cbgu_BufferUtils_newFloatBuffer = $numFloats => {
     let $buffer;
@@ -52336,7 +52405,7 @@ cbgu_BufferUtils_disposeUnsafeByteBuffer = $buffer => {
     cbgu_BufferUtils_$callClinit();
     $size = jn_Buffer_capacity($buffer);
     if (!cbgu_BufferUtils_unsafeBuffers.$removeValue($buffer, 1))
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(975)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(977)));
     cbgu_BufferUtils_allocatedUnsafe = cbgu_BufferUtils_allocatedUnsafe - $size | 0;
     cbgu_BufferUtils_freeMemory($buffer);
 },
@@ -52391,9 +52460,9 @@ crc_CourseManager$State_$values = () => {
     return var$1;
 },
 crc_CourseManager$State__clinit_ = () => {
-    crc_CourseManager$State_READY = crc_CourseManager$State__init_($rt_s(976), 0);
-    crc_CourseManager$State_RUNNING = crc_CourseManager$State__init_($rt_s(977), 1);
-    crc_CourseManager$State_FINISHED = crc_CourseManager$State__init_($rt_s(978), 2);
+    crc_CourseManager$State_READY = crc_CourseManager$State__init_($rt_s(978), 0);
+    crc_CourseManager$State_RUNNING = crc_CourseManager$State__init_($rt_s(979), 1);
+    crc_CourseManager$State_FINISHED = crc_CourseManager$State__init_($rt_s(980), 2);
     crc_CourseManager$State_$VALUES = crc_CourseManager$State_$values();
 };
 function cbgssu_Cell() {
@@ -52469,9 +52538,9 @@ cbgssu_Cell_setTable = ($this, $table) => {
 },
 cbgssu_Cell_size = ($this, $width, $height) => {
     if ($width === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(979)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(981)));
     if ($height === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(980)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(982)));
     $this.$minWidth0 = $width;
     $this.$minHeight = $height;
     $this.$prefWidth = $width;
@@ -52503,13 +52572,13 @@ cbgssu_Cell_pad = ($this, $pad) => {
 },
 cbgssu_Cell_pad0 = ($this, $top, $left, $bottom, $right) => {
     if ($top === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(981)));
-    if ($left === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(982)));
-    if ($bottom === null)
         $rt_throw(jl_IllegalArgumentException__init_($rt_s(983)));
-    if ($right === null)
+    if ($left === null)
         $rt_throw(jl_IllegalArgumentException__init_($rt_s(984)));
+    if ($bottom === null)
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(985)));
+    if ($right === null)
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(986)));
     $this.$padTop0 = $top;
     $this.$padLeft = $left;
     $this.$padBottom0 = $bottom;
@@ -52774,9 +52843,9 @@ cbgss_Stage__init_ = ($this, $viewport, $batch) => {
     $this.$debugTableUnderMouse = cbgssu_Table$Debug_none;
     $this.$debugColor = cbgg_Color__init_(0.0, 1.0, 0.0, 0.8500000238418579);
     if ($viewport === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(985)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(987)));
     if ($batch === null)
-        $rt_throw(jl_IllegalArgumentException__init_($rt_s(986)));
+        $rt_throw(jl_IllegalArgumentException__init_($rt_s(988)));
     $this.$viewport = $viewport;
     $this.$batch0 = $batch;
     $this.$root = cbgss_Group__init_0();
@@ -53759,7 +53828,7 @@ jur_AbstractCharClass$LazyJavaISOControl_computeValue = $this => {
 };
 function cbgggu_MeshPartBuilder$VertexInfo() {
     let a = this; jl_Object.call(a);
-    a.$position9 = null;
+    a.$position10 = null;
     a.$hasPosition = 0;
     a.$normal = null;
     a.$hasNormal = 0;
@@ -53770,7 +53839,7 @@ function cbgggu_MeshPartBuilder$VertexInfo() {
 }
 let cbgggu_MeshPartBuilder$VertexInfo__init_0 = $this => {
     jl_Object__init_($this);
-    $this.$position9 = cbgm_Vector3__init_();
+    $this.$position10 = cbgm_Vector3__init_();
     $this.$normal = cbgm_Vector3__init_0(0.0, 1.0, 0.0);
     $this.$color8 = cbgg_Color__init_(1.0, 1.0, 1.0, 1.0);
     $this.$uv = cbgm_Vector2__init_();
@@ -53781,7 +53850,7 @@ cbgggu_MeshPartBuilder$VertexInfo__init_ = () => {
     return var_0;
 },
 cbgggu_MeshPartBuilder$VertexInfo_reset = $this => {
-    $this.$position9.$set10(0.0, 0.0, 0.0);
+    $this.$position10.$set10(0.0, 0.0, 0.0);
     $this.$normal.$set10(0.0, 1.0, 0.0);
     $this.$color8.$set0(1.0, 1.0, 1.0, 1.0);
     $this.$uv.$set4(0.0, 0.0);
@@ -53790,7 +53859,7 @@ cbgggu_MeshPartBuilder$VertexInfo_set = ($this, $pos, $nor, $col, $uv) => {
     $this.$reset1();
     $this.$hasPosition = $pos === null ? 0 : 1;
     if ($this.$hasPosition)
-        $this.$position9.$set9($pos);
+        $this.$position10.$set9($pos);
     $this.$hasNormal = $nor === null ? 0 : 1;
     if ($this.$hasNormal)
         $this.$normal.$set9($nor);
@@ -53803,7 +53872,7 @@ cbgggu_MeshPartBuilder$VertexInfo_set = ($this, $pos, $nor, $col, $uv) => {
     return $this;
 },
 cbgggu_MeshPartBuilder$VertexInfo_setPos = ($this, $x, $y, $z) => {
-    $this.$position9.$set10($x, $y, $z);
+    $this.$position10.$set10($x, $y, $z);
     $this.$hasPosition = 1;
     return $this;
 },
@@ -54361,7 +54430,7 @@ cgxgbta_AssetDownloadImpl$1_onSuccess0 = ($this, $url, $result) => {
     if ($this.$this$024.$showLogs) {
         var$3 = jl_System_out();
         var$4 = jl_StringBuilder__init_();
-        jl_StringBuilder_append(jl_StringBuilder_append(var$4, $rt_s(987)), $url);
+        jl_StringBuilder_append(jl_StringBuilder_append(var$4, $rt_s(989)), $url);
         var$3.$println1(jl_StringBuilder_toString(var$4));
     }
     $this.$val$listener0.$onSuccess($url, $result);
@@ -54371,7 +54440,7 @@ cgxgbta_AssetDownloadImpl$1_onFailure = ($this, $url) => {
     if ($this.$this$024.$showLogs) {
         var$2 = jl_System_err();
         var$3 = jl_StringBuilder__init_();
-        jl_StringBuilder_append(jl_StringBuilder_append(var$3, $rt_s(988)), $url);
+        jl_StringBuilder_append(jl_StringBuilder_append(var$3, $rt_s(990)), $url);
         var$2.$println1(jl_StringBuilder_toString(var$3));
     }
 },
@@ -54406,7 +54475,7 @@ cgxgbta_AssetDownloadImpl$2_handleEvent = ($this, $event) => {
         var$2 = jl_System_out();
         var$3 = $this.$val$url;
         var$4 = jl_StringBuilder__init_();
-        jl_StringBuilder_append(jl_StringBuilder_append(var$4, $rt_s(989)), var$3);
+        jl_StringBuilder_append(jl_StringBuilder_append(var$4, $rt_s(991)), var$3);
         var$2.$println1(jl_StringBuilder_toString(var$4));
     }
     if ($this.$val$listener1 !== null)
@@ -54526,7 +54595,7 @@ crt_TeaVMLauncher_main = $args => {
     var$2 = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 1 : 0;
     cr_HorseGame_$callClinit();
     cr_HorseGame_touchDevice = var$2;
-    $config = cgxgbt_TeaApplicationConfiguration__init_0($rt_s(990));
+    $config = cgxgbt_TeaApplicationConfiguration__init_0($rt_s(992));
     $config.$width3 = 0;
     $config.$height2 = 0;
     cgxgbt_TeaApplication__init_(new cgxgbt_TeaApplication, cr_HorseGame__init_0(), $config);
@@ -54550,7 +54619,7 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
     $body = $mb.$node();
     $body.$id = $rt_s(884);
     $body.$translation.$set10(0.0, 1.0199999809265137, 0.0);
-    var$9 = crh_HorseModelFactory_coatMat($rt_s(991), $coat, $bodyColor);
+    var$9 = crh_HorseModelFactory_coatMat($rt_s(993), $coat, $bodyColor);
     $b = $mb.$part($rt_s(884), 4, Long_fromInt(25), var$9);
     crh_Organic_ball($b, 0.0, 0.18000000715255737, (-0.05000000074505806), 0.30000001192092896, 0.3700000047683716, 0.6200000047683716);
     crh_Organic_ball($b, 0.0, 0.14000000059604645, 0.41999998688697815, 0.27000001072883606, 0.3400000035762787, 0.3400000035762787);
@@ -54562,11 +54631,11 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
     if ($withRider) {
         var$11 = cbgg_Color__init_(0.8500000238418579, 0.10000000149011612, 0.15000000596046448, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(580), var$11);
-        $pad = $mb.$part($rt_s(992), 4, Long_fromInt(9), var$9);
+        $pad = $mb.$part($rt_s(994), 4, Long_fromInt(9), var$9);
         crh_Organic_ball($pad, 0.0, 0.46000000834465027, (-0.03999999910593033), 0.33000001311302185, 0.07000000029802322, 0.41999998688697815);
         var$11 = cbgg_Color__init_(0.44999998807907104, 0.20000000298023224, 0.11999999731779099, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(579), var$11);
-        $sd = $mb.$part($rt_s(993), 4, Long_fromInt(9), var$9);
+        $sd = $mb.$part($rt_s(995), 4, Long_fromInt(9), var$9);
         crh_Organic_ball($sd, 0.0, 0.5299999713897705, (-0.05999999865889549), 0.1899999976158142, 0.09000000357627869, 0.30000001192092896);
         crh_Organic_ball($sd, 0.0, 0.6000000238418579, (-0.23999999463558197), 0.10000000149011612, 0.07999999821186066, 0.07000000029802322);
         crh_Organic_ball($sd, 0.0, 0.6000000238418579, 0.12999999523162842, 0.09000000357627869, 0.07999999821186066, 0.05999999865889549);
@@ -54575,8 +54644,8 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         crh_Organic_ballZ($sd, 0.33000001311302185, 0.36000001430511475, 0.019999999552965164, 0.02199999988079071, 0.1599999964237213, 0.05000000074505806, 6.0);
         crh_Organic_ballZ($sd, (-0.33000001311302185), 0.36000001430511475, 0.019999999552965164, 0.02199999988079071, 0.1599999964237213, 0.05000000074505806, (-6.0));
         var$11 = cbgg_Color__init_(0.7200000286102295, 0.7400000095367432, 0.7799999713897705, 1.0);
-        var$9 = crh_HorseModelFactory_mat($rt_s(994), var$11);
-        $iron = $mb.$part($rt_s(995), 4, Long_fromInt(9), var$9);
+        var$9 = crh_HorseModelFactory_mat($rt_s(996), var$11);
+        $iron = $mb.$part($rt_s(997), 4, Long_fromInt(9), var$9);
         crh_Organic_ballLow($iron, 0.3400000035762787, 0.20000000298023224, 0.019999999552965164, 0.04500000178813934, 0.054999999701976776, 0.019999999552965164);
         crh_Organic_ballLow($iron, (-0.3400000035762787), 0.20000000298023224, 0.019999999552965164, 0.04500000178813934, 0.054999999701976776, 0.019999999552965164);
     }
@@ -54584,7 +54653,7 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         $neck = $mb.$node();
         $neck.$id = $rt_s(885);
         $neck.$translation.$set10(0.0, 1.25, 0.550000011920929);
-        var$9 = crh_HorseModelFactory_coatMat($rt_s(996), $coat, $bodyColor);
+        var$9 = crh_HorseModelFactory_coatMat($rt_s(998), $coat, $bodyColor);
         $n = $mb.$part($rt_s(885), 4, Long_fromInt(25), var$9);
         crh_Organic_ballX($n, 0.0, 0.05000000074505806, 0.10000000149011612, 0.14499999582767487, 0.2800000011920929, 0.2199999988079071, 42.0);
         crh_Organic_ballX($n, 0.0, 0.25999999046325684, 0.30000001192092896, 0.11500000208616257, 0.25, 0.1599999964237213, 40.0);
@@ -54593,29 +54662,29 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         crh_Organic_ballX($n, 0.0, 0.5199999809265137, 0.5400000214576721, 0.0949999988079071, 0.11500000208616257, 0.15000000596046448, (-26.0));
         $mz = $mb.$part($rt_s(578), 4, Long_fromInt(9), crh_HorseModelFactory_mat($rt_s(578), $muzzle));
         crh_Organic_ballX($mz, 0.0, 0.4749999940395355, 0.7950000166893005, 0.06199999898672104, 0.07999999821186066, 0.14000000059604645, (-40.0));
-        $det = $mb.$part($rt_s(997), 4, Long_fromInt(9), crh_HorseModelFactory_mat($rt_s(997), crh_HorseModelFactory_DETAIL));
+        $det = $mb.$part($rt_s(999), 4, Long_fromInt(9), crh_HorseModelFactory_mat($rt_s(999), crh_HorseModelFactory_DETAIL));
         crh_Organic_ball($det, 0.10499999672174454, 0.6000000238418579, 0.6600000262260437, 0.032999999821186066, 0.03999999910593033, 0.032999999821186066);
         crh_Organic_ball($det, (-0.10499999672174454), 0.6000000238418579, 0.6600000262260437, 0.032999999821186066, 0.03999999910593033, 0.032999999821186066);
         crh_Organic_ball($det, 0.03999999910593033, 0.4650000035762787, 0.8949999809265137, 0.01600000075995922, 0.019999999552965164, 0.01600000075995922);
         crh_Organic_ball($det, (-0.03999999910593033), 0.4650000035762787, 0.8949999809265137, 0.01600000075995922, 0.019999999552965164, 0.01600000075995922);
         var$11 = cbgg_Color__init_(0.949999988079071, 0.949999988079071, 0.9800000190734863, 1.0);
-        var$9 = crh_HorseModelFactory_mat($rt_s(998), var$11);
-        $glint = $mb.$part($rt_s(999), 4, Long_fromInt(9), var$9);
+        var$9 = crh_HorseModelFactory_mat($rt_s(1000), var$11);
+        $glint = $mb.$part($rt_s(1001), 4, Long_fromInt(9), var$9);
         crh_Organic_ballLow($glint, 0.11800000071525574, 0.6150000095367432, 0.675000011920929, 0.009999999776482582, 0.012000000104308128, 0.009999999776482582);
         crh_Organic_ballLow($glint, (-0.11800000071525574), 0.6150000095367432, 0.675000011920929, 0.009999999776482582, 0.012000000104308128, 0.009999999776482582);
         var$11 = cbgg_Color__init_(0.9599999785423279, 0.949999988079071, 0.9200000166893005, 1.0);
-        var$9 = crh_HorseModelFactory_mat($rt_s(1000), var$11);
+        var$9 = crh_HorseModelFactory_mat($rt_s(1002), var$11);
         $star = $mb.$part($rt_s(586), 4, Long_fromInt(9), var$9);
         crh_Organic_ballLowX($star, 0.0, 0.675000011920929, 0.7300000190734863, 0.04500000178813934, 0.05000000074505806, 0.019999999552965164, (-30.0));
         var$11 = cbgg_Color__init_(0.9599999785423279, 0.949999988079071, 0.9200000166893005, 1.0);
-        var$9 = crh_HorseModelFactory_mat($rt_s(1000), var$11);
+        var$9 = crh_HorseModelFactory_mat($rt_s(1002), var$11);
         $blaze = $mb.$part($rt_s(587), 4, Long_fromInt(9), var$9);
         crh_Organic_ballLowX($blaze, 0.0, 0.6700000166893005, 0.7350000143051147, 0.03500000014901161, 0.08500000089406967, 0.02500000037252903, (-32.0));
         crh_Organic_ballLowX($blaze, 0.0, 0.550000011920929, 0.8199999928474426, 0.029999999329447746, 0.09000000357627869, 0.02800000086426735, (-38.0));
         if ($withRider) {
             var$11 = cbgg_Color__init_(0.44999998807907104, 0.20000000298023224, 0.11999999731779099, 1.0);
-            var$9 = crh_HorseModelFactory_mat($rt_s(1001), var$11);
-            $br = $mb.$part($rt_s(1002), 4, Long_fromInt(9), var$9);
+            var$9 = crh_HorseModelFactory_mat($rt_s(1003), var$11);
+            $br = $mb.$part($rt_s(1004), 4, Long_fromInt(9), var$9);
             crh_Organic_ballLowX($br, 0.0, 0.4950000047683716, 0.8100000023841858, 0.0820000022649765, 0.02199999988079071, 0.15199999511241913, (-32.0));
             crh_Organic_ballLowX($br, 0.09300000220537186, 0.574999988079071, 0.699999988079071, 0.010999999940395355, 0.06499999761581421, 0.013000000268220901, (-32.0));
             crh_Organic_ballLowX($br, (-0.09300000220537186), 0.574999988079071, 0.699999988079071, 0.010999999940395355, 0.06499999761581421, 0.013000000268220901, (-32.0));
@@ -54652,24 +54721,24 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
     $tail = $mb.$node();
     $tail.$id = $rt_s(886);
     $tail.$translation.$set10(0.0, 1.440000057220459, (-0.8600000143051147));
-    $t = $mb.$part($rt_s(886), 4, Long_fromInt(9), crh_HorseModelFactory_mat($rt_s(1003), $maneColor));
+    $t = $mb.$part($rt_s(886), 4, Long_fromInt(9), crh_HorseModelFactory_mat($rt_s(1005), $maneColor));
     crh_Organic_ball($t, 0.0, (-0.05999999865889549), (-0.029999999329447746), 0.07500000298023224, 0.09000000357627869, 0.07999999821186066);
     crh_Organic_ball($t, 0.0, (-0.2199999988079071), (-0.07000000029802322), 0.06800000369548798, 0.09000000357627869, 0.07199999690055847);
     crh_Organic_ball($t, 0.0, (-0.3799999952316284), (-0.10000000149011612), 0.05999999865889549, 0.08500000089406967, 0.06400000303983688);
     crh_Organic_ball($t, 0.0, (-0.5299999713897705), (-0.11999999731779099), 0.052000001072883606, 0.07999999821186066, 0.0560000017285347);
     crh_Organic_ball($t, 0.0, (-0.6700000166893005), (-0.13500000536441803), 0.04500000178813934, 0.07500000298023224, 0.04800000041723251);
     crh_Organic_ballX($t, 0.0, (-0.8199999928474426), (-0.14499999582767487), 0.035999998450279236, 0.10000000149011612, 0.03799999877810478, 2.0);
-    crh_HorseModelFactory_buildLeg($mb, $rt_s(887), (-0.20000000298023224), 0.44999998807907104, 0, $bodyColor, $hoof, $coat);
-    crh_HorseModelFactory_buildLeg($mb, $rt_s(888), 0.20000000298023224, 0.44999998807907104, 0, $bodyColor, $hoof, $coat);
-    crh_HorseModelFactory_buildLeg($mb, $rt_s(889), (-0.20999999344348907), (-0.5199999809265137), 1, $bodyColor, $hoof, $coat);
-    crh_HorseModelFactory_buildLeg($mb, $rt_s(890), 0.20999999344348907, (-0.5199999809265137), 1, $bodyColor, $hoof, $coat);
+    crh_HorseModelFactory_buildLeg($mb, $rt_s(1006), (-0.20000000298023224), 0.44999998807907104, 0, $bodyColor, $hoof, $coat);
+    crh_HorseModelFactory_buildLeg($mb, $rt_s(1007), 0.20000000298023224, 0.44999998807907104, 0, $bodyColor, $hoof, $coat);
+    crh_HorseModelFactory_buildLeg($mb, $rt_s(1008), (-0.20999999344348907), (-0.5199999809265137), 1, $bodyColor, $hoof, $coat);
+    crh_HorseModelFactory_buildLeg($mb, $rt_s(1009), 0.20999999344348907, (-0.5199999809265137), 1, $bodyColor, $hoof, $coat);
     if ($withRider) {
         $rider = $mb.$node();
-        $rider.$id = $rt_s(891);
+        $rider.$id = $rt_s(887);
         $rider.$translation.$set10(0.0, 1.559999942779541, (-0.05000000074505806));
         var$11 = cbgg_Color__init_(0.20000000298023224, 0.25, 0.44999998807907104, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(582), var$11);
-        $pants = $mb.$part($rt_s(1004), 4, Long_fromInt(9), var$9);
+        $pants = $mb.$part($rt_s(1010), 4, Long_fromInt(9), var$9);
         crh_Organic_ball($pants, 0.0, 0.07999999821186066, (-0.019999999552965164), 0.15000000596046448, 0.11999999731779099, 0.12999999523162842);
         crh_Organic_ballX($pants, 0.20000000298023224, 0.019999999552965164, 0.14000000059604645, 0.08500000089406967, 0.10000000149011612, 0.23999999463558197, (-18.0));
         crh_Organic_ballX($pants, (-0.20000000298023224), 0.019999999552965164, 0.14000000059604645, 0.08500000089406967, 0.10000000149011612, 0.23999999463558197, (-18.0));
@@ -54677,19 +54746,19 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         crh_Organic_ballX($pants, (-0.2800000011920929), (-0.2199999988079071), 0.1599999964237213, 0.054999999701976776, 0.1899999976158142, 0.06499999761581421, 12.0);
         var$11 = cbgg_Color__init_(0.30000001192092896, 0.18000000715255737, 0.10000000149011612, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(720), var$11);
-        $boots = $mb.$part($rt_s(1005), 4, Long_fromInt(9), var$9);
+        $boots = $mb.$part($rt_s(1011), 4, Long_fromInt(9), var$9);
         crh_Organic_ball($boots, 0.28999999165534973, (-0.41999998688697815), 0.20000000298023224, 0.05000000074505806, 0.07000000029802322, 0.11999999731779099);
         crh_Organic_ball($boots, (-0.28999999165534973), (-0.41999998688697815), 0.20000000298023224, 0.05000000074505806, 0.07000000029802322, 0.11999999731779099);
         crh_Organic_ballX($boots, 0.2849999964237213, (-0.30000001192092896), 0.16500000655651093, 0.052000001072883606, 0.11500000208616257, 0.05999999865889549, 10.0);
         crh_Organic_ballX($boots, (-0.2849999964237213), (-0.30000001192092896), 0.16500000655651093, 0.052000001072883606, 0.11500000208616257, 0.05999999865889549, 10.0);
         var$11 = cbgg_Color__init_(0.8999999761581421, 0.8500000238418579, 0.7799999713897705, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(722), var$11);
-        $bootTop = $mb.$part($rt_s(1006), 4, Long_fromInt(9), var$9);
+        $bootTop = $mb.$part($rt_s(1012), 4, Long_fromInt(9), var$9);
         crh_Organic_ballLow($bootTop, 0.2849999964237213, (-0.1850000023841858), 0.15000000596046448, 0.05400000140070915, 0.024000000208616257, 0.06199999898672104);
         crh_Organic_ballLow($bootTop, (-0.2849999964237213), (-0.1850000023841858), 0.15000000596046448, 0.05400000140070915, 0.024000000208616257, 0.06199999898672104);
         var$11 = cbgg_Color__init_(0.44999998807907104, 0.550000011920929, 0.7200000286102295, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(581), var$11);
-        $shirt = $mb.$part($rt_s(1007), 4, Long_fromInt(9), var$9);
+        $shirt = $mb.$part($rt_s(1013), 4, Long_fromInt(9), var$9);
         crh_Organic_ball($shirt, 0.0, 0.30000001192092896, 0.0, 0.14499999582767487, 0.25999999046325684, 0.11500000208616257);
         crh_Organic_ball($shirt, 0.0, 0.05999999865889549, (-0.019999999552965164), 0.16500000655651093, 0.09000000357627869, 0.13500000536441803);
         crh_Organic_ballX($shirt, 0.1850000023841858, 0.36000001430511475, 0.029999999329447746, 0.05000000074505806, 0.1599999964237213, 0.054999999701976776, (-20.0));
@@ -54709,7 +54778,7 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         crh_Organic_ballLow($buttons, 0.0, 0.25999999046325684, 0.11800000071525574, 0.013000000268220901, 0.013000000268220901, 0.00800000037997961);
         var$11 = cbgg_Color__init_(0.9399999976158142, 0.7799999713897705, 0.6200000047683716, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(712), var$11);
-        $skin = $mb.$part($rt_s(1008), 4, Long_fromInt(9), var$9);
+        $skin = $mb.$part($rt_s(1014), 4, Long_fromInt(9), var$9);
         crh_Organic_ballX($skin, 0.1899999976158142, 0.17000000178813934, 0.1599999964237213, 0.041999999433755875, 0.14000000059604645, 0.05000000074505806, (-42.0));
         crh_Organic_ballX($skin, (-0.1899999976158142), 0.17000000178813934, 0.1599999964237213, 0.041999999433755875, 0.14000000059604645, 0.05000000074505806, (-42.0));
         crh_Organic_ball($skin, 0.0, 0.6600000262260437, 0.019999999552965164, 0.10499999672174454, 0.11500000208616257, 0.10499999672174454);
@@ -54721,7 +54790,7 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
         crh_RiderBits_buildFace($mb, 0.0, 0.6600000262260437, 0.019999999552965164);
         var$11 = cbgg_Color__init_(0.2800000011920929, 0.18000000715255737, 0.10000000149011612, 1.0);
         var$9 = crh_HorseModelFactory_mat($rt_s(583), var$11);
-        $hair = $mb.$part($rt_s(1009), 4, Long_fromInt(9), var$9);
+        $hair = $mb.$part($rt_s(1015), 4, Long_fromInt(9), var$9);
         crh_Organic_ballX($hair, 0.0, 0.550000011920929, (-0.14000000059604645), 0.054999999701976776, 0.15000000596046448, 0.05999999865889549, 18.0);
         crh_Organic_ballX($hair, 0.0, 0.3799999952316284, (-0.1899999976158142), 0.03999999910593033, 0.10999999940395355, 0.04500000178813934, 10.0);
         crh_RiderBits_buildHelmet($mb, 0.0, 0.7149999737739563, 0.0);
@@ -54729,39 +54798,53 @@ crh_HorseModelFactory_create = ($bodyColor, $maneColor, $withRider, $coat) => {
     return $mb.$end2();
 },
 crh_HorseModelFactory_buildLeg = ($mb, $id, $x, $z, $hind, $bodyColor, $hoofColor, $coat) => {
-    let $leg, $bulk, var$11, $l, var$13, var$14, $w, $h;
+    let $leg, $bulk, var$11, $l, $low, var$14, $c, var$16, $w, $h;
     crh_HorseModelFactory_$callClinit();
     $leg = $mb.$node();
     $leg.$id = $id;
     $leg.$translation.$set10($x, 0.949999988079071, $z);
     $bulk = !$hind ? 1.0 : 1.2000000476837158;
     var$11 = jl_StringBuilder__init_();
-    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(1010)), $id);
+    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(1016)), $id);
     var$11 = jl_StringBuilder_toString(var$11);
     var$11 = crh_HorseModelFactory_coatMat(var$11, $coat, $bodyColor);
     $l = $mb.$part($id, 4, Long_fromInt(25), var$11);
     crh_Organic_ball($l, 0.0, (-0.11999999731779099), !$hind ? 0.0 : (-0.029999999329447746), 0.09000000357627869 * $bulk, 0.2800000011920929, 0.10999999940395355 * $bulk);
     crh_Organic_ball($l, 0.0, (-0.41999998688697815), 0.0, 0.057999998331069946, 0.09000000357627869, 0.06499999761581421);
-    crh_Organic_ball($l, 0.0, (-0.6200000047683716), 0.0, 0.04800000041723251, 0.20000000298023224, 0.052000001072883606);
-    crh_Organic_ball($l, 0.0, (-0.8199999928474426), 0.009999999776482582, 0.054999999701976776, 0.05999999865889549, 0.05999999865889549);
+    $low = $mb.$node();
+    var$11 = $id.$substring0(3);
+    var$14 = jl_StringBuilder__init_();
+    jl_StringBuilder_append(jl_StringBuilder_append(var$14, $rt_s(893)), var$11);
+    $low.$id = jl_StringBuilder_toString(var$14);
+    $low.$translation.$set10($leg.$translation.$x, $leg.$translation.$y - 0.41999998688697815, $leg.$translation.$z);
+    var$11 = jl_StringBuilder__init_();
+    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(893)), $id);
+    var$11 = jl_StringBuilder_toString(var$11);
+    var$14 = jl_StringBuilder__init_();
+    jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(var$14, $rt_s(1016)), $id), $rt_s(1017));
+    var$14 = jl_StringBuilder_toString(var$14);
+    var$14 = crh_HorseModelFactory_coatMat(var$14, $coat, $bodyColor);
+    $c = $mb.$part(var$11, 4, Long_fromInt(25), var$14);
+    crh_Organic_ball($c, 0.0, (-0.20000000298023224), 0.0, 0.04800000041723251, 0.20000000298023224, 0.052000001072883606);
+    crh_Organic_ball($c, 0.0, (-0.4000000059604645), 0.009999999776482582, 0.054999999701976776, 0.05999999865889549, 0.05999999865889549);
     var$11 = jl_StringBuilder__init_();
     jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(585)), $id);
-    var$13 = jl_StringBuilder_toString(var$11);
+    var$16 = jl_StringBuilder_toString(var$11);
     var$14 = cbgg_Color__init_(0.9300000071525574, 0.7200000286102295, 0.7200000286102295, 1.0);
     var$11 = crh_HorseModelFactory_mat($rt_s(584), var$14);
-    $w = $mb.$part(var$13, 4, Long_fromInt(9), var$11);
-    crh_Organic_ballLow($w, 0.0, (-0.5600000023841858), 0.0, 0.05700000002980232, 0.05000000074505806, 0.061000000685453415);
-    crh_Organic_ballLow($w, 0.0, (-0.6399999856948853), 0.0, 0.057999998331069946, 0.05000000074505806, 0.06199999898672104);
-    crh_Organic_ballLow($w, 0.0, (-0.7200000286102295), 0.0, 0.05999999865889549, 0.05000000074505806, 0.06400000303983688);
+    $w = $mb.$part(var$16, 4, Long_fromInt(9), var$11);
+    crh_Organic_ballLow($w, 0.0, (-0.14000000059604645), 0.0, 0.05700000002980232, 0.05000000074505806, 0.061000000685453415);
+    crh_Organic_ballLow($w, 0.0, (-0.2199999988079071), 0.0, 0.057999998331069946, 0.05000000074505806, 0.06199999898672104);
+    crh_Organic_ballLow($w, 0.0, (-0.30000001192092896), 0.0, 0.05999999865889549, 0.05000000074505806, 0.06400000303983688);
     var$11 = jl_StringBuilder__init_();
-    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $id), $rt_s(1011));
+    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $id), $rt_s(1018));
     var$14 = jl_StringBuilder_toString(var$11);
     var$11 = jl_StringBuilder__init_();
-    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(1012)), $id);
+    jl_StringBuilder_append(jl_StringBuilder_append(var$11, $rt_s(1019)), $id);
     var$11 = jl_StringBuilder_toString(var$11);
     var$11 = crh_HorseModelFactory_mat(var$11, $hoofColor);
     $h = $mb.$part(var$14, 4, Long_fromInt(9), var$11);
-    crh_Organic_puck($h, 0.0, (-0.9049999713897705), 0.014999999664723873, 0.06800000369548798, 0.09000000357627869);
+    crh_Organic_puck($h, 0.0, (-0.48500001430511475), 0.014999999664723873, 0.06800000369548798, 0.09000000357627869);
 },
 crh_HorseModelFactory_mat = ($id, $c) => {
     let var$3, var$4;
@@ -54880,7 +54963,7 @@ jur_UMultiLineEOLSet_hasConsumed = ($this, $matchResult) => {
     return $res;
 },
 jur_UMultiLineEOLSet_getName = $this => {
-    return $rt_s(1013);
+    return $rt_s(1020);
 };
 function cbggga_TextureAttribute() {
     let a = this; cbggg_Attribute.call(a);
@@ -54988,13 +55071,13 @@ cbggga_TextureAttribute_hashCode = $this => {
     return var$2;
 },
 cbggga_TextureAttribute__clinit_ = () => {
-    cbggga_TextureAttribute_Diffuse = cbggg_Attribute_register($rt_s(1014));
-    cbggga_TextureAttribute_Specular = cbggg_Attribute_register($rt_s(1015));
-    cbggga_TextureAttribute_Bump = cbggg_Attribute_register($rt_s(1016));
-    cbggga_TextureAttribute_Normal = cbggg_Attribute_register($rt_s(1017));
-    cbggga_TextureAttribute_Ambient = cbggg_Attribute_register($rt_s(1018));
-    cbggga_TextureAttribute_Emissive = cbggg_Attribute_register($rt_s(1019));
-    cbggga_TextureAttribute_Reflection = cbggg_Attribute_register($rt_s(1020));
+    cbggga_TextureAttribute_Diffuse = cbggg_Attribute_register($rt_s(1021));
+    cbggga_TextureAttribute_Specular = cbggg_Attribute_register($rt_s(1022));
+    cbggga_TextureAttribute_Bump = cbggg_Attribute_register($rt_s(1023));
+    cbggga_TextureAttribute_Normal = cbggg_Attribute_register($rt_s(1024));
+    cbggga_TextureAttribute_Ambient = cbggg_Attribute_register($rt_s(1025));
+    cbggga_TextureAttribute_Emissive = cbggg_Attribute_register($rt_s(1026));
+    cbggga_TextureAttribute_Reflection = cbggg_Attribute_register($rt_s(1027));
     cbggga_TextureAttribute_Mask = Long_or(Long_or(Long_or(Long_or(Long_or(Long_or(cbggga_TextureAttribute_Diffuse, cbggga_TextureAttribute_Specular), cbggga_TextureAttribute_Bump), cbggga_TextureAttribute_Normal), cbggga_TextureAttribute_Ambient), cbggga_TextureAttribute_Emissive), cbggga_TextureAttribute_Reflection);
 },
 cbgggs_DefaultShader$Inputs = $rt_classWithoutFields(),
@@ -55041,53 +55124,53 @@ cbgggs_DefaultShader$Inputs_$callClinit = () => {
 cbgggs_DefaultShader$Inputs__clinit_ = () => {
     let var$1;
     cbgggs_DefaultShader$Inputs_projTrans = cbgggs_BaseShader$Uniform__init_($rt_s(379));
-    cbgggs_DefaultShader$Inputs_viewTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1021));
-    cbgggs_DefaultShader$Inputs_projViewTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1022));
-    cbgggs_DefaultShader$Inputs_cameraPosition = cbgggs_BaseShader$Uniform__init_($rt_s(1023));
-    cbgggs_DefaultShader$Inputs_cameraDirection = cbgggs_BaseShader$Uniform__init_($rt_s(1024));
-    cbgggs_DefaultShader$Inputs_cameraUp = cbgggs_BaseShader$Uniform__init_($rt_s(1025));
-    cbgggs_DefaultShader$Inputs_cameraNearFar = cbgggs_BaseShader$Uniform__init_($rt_s(1026));
-    cbgggs_DefaultShader$Inputs_worldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1027));
-    cbgggs_DefaultShader$Inputs_viewWorldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1028));
-    cbgggs_DefaultShader$Inputs_projViewWorldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1029));
-    cbgggs_DefaultShader$Inputs_normalMatrix = cbgggs_BaseShader$Uniform__init_($rt_s(1030));
-    cbgggs_DefaultShader$Inputs_bones = cbgggs_BaseShader$Uniform__init_($rt_s(1031));
+    cbgggs_DefaultShader$Inputs_viewTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1028));
+    cbgggs_DefaultShader$Inputs_projViewTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1029));
+    cbgggs_DefaultShader$Inputs_cameraPosition = cbgggs_BaseShader$Uniform__init_($rt_s(1030));
+    cbgggs_DefaultShader$Inputs_cameraDirection = cbgggs_BaseShader$Uniform__init_($rt_s(1031));
+    cbgggs_DefaultShader$Inputs_cameraUp = cbgggs_BaseShader$Uniform__init_($rt_s(1032));
+    cbgggs_DefaultShader$Inputs_cameraNearFar = cbgggs_BaseShader$Uniform__init_($rt_s(1033));
+    cbgggs_DefaultShader$Inputs_worldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1034));
+    cbgggs_DefaultShader$Inputs_viewWorldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1035));
+    cbgggs_DefaultShader$Inputs_projViewWorldTrans = cbgggs_BaseShader$Uniform__init_($rt_s(1036));
+    cbgggs_DefaultShader$Inputs_normalMatrix = cbgggs_BaseShader$Uniform__init_($rt_s(1037));
+    cbgggs_DefaultShader$Inputs_bones = cbgggs_BaseShader$Uniform__init_($rt_s(1038));
     var$1 = new cbgggs_BaseShader$Uniform;
     cbggga_FloatAttribute_$callClinit();
-    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1032), cbggga_FloatAttribute_Shininess);
+    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1039), cbggga_FloatAttribute_Shininess);
     cbgggs_DefaultShader$Inputs_shininess = var$1;
     var$1 = new cbgggs_BaseShader$Uniform;
     cbggga_BlendingAttribute_$callClinit();
-    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1033), cbggga_BlendingAttribute_Type);
+    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1040), cbggga_BlendingAttribute_Type);
     cbgggs_DefaultShader$Inputs_opacity = var$1;
     var$1 = new cbgggs_BaseShader$Uniform;
     cbggga_ColorAttribute_$callClinit();
-    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1034), cbggga_ColorAttribute_Diffuse);
+    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1041), cbggga_ColorAttribute_Diffuse);
     cbgggs_DefaultShader$Inputs_diffuseColor = var$1;
     var$1 = new cbgggs_BaseShader$Uniform;
     cbggga_TextureAttribute_$callClinit();
-    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1035), cbggga_TextureAttribute_Diffuse);
+    cbgggs_BaseShader$Uniform__init_1(var$1, $rt_s(1042), cbggga_TextureAttribute_Diffuse);
     cbgggs_DefaultShader$Inputs_diffuseTexture = var$1;
-    cbgggs_DefaultShader$Inputs_diffuseUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1036), cbggga_TextureAttribute_Diffuse);
-    cbgggs_DefaultShader$Inputs_specularColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1037), cbggga_ColorAttribute_Specular);
-    cbgggs_DefaultShader$Inputs_specularTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1038), cbggga_TextureAttribute_Specular);
-    cbgggs_DefaultShader$Inputs_specularUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1039), cbggga_TextureAttribute_Specular);
-    cbgggs_DefaultShader$Inputs_emissiveColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1040), cbggga_ColorAttribute_Emissive);
-    cbgggs_DefaultShader$Inputs_emissiveTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1041), cbggga_TextureAttribute_Emissive);
-    cbgggs_DefaultShader$Inputs_emissiveUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1042), cbggga_TextureAttribute_Emissive);
-    cbgggs_DefaultShader$Inputs_reflectionColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1043), cbggga_ColorAttribute_Reflection);
-    cbgggs_DefaultShader$Inputs_reflectionTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1044), cbggga_TextureAttribute_Reflection);
-    cbgggs_DefaultShader$Inputs_reflectionUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1045), cbggga_TextureAttribute_Reflection);
-    cbgggs_DefaultShader$Inputs_normalTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1046), cbggga_TextureAttribute_Normal);
-    cbgggs_DefaultShader$Inputs_normalUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1047), cbggga_TextureAttribute_Normal);
-    cbgggs_DefaultShader$Inputs_ambientTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1048), cbggga_TextureAttribute_Ambient);
-    cbgggs_DefaultShader$Inputs_ambientUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1049), cbggga_TextureAttribute_Ambient);
-    cbgggs_DefaultShader$Inputs_alphaTest = cbgggs_BaseShader$Uniform__init_($rt_s(1050));
-    cbgggs_DefaultShader$Inputs_ambientCube = cbgggs_BaseShader$Uniform__init_($rt_s(1051));
-    cbgggs_DefaultShader$Inputs_dirLights = cbgggs_BaseShader$Uniform__init_($rt_s(1052));
-    cbgggs_DefaultShader$Inputs_pointLights = cbgggs_BaseShader$Uniform__init_($rt_s(1053));
-    cbgggs_DefaultShader$Inputs_spotLights = cbgggs_BaseShader$Uniform__init_($rt_s(1054));
-    cbgggs_DefaultShader$Inputs_environmentCubemap = cbgggs_BaseShader$Uniform__init_($rt_s(1055));
+    cbgggs_DefaultShader$Inputs_diffuseUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1043), cbggga_TextureAttribute_Diffuse);
+    cbgggs_DefaultShader$Inputs_specularColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1044), cbggga_ColorAttribute_Specular);
+    cbgggs_DefaultShader$Inputs_specularTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1045), cbggga_TextureAttribute_Specular);
+    cbgggs_DefaultShader$Inputs_specularUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1046), cbggga_TextureAttribute_Specular);
+    cbgggs_DefaultShader$Inputs_emissiveColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1047), cbggga_ColorAttribute_Emissive);
+    cbgggs_DefaultShader$Inputs_emissiveTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1048), cbggga_TextureAttribute_Emissive);
+    cbgggs_DefaultShader$Inputs_emissiveUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1049), cbggga_TextureAttribute_Emissive);
+    cbgggs_DefaultShader$Inputs_reflectionColor = cbgggs_BaseShader$Uniform__init_0($rt_s(1050), cbggga_ColorAttribute_Reflection);
+    cbgggs_DefaultShader$Inputs_reflectionTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1051), cbggga_TextureAttribute_Reflection);
+    cbgggs_DefaultShader$Inputs_reflectionUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1052), cbggga_TextureAttribute_Reflection);
+    cbgggs_DefaultShader$Inputs_normalTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1053), cbggga_TextureAttribute_Normal);
+    cbgggs_DefaultShader$Inputs_normalUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1054), cbggga_TextureAttribute_Normal);
+    cbgggs_DefaultShader$Inputs_ambientTexture = cbgggs_BaseShader$Uniform__init_0($rt_s(1055), cbggga_TextureAttribute_Ambient);
+    cbgggs_DefaultShader$Inputs_ambientUVTransform = cbgggs_BaseShader$Uniform__init_0($rt_s(1056), cbggga_TextureAttribute_Ambient);
+    cbgggs_DefaultShader$Inputs_alphaTest = cbgggs_BaseShader$Uniform__init_($rt_s(1057));
+    cbgggs_DefaultShader$Inputs_ambientCube = cbgggs_BaseShader$Uniform__init_($rt_s(1058));
+    cbgggs_DefaultShader$Inputs_dirLights = cbgggs_BaseShader$Uniform__init_($rt_s(1059));
+    cbgggs_DefaultShader$Inputs_pointLights = cbgggs_BaseShader$Uniform__init_($rt_s(1060));
+    cbgggs_DefaultShader$Inputs_spotLights = cbgggs_BaseShader$Uniform__init_($rt_s(1061));
+    cbgggs_DefaultShader$Inputs_environmentCubemap = cbgggs_BaseShader$Uniform__init_($rt_s(1062));
 },
 cbgggs_DefaultShader$Setters$1 = $rt_classWithoutFields(cbgggs_BaseShader$GlobalSetter),
 cbgggs_DefaultShader$Setters$1__init_ = $this => {
@@ -55256,7 +55339,7 @@ crs_RanchScreen__init_ = $this => {
     cbg_Gdx_input.$setInputProcessor($this.$hud.$stage);
     crs_RanchScreen_updateTouchMode($this, cbg_Gdx_graphics.$getWidth0());
     $this.$horse.$forward($this.$tmp);
-    (($this.$camera.$position10.$set9($this.$horse.$position7)).$mulAdd($this.$tmp, (-8.0))).$add13(0.0, 3.5999999046325684, 0.0);
+    (($this.$camera.$position8.$set9($this.$horse.$position7)).$mulAdd($this.$tmp, (-8.0))).$add13(0.0, 3.5999999046325684, 0.0);
     $this.$camera.$lookAt($this.$horse.$position7.$x, 1.5, $this.$horse.$position7.$z);
     $this.$camera.$up.$set9(cbgm_Vector3_Y);
     $this.$camera.$update0();
@@ -55265,6 +55348,43 @@ crs_RanchScreen__init_0 = () => {
     let var_0 = new crs_RanchScreen();
     crs_RanchScreen__init_(var_0);
     return var_0;
+},
+crs_RanchScreen_renderPose = $this => {
+    let var$1, var$2, var$3, var$4, var$5;
+    var$1 = $this.$horse;
+    var$2 = (crh_Gait_values()).data;
+    cr_HorseGame_$callClinit();
+    var$3 = cr_HorseGame_poseGait;
+    var$4 = (crh_Gait_values()).data.length - 1 | 0;
+    var$1.$gait = var$2[jl_Math_min(var$3, var$4)];
+    $this.$horse.$speed = $this.$horse.$gait.$maxSpeed;
+    $this.$horse.$strideScale = 1.0;
+    $this.$horse.$phase = cr_HorseGame_posePhase * 6.2831854820251465;
+    $this.$horse.$grounded = 1;
+    $this.$horseAnimator.$update9($this.$horse, 0.0);
+    $this.$camera.$position8.$set10($this.$horse.$position7.$x + 6.199999809265137, $this.$horse.$position7.$y + 1.7000000476837158, $this.$horse.$position7.$z);
+    var$1 = $this.$camera.$direction0.$set10($this.$horse.$position7.$x, $this.$horse.$position7.$y + 1.100000023841858, $this.$horse.$position7.$z);
+    var$5 = $this.$camera.$position8;
+    (var$1.$sub(var$5)).$nor0();
+    $this.$camera.$up.$set9(cbgm_Vector3_Y);
+    $this.$camera.$update0();
+    $this.$shadowLight.$begin6($this.$tmp.$set9($this.$horse.$position7), $this.$shadowLight.$direction);
+    $this.$shadowBatch.$begin7($this.$shadowLight.$getCamera());
+    $this.$shadowBatch.$render9($this.$world.$instances0);
+    $this.$shadowBatch.$render6($this.$horseInstance);
+    $this.$shadowBatch.$end();
+    $this.$shadowLight.$end();
+    var$1 = cbg_Gdx_gl;
+    crs_RanchScreen_$callClinit();
+    var$1.$glClearColor(crs_RanchScreen_SKY.$r, crs_RanchScreen_SKY.$g, crs_RanchScreen_SKY.$b, 1.0);
+    cbg_Gdx_gl.$glClear(16640);
+    $this.$skyDome.$transform.$setToTranslation($this.$camera.$position8.$x, 0.0, $this.$camera.$position8.$z);
+    $this.$batch.$begin7($this.$camera);
+    $this.$batch.$render6($this.$skyDome);
+    $this.$batch.$render6($this.$clouds);
+    $this.$batch.$render10($this.$world.$instances0, $this.$environment0);
+    $this.$batch.$render7($this.$horseInstance, $this.$environment0);
+    $this.$batch.$end();
 },
 crs_RanchScreen_updateTouchMode = ($this, $width) => {
     let var$2, var$3, $touch, var$5, $smallWeb;
@@ -55299,164 +55419,169 @@ crs_RanchScreen_updateTouchMode = ($this, $width) => {
 crs_RanchScreen_render = ($this, $delta) => {
     let var$2, $prevX, $prevZ, $consoleOpen, $turn, $gaitUp, $gaitDown, $jump, var$10, $shift, var$12, $mountToggle, $distToHorse, var$15, $tx, $tz, $dist, $height, $alpha, $gate;
     var$2 = jl_Math_min0($delta, 0.05000000074505806);
-    if (cbg_Gdx_input.$isKeyJustPressed(48)) {
-        $this.$horse.$position7.$set10(14.0, 0.0, (-26.0));
-        $this.$horse.$yaw = 0.0;
-    }
-    $prevX = $this.$horse.$position7.$x;
-    $prevZ = $this.$horse.$position7.$z;
-    $consoleOpen = $this.$hud.$isConsoleOpen();
-    $turn = 0.0;
-    $gaitUp = 0;
-    $gaitDown = 0;
-    $jump = 0;
-    if (!$consoleOpen) {
-        if (!(!cbg_Gdx_input.$isKeyPressed(21) && !cbg_Gdx_input.$isKeyPressed(29)))
-            $turn = 1.0;
-        if (!(!cbg_Gdx_input.$isKeyPressed(22) && !cbg_Gdx_input.$isKeyPressed(32)))
-            $turn = $turn - 1.0;
-        a: {
-            var$10 = $turn + $this.$hud.$touchTurnAxis();
-            $turn = cbgm_MathUtils_clamp(var$10, (-1.0), 1.0);
-            $shift = $this.$hud.$touchGaitShift();
-            if ($shift <= 0) {
-                var$12 = cbg_Gdx_input;
-                if (!var$12.$isKeyJustPressed(19) && !cbg_Gdx_input.$isKeyJustPressed(51)) {
-                    $gaitUp = 0;
-                    break a;
+    cr_HorseGame_$callClinit();
+    if (cr_HorseGame_poseGait < 0) {
+        if (cbg_Gdx_input.$isKeyJustPressed(48)) {
+            $this.$horse.$position7.$set10(14.0, 0.0, (-26.0));
+            $this.$horse.$yaw = 0.0;
+        }
+        $prevX = $this.$horse.$position7.$x;
+        $prevZ = $this.$horse.$position7.$z;
+        $consoleOpen = $this.$hud.$isConsoleOpen();
+        $turn = 0.0;
+        $gaitUp = 0;
+        $gaitDown = 0;
+        $jump = 0;
+        if (!$consoleOpen) {
+            if (!(!cbg_Gdx_input.$isKeyPressed(21) && !cbg_Gdx_input.$isKeyPressed(29)))
+                $turn = 1.0;
+            if (!(!cbg_Gdx_input.$isKeyPressed(22) && !cbg_Gdx_input.$isKeyPressed(32)))
+                $turn = $turn - 1.0;
+            a: {
+                var$10 = $turn + $this.$hud.$touchTurnAxis();
+                $turn = cbgm_MathUtils_clamp(var$10, (-1.0), 1.0);
+                $shift = $this.$hud.$touchGaitShift();
+                if ($shift <= 0) {
+                    var$12 = cbg_Gdx_input;
+                    if (!var$12.$isKeyJustPressed(19) && !cbg_Gdx_input.$isKeyJustPressed(51)) {
+                        $gaitUp = 0;
+                        break a;
+                    }
                 }
+                $gaitUp = 1;
             }
-            $gaitUp = 1;
-        }
-        b: {
-            if ($shift >= 0) {
-                var$12 = cbg_Gdx_input;
-                if (!var$12.$isKeyJustPressed(20) && !cbg_Gdx_input.$isKeyJustPressed(47)) {
-                    $gaitDown = 0;
-                    break b;
+            b: {
+                if ($shift >= 0) {
+                    var$12 = cbg_Gdx_input;
+                    if (!var$12.$isKeyJustPressed(20) && !cbg_Gdx_input.$isKeyJustPressed(47)) {
+                        $gaitDown = 0;
+                        break b;
+                    }
                 }
+                $gaitDown = 1;
             }
-            $gaitDown = 1;
+            $jump = !$this.$hud.$touchJumpPressed() && !cbg_Gdx_input.$isKeyJustPressed(62) ? 0 : 1;
         }
-        $jump = !$this.$hud.$touchJumpPressed() && !cbg_Gdx_input.$isKeyJustPressed(62) ? 0 : 1;
-    }
-    c: {
-        d: {
-            if (!$consoleOpen) {
-                var$12 = $this.$hud;
-                if (var$12.$touchActionPressed())
-                    break d;
-                if (cbg_Gdx_input.$isKeyJustPressed(33))
-                    break d;
+        c: {
+            d: {
+                if (!$consoleOpen) {
+                    var$12 = $this.$hud;
+                    if (var$12.$touchActionPressed())
+                        break d;
+                    if (cbg_Gdx_input.$isKeyJustPressed(33))
+                        break d;
+                }
+                $mountToggle = 0;
+                break c;
             }
-            $mountToggle = 0;
-            break c;
+            $mountToggle = 1;
         }
-        $mountToggle = 1;
-    }
-    $distToHorse = (($this.$tmp.$set9($this.$walker.$position11)).$sub($this.$horse.$position7)).$len();
-    if ($mountToggle) {
-        if ($this.$mounted && $this.$horse.$grounded) {
-            $this.$mounted = 0;
+        $distToHorse = (($this.$tmp.$set9($this.$walker.$position11)).$sub($this.$horse.$position7)).$len();
+        if ($mountToggle) {
+            if ($this.$mounted && $this.$horse.$grounded) {
+                $this.$mounted = 0;
+                $this.$horse.$forward($this.$tmp);
+                var$12 = $this.$walker.$position11.$set9($this.$horse.$position7);
+                var$10 = $this.$tmp.$z * 1.2000000476837158;
+                var$15 =  -$this.$tmp.$x * 1.2000000476837158;
+                var$12.$add13(var$10, 0.0, var$15);
+                $this.$walker.$yaw0 = $this.$horse.$yaw;
+                $this.$walker.$pace = 0;
+                $this.$walker.$speed0 = 0.0;
+                $this.$horseAnimator.$setRiderVisible(0);
+            } else if (!$this.$mounted && $distToHorse < 4.0) {
+                $this.$mounted = 1;
+                $this.$horseAnimator.$setRiderVisible(1);
+            }
+        }
+        if ($this.$mounted) {
+            $this.$horse.$update2(var$2, $turn, $gaitUp, $gaitDown, $jump);
+            crs_RanchScreen_resolveEntity($this, $this.$horse.$position7, 0.550000011920929);
+            $this.$course.$update10(var$2, $prevX, $prevZ, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$y, $this.$horse.$grounded);
+        } else {
+            $this.$walker.$update11(var$2, $turn, $gaitUp, $gaitDown);
+            crs_RanchScreen_resolveEntity($this, $this.$walker.$position11, 0.3499999940395355);
+            $this.$walker.$forward($this.$tmp);
+            $tx = $this.$walker.$position11.$x - $this.$tmp.$x * 1.100000023841858 + $this.$tmp.$z * 1.399999976158142;
+            $tz = $this.$walker.$position11.$z - $this.$tmp.$z * 1.100000023841858 - $this.$tmp.$x * 1.399999976158142;
+            if (!(cr_HorseGame_screenshotPath !== null && cr_HorseGame_startDismounted))
+                $this.$horse.$updateFollow(var$2, $tx, $tz);
+            crs_RanchScreen_resolveEntity($this, $this.$horse.$position7, 0.550000011920929);
+            $this.$course.$update10(var$2, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$y, $this.$horse.$grounded);
+        }
+        if ($this.$course.$event !== null)
+            $this.$hud.$showMessage($this.$course.$event);
+        crs_RanchScreen_syncHudWithCourse($this);
+        $this.$hud.$setAction(!$this.$mounted && $distToHorse >= 4.0 ? 0 : 1, !$this.$mounted ? $rt_s(1063) : $rt_s(393));
+        $this.$horseAnimator.$update9($this.$horse, var$2);
+        $this.$pasture1.$graze((-18.0), (-33.0), 70.0, var$2);
+        $this.$pasture2.$graze((-13.0), (-26.0), 205.0, var$2);
+        $this.$cloudDrift = $this.$cloudDrift + var$2 * 0.6000000238418579;
+        if ($this.$cloudDrift > 250.0)
+            $this.$cloudDrift = $this.$cloudDrift - 500.0;
+        $this.$clouds.$transform.$setToTranslation($this.$cloudDrift, 0.0, 0.0);
+        if (!$this.$mounted) {
+            $this.$walker.$forward($this.$tmp);
+            $dist = 4.599999904632568 + $this.$walker.$speed0 * 0.30000001192092896;
+            (($this.$camTarget.$set9($this.$walker.$position11)).$mulAdd($this.$tmp,  -$dist)).$add13(0.0, 2.299999952316284, 0.0);
+            (($this.$tmp.$set9($this.$walker.$position11)).$add13(0.0, 1.2999999523162842, 0.0)).$mulAdd($this.$walker.$forward(cbgm_Vector3__init_()), 2.0);
+        } else {
             $this.$horse.$forward($this.$tmp);
-            var$12 = $this.$walker.$position11.$set9($this.$horse.$position7);
-            var$10 = $this.$tmp.$z * 1.2000000476837158;
-            var$15 =  -$this.$tmp.$x * 1.2000000476837158;
-            var$12.$add13(var$10, 0.0, var$15);
-            $this.$walker.$yaw0 = $this.$horse.$yaw;
-            $this.$walker.$pace = 0;
-            $this.$walker.$speed0 = 0.0;
-            $this.$horseAnimator.$setRiderVisible(0);
-        } else if (!$this.$mounted && $distToHorse < 4.0) {
-            $this.$mounted = 1;
-            $this.$horseAnimator.$setRiderVisible(1);
+            $dist = 7.0 + $this.$horse.$speed * 0.3499999940395355;
+            $height = 3.200000047683716 + $this.$horse.$speed * 0.11999999731779099;
+            (($this.$camTarget.$set9($this.$horse.$position7)).$mulAdd($this.$tmp,  -$dist)).$add13(0.0, $height, 0.0);
+            (($this.$tmp.$set9($this.$horse.$position7)).$add13(0.0, 1.5, 0.0)).$mulAdd($this.$horse.$forward(cbgm_Vector3__init_()), 2.5);
         }
+        $alpha = 1.0 - jl_Math_exp((-4.5) * var$2);
+        $this.$camera.$position8.$lerp0($this.$camTarget, $alpha);
+        (($this.$camera.$direction0.$set9($this.$tmp)).$sub($this.$camera.$position8)).$nor0();
+        $this.$camera.$up.$set9(cbgm_Vector3_Y);
+        $this.$camera.$update0();
+        $this.$shadowLight.$begin6(($this.$tmp.$set9($this.$horse.$position7)).$add13(0.0, 0.0, 0.0), $this.$shadowLight.$direction);
+        $this.$shadowBatch.$begin7($this.$shadowLight.$getCamera());
+        $this.$shadowBatch.$render9($this.$world.$instances0);
+        $this.$shadowBatch.$render6($this.$course.$startLine.$instance2);
+        var$12 = $this.$course.$gates.$iterator();
+        while (var$12.$hasNext()) {
+            $gate = var$12.$next();
+            $this.$shadowBatch.$render6($gate.$instance2);
+        }
+        $this.$shadowBatch.$render6(crs_RanchScreen_pasture1Instance($this));
+        $this.$shadowBatch.$render6(crs_RanchScreen_pasture2Instance($this));
+        $this.$shadowBatch.$render6($this.$horseInstance);
+        if (!$this.$mounted)
+            $this.$shadowBatch.$render6($this.$walker.$instance1());
+        $this.$shadowBatch.$end();
+        $this.$shadowLight.$end();
+        cbg_Gdx_gl.$glClearColor(crs_RanchScreen_SKY.$r, crs_RanchScreen_SKY.$g, crs_RanchScreen_SKY.$b, 1.0);
+        cbg_Gdx_gl.$glClear(16640);
+        $this.$skyDome.$transform.$setToTranslation($this.$camera.$position8.$x, 0.0, $this.$camera.$position8.$z);
+        $this.$batch.$begin7($this.$camera);
+        $this.$batch.$render6($this.$skyDome);
+        $this.$batch.$render6($this.$clouds);
+        $this.$batch.$render10($this.$world.$instances0, $this.$environment0);
+        $this.$batch.$render7($this.$course.$startLine.$instance2, $this.$environment0);
+        var$12 = $this.$course.$gates.$iterator();
+        while (var$12.$hasNext()) {
+            $gate = var$12.$next();
+            $this.$batch.$render7($gate.$instance2, $this.$environment0);
+        }
+        $this.$batch.$render7(crs_RanchScreen_pasture1Instance($this), $this.$environment0);
+        $this.$batch.$render7(crs_RanchScreen_pasture2Instance($this), $this.$environment0);
+        $this.$batch.$render7($this.$horseInstance, $this.$environment0);
+        if (!$this.$mounted)
+            $this.$batch.$render7($this.$walker.$instance1(), $this.$environment0);
+        $this.$batch.$end();
+        if (!$this.$mounted)
+            $this.$hud.$setGait($this.$walker.$paceLabel(), $this.$walker.$speed0);
+        else
+            $this.$hud.$setGait($this.$horse.$gait.$label, $this.$horse.$speed);
+        $this.$hud.$update12(var$2);
+        $this.$hud.$draw4();
+        crs_RanchScreen_maybeScreenshot($this, var$2);
+        return;
     }
-    if ($this.$mounted) {
-        $this.$horse.$update2(var$2, $turn, $gaitUp, $gaitDown, $jump);
-        crs_RanchScreen_resolveEntity($this, $this.$horse.$position7, 0.550000011920929);
-        $this.$course.$update9(var$2, $prevX, $prevZ, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$y, $this.$horse.$grounded);
-    } else {
-        $this.$walker.$update10(var$2, $turn, $gaitUp, $gaitDown);
-        crs_RanchScreen_resolveEntity($this, $this.$walker.$position11, 0.3499999940395355);
-        $this.$walker.$forward($this.$tmp);
-        $tx = $this.$walker.$position11.$x - $this.$tmp.$x * 1.100000023841858 + $this.$tmp.$z * 1.399999976158142;
-        $tz = $this.$walker.$position11.$z - $this.$tmp.$z * 1.100000023841858 - $this.$tmp.$x * 1.399999976158142;
-        cr_HorseGame_$callClinit();
-        if (!(cr_HorseGame_screenshotPath !== null && cr_HorseGame_startDismounted))
-            $this.$horse.$updateFollow(var$2, $tx, $tz);
-        crs_RanchScreen_resolveEntity($this, $this.$horse.$position7, 0.550000011920929);
-        $this.$course.$update9(var$2, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$x, $this.$horse.$position7.$z, $this.$horse.$position7.$y, $this.$horse.$grounded);
-    }
-    if ($this.$course.$event !== null)
-        $this.$hud.$showMessage($this.$course.$event);
-    crs_RanchScreen_syncHudWithCourse($this);
-    $this.$hud.$setAction(!$this.$mounted && $distToHorse >= 4.0 ? 0 : 1, !$this.$mounted ? $rt_s(1056) : $rt_s(393));
-    $this.$horseAnimator.$update11($this.$horse, var$2);
-    $this.$pasture1.$graze((-18.0), (-33.0), 70.0, var$2);
-    $this.$pasture2.$graze((-13.0), (-26.0), 205.0, var$2);
-    $this.$cloudDrift = $this.$cloudDrift + var$2 * 0.6000000238418579;
-    if ($this.$cloudDrift > 250.0)
-        $this.$cloudDrift = $this.$cloudDrift - 500.0;
-    $this.$clouds.$transform0.$setToTranslation($this.$cloudDrift, 0.0, 0.0);
-    if (!$this.$mounted) {
-        $this.$walker.$forward($this.$tmp);
-        $dist = 4.599999904632568 + $this.$walker.$speed0 * 0.30000001192092896;
-        (($this.$camTarget.$set9($this.$walker.$position11)).$mulAdd($this.$tmp,  -$dist)).$add13(0.0, 2.299999952316284, 0.0);
-        (($this.$tmp.$set9($this.$walker.$position11)).$add13(0.0, 1.2999999523162842, 0.0)).$mulAdd($this.$walker.$forward(cbgm_Vector3__init_()), 2.0);
-    } else {
-        $this.$horse.$forward($this.$tmp);
-        $dist = 7.0 + $this.$horse.$speed * 0.3499999940395355;
-        $height = 3.200000047683716 + $this.$horse.$speed * 0.11999999731779099;
-        (($this.$camTarget.$set9($this.$horse.$position7)).$mulAdd($this.$tmp,  -$dist)).$add13(0.0, $height, 0.0);
-        (($this.$tmp.$set9($this.$horse.$position7)).$add13(0.0, 1.5, 0.0)).$mulAdd($this.$horse.$forward(cbgm_Vector3__init_()), 2.5);
-    }
-    $alpha = 1.0 - jl_Math_exp((-4.5) * var$2);
-    $this.$camera.$position10.$lerp0($this.$camTarget, $alpha);
-    (($this.$camera.$direction0.$set9($this.$tmp)).$sub($this.$camera.$position10)).$nor0();
-    $this.$camera.$up.$set9(cbgm_Vector3_Y);
-    $this.$camera.$update0();
-    $this.$shadowLight.$begin6(($this.$tmp.$set9($this.$horse.$position7)).$add13(0.0, 0.0, 0.0), $this.$shadowLight.$direction);
-    $this.$shadowBatch.$begin7($this.$shadowLight.$getCamera());
-    $this.$shadowBatch.$render9($this.$world.$instances0);
-    $this.$shadowBatch.$render6($this.$course.$startLine.$instance2);
-    var$12 = $this.$course.$gates.$iterator();
-    while (var$12.$hasNext()) {
-        $gate = var$12.$next();
-        $this.$shadowBatch.$render6($gate.$instance2);
-    }
-    $this.$shadowBatch.$render6(crs_RanchScreen_pasture1Instance($this));
-    $this.$shadowBatch.$render6(crs_RanchScreen_pasture2Instance($this));
-    $this.$shadowBatch.$render6($this.$horseInstance);
-    if (!$this.$mounted)
-        $this.$shadowBatch.$render6($this.$walker.$instance1());
-    $this.$shadowBatch.$end();
-    $this.$shadowLight.$end();
-    cbg_Gdx_gl.$glClearColor(crs_RanchScreen_SKY.$r, crs_RanchScreen_SKY.$g, crs_RanchScreen_SKY.$b, 1.0);
-    cbg_Gdx_gl.$glClear(16640);
-    $this.$skyDome.$transform0.$setToTranslation($this.$camera.$position10.$x, 0.0, $this.$camera.$position10.$z);
-    $this.$batch.$begin7($this.$camera);
-    $this.$batch.$render6($this.$skyDome);
-    $this.$batch.$render6($this.$clouds);
-    $this.$batch.$render10($this.$world.$instances0, $this.$environment0);
-    $this.$batch.$render7($this.$course.$startLine.$instance2, $this.$environment0);
-    var$12 = $this.$course.$gates.$iterator();
-    while (var$12.$hasNext()) {
-        $gate = var$12.$next();
-        $this.$batch.$render7($gate.$instance2, $this.$environment0);
-    }
-    $this.$batch.$render7(crs_RanchScreen_pasture1Instance($this), $this.$environment0);
-    $this.$batch.$render7(crs_RanchScreen_pasture2Instance($this), $this.$environment0);
-    $this.$batch.$render7($this.$horseInstance, $this.$environment0);
-    if (!$this.$mounted)
-        $this.$batch.$render7($this.$walker.$instance1(), $this.$environment0);
-    $this.$batch.$end();
-    if (!$this.$mounted)
-        $this.$hud.$setGait($this.$walker.$paceLabel(), $this.$walker.$speed0);
-    else
-        $this.$hud.$setGait($this.$horse.$gait.$label, $this.$horse.$speed);
-    $this.$hud.$update12(var$2);
-    $this.$hud.$draw4();
+    crs_RanchScreen_renderPose($this);
     crs_RanchScreen_maybeScreenshot($this, var$2);
 },
 crs_RanchScreen_maybeScreenshot = ($this, $delta) => {
@@ -55504,16 +55629,16 @@ crs_RanchScreen_syncHudWithCourse = $this => {
     crc_CourseManager$State_$callClinit();
     if ($state !== crc_CourseManager$State_RUNNING) {
         if ($state !== crc_CourseManager$State_READY)
-            $this.$hud.$setCourseStatus($rt_s(1057));
+            $this.$hud.$setCourseStatus($rt_s(1064));
         else {
-            $this.$hud.$setCourseStatus($rt_s(1058));
+            $this.$hud.$setCourseStatus($rt_s(1065));
             var$2 = $this.$hud;
             if ($this.$course.$bestTotal <= 0.0)
                 var$3 = $rt_s(61);
             else {
                 var$4 = crs_RanchScreen_formatTime($this.$course.$bestTotal);
                 var$5 = jl_StringBuilder__init_();
-                jl_StringBuilder_append(jl_StringBuilder_append(var$5, $rt_s(1059)), var$4);
+                jl_StringBuilder_append(jl_StringBuilder_append(var$5, $rt_s(1066)), var$4);
                 var$3 = jl_StringBuilder_toString(var$5);
             }
             var$2.$setTimer(var$3);
@@ -55522,11 +55647,11 @@ crs_RanchScreen_syncHudWithCourse = $this => {
         $gateNo = jl_Math_min($this.$course.$nextGate + 1 | 0, $this.$course.$gates.$size2);
         var$2 = $this.$hud;
         if ($this.$course.$nextGate >= $this.$course.$gates.$size2)
-            var$3 = $rt_s(1060);
+            var$3 = $rt_s(1067);
         else {
             var$7 = $this.$course.$gates.$size2;
             var$3 = jl_StringBuilder__init_();
-            jl_StringBuilder_append0(jl_StringBuilder_append(jl_StringBuilder_append0(jl_StringBuilder_append(var$3, $rt_s(1061)), $gateNo), $rt_s(1062)), var$7);
+            jl_StringBuilder_append0(jl_StringBuilder_append(jl_StringBuilder_append0(jl_StringBuilder_append(var$3, $rt_s(1068)), $gateNo), $rt_s(1069)), var$7);
             var$3 = jl_StringBuilder_toString(var$3);
         }
         var$2.$setCourseStatus(var$3);
@@ -55537,7 +55662,7 @@ crs_RanchScreen_syncHudWithCourse = $this => {
         else {
             var$7 = $this.$course.$faults * 4.0 | 0;
             var$4 = jl_StringBuilder__init_();
-            jl_StringBuilder_append1(jl_StringBuilder_append0(jl_StringBuilder_append(var$4, $rt_s(1063)), var$7), 115);
+            jl_StringBuilder_append1(jl_StringBuilder_append0(jl_StringBuilder_append(var$4, $rt_s(1070)), var$7), 115);
             var$4 = jl_StringBuilder_toString(var$4);
         }
         var$5 = jl_StringBuilder__init_();
@@ -55557,7 +55682,7 @@ crs_RanchScreen_syncHudWithCourse = $this => {
             var$8 = $this.$course.$bestTotal;
             var$5 = crs_RanchScreen_formatTime(var$8);
             var$9 = jl_StringBuilder__init_();
-            jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append0(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(var$9, $rt_s(1064)), var$3), $rt_s(1065)), var$7), $rt_s(1066)), var$4), $rt_s(1067)), var$5), $rt_s(1068));
+            jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append0(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(var$9, $rt_s(1071)), var$3), $rt_s(1072)), var$7), $rt_s(1073)), var$4), $rt_s(1074)), var$5), $rt_s(1075));
             var$3 = jl_StringBuilder_toString(var$9);
             var$2.$showResults(var$3);
         }
@@ -55623,7 +55748,7 @@ cbgggs_DefaultShader$Setters$4__init_0 = () => {
     return var_0;
 },
 cbgggs_DefaultShader$Setters$4_set = ($this, $shader, $inputID, $renderable, $combinedAttributes) => {
-    cbgggs_BaseShader_set($shader, $inputID, $shader.$camera0.$position10.$x, $shader.$camera0.$position10.$y, $shader.$camera0.$position10.$z, 1.188099980354309 / ($shader.$camera0.$far * $shader.$camera0.$far));
+    cbgggs_BaseShader_set($shader, $inputID, $shader.$camera0.$position8.$x, $shader.$camera0.$position8.$y, $shader.$camera0.$position8.$z, 1.188099980354309 / ($shader.$camera0.$far * $shader.$camera0.$far));
 },
 cbgggs_DefaultShader$Setters$7 = $rt_classWithoutFields(cbgggs_BaseShader$GlobalSetter),
 cbgggs_DefaultShader$Setters$7__init_ = $this => {
@@ -55676,7 +55801,7 @@ cbgggu_DefaultTextureBinder__init_ = ($this, $method, $offset, $count) => {
         $this.$unitsLRU = $method == 1 ? $rt_createIntArray($count) : null;
         return;
     }
-    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(1069)));
+    $rt_throw(cbgu_GdxRuntimeException__init_($rt_s(1076)));
 },
 cbgggu_DefaultTextureBinder__init_2 = (var_0, var_1, var_2) => {
     let var_3 = new cbgggu_DefaultTextureBinder();
@@ -55936,7 +56061,7 @@ cgxgbta_AssetLoadImpl$6_onSuccess0 = ($this, $url, $result) => {
             var$8 = jl_String_valueOf($this.$val$fileHandle);
             var$9 = jl_String_valueOf($this.$val$fileHandle.$type());
             var$10 = jl_StringBuilder__init_();
-            jl_StringBuilder_append1(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(var$10, $rt_s(1070)), var$8), $rt_s(60)), var$9), 41);
+            jl_StringBuilder_append1(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(jl_StringBuilder_append(var$10, $rt_s(1077)), var$8), $rt_s(60)), var$9), 41);
             cbgu_GdxRuntimeException__init_2(var$7, jl_StringBuilder_toString(var$10), $ex);
             $rt_throw(var$7);
         } catch ($$e) {
@@ -55997,25 +56122,25 @@ cgxgbta_AssetLoadImpl$5_onSuccess0 = ($this, $url, $result) => {
     var$10 = 0;
     while (var$10 < var$9) {
         $line = var$7[var$10];
-        $tokens = $line.$split1($rt_s(964));
+        $tokens = $line.$split1($rt_s(966));
         var$13 = $tokens.data;
         var$14 = var$13.length;
         if (var$14 != 5) {
             var$8 = new cbgu_GdxRuntimeException;
             var$15 = jl_StringBuilder__init_();
-            jl_StringBuilder_append(jl_StringBuilder_append1(jl_StringBuilder_append0(jl_StringBuilder_append(var$15, $rt_s(1071)), var$14), 32), $line);
+            jl_StringBuilder_append(jl_StringBuilder_append1(jl_StringBuilder_append0(jl_StringBuilder_append(var$15, $rt_s(1078)), var$14), 32), $line);
             cbgu_GdxRuntimeException__init_0(var$8, jl_StringBuilder_toString(var$15));
             $rt_throw(var$8);
         }
         $fileTypeStr = var$13[0];
         $assetTypeStr = var$13[1];
         $assetUrl = var$13[2].$trim();
-        $shouldOverwriteLocalData = var$13[4].$equals($rt_s(1072));
+        $shouldOverwriteLocalData = var$13[4].$equals($rt_s(1079));
         var$20 = $assetUrl.$trim();
         if (!var$20.$isEmpty()) {
             cbg_Files$FileType_$callClinit();
             $fileType = cbg_Files$FileType_Internal;
-            if ($fileTypeStr.$equals($rt_s(1073)))
+            if ($fileTypeStr.$equals($rt_s(1080)))
                 $fileType = cbg_Files$FileType_Classpath;
             else if ($fileTypeStr.$equals($rt_s(409)))
                 $fileType = cbg_Files$FileType_Local;
@@ -56361,7 +56486,7 @@ cgxgbtu_TeaDefaultBaseUrlProvider, 0, jl_Object, [cgxgbtu_TeaBaseUrlProvider], 0
 otjb_AnimationFrameCallback, 0, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
 cbggg_VertexData, 0, jl_Object, [cbgu_Disposable], 3, 3, 0, 0, 0,
 cbgggp_ResourceData$Configurable, 0, jl_Object, [], 3, 3, 0, 0, 0,
-crh_Walker, 0, jl_Object, [], 0, 3, 0, crh_Walker_$callClinit, ["$_init_269", $rt_wrapFunction1(crh_Walker__init_), "$instance1", $rt_wrapFunction0(crh_Walker_instance), "$paceLabel", $rt_wrapFunction0(crh_Walker_paceLabel), "$update10", $rt_wrapFunction4(crh_Walker_update), "$forward", $rt_wrapFunction1(crh_Walker_forward)],
+crh_Walker, 0, jl_Object, [], 0, 3, 0, crh_Walker_$callClinit, ["$_init_269", $rt_wrapFunction1(crh_Walker__init_), "$instance1", $rt_wrapFunction0(crh_Walker_instance), "$paceLabel", $rt_wrapFunction0(crh_Walker_paceLabel), "$update11", $rt_wrapFunction4(crh_Walker_update), "$forward", $rt_wrapFunction1(crh_Walker_forward)],
 jur_AbstractCharClass$LazyCategoryScope, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_38", $rt_wrapFunction2(jur_AbstractCharClass$LazyCategoryScope__init_0), "$_init_39", $rt_wrapFunction3(jur_AbstractCharClass$LazyCategoryScope__init_1), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyCategoryScope_computeValue)],
 cbggg_NinePatch, 0, jl_Object, [], 0, 3, 0, cbggg_NinePatch_$callClinit, ["$_init_73", function(var_1, var_2, var_3, var_4, var_5) { cbggg_NinePatch__init_(this, var_1, var_2, var_3, var_4, var_5); }, "$draw0", function(var_1, var_2, var_3, var_4, var_5) { cbggg_NinePatch_draw(this, var_1, var_2, var_3, var_4, var_5); }, "$getLeftWidth", $rt_wrapFunction0(cbggg_NinePatch_getLeftWidth), "$getRightWidth", $rt_wrapFunction0(cbggg_NinePatch_getRightWidth), "$getTopHeight", $rt_wrapFunction0(cbggg_NinePatch_getTopHeight),
 "$getBottomHeight", $rt_wrapFunction0(cbggg_NinePatch_getBottomHeight), "$getTotalWidth", $rt_wrapFunction0(cbggg_NinePatch_getTotalWidth), "$getTotalHeight", $rt_wrapFunction0(cbggg_NinePatch_getTotalHeight), "$getPadLeft", $rt_wrapFunction0(cbggg_NinePatch_getPadLeft), "$getPadRight", $rt_wrapFunction0(cbggg_NinePatch_getPadRight), "$getPadTop", $rt_wrapFunction0(cbggg_NinePatch_getPadTop), "$getPadBottom", $rt_wrapFunction0(cbggg_NinePatch_getPadBottom)],
@@ -56867,7 +56992,7 @@ cbgssu_ScrollPane$1, "ScrollPane$1", 16, cbgss_InputListener, [], 0, 0, 0, 0, ["
 cbgggus_ConeShapeBuilder, 0, cbgggus_BaseShapeBuilder, [], 0, 3, 0, 0, 0,
 cbggg_GLFrameBuffer, 0, jl_Object, [cbgu_Disposable], 1, 3, 0, cbggg_GLFrameBuffer_$callClinit, ["$_init_0", $rt_wrapFunction0(cbggg_GLFrameBuffer__init_), "$getColorBufferTexture", $rt_wrapFunction0(cbggg_GLFrameBuffer_getColorBufferTexture), "$build6", $rt_wrapFunction0(cbggg_GLFrameBuffer_build), "$dispose", $rt_wrapFunction0(cbggg_GLFrameBuffer_dispose), "$bind", $rt_wrapFunction0(cbggg_GLFrameBuffer_bind), "$begin", $rt_wrapFunction0(cbggg_GLFrameBuffer_begin), "$setFrameBufferViewport", $rt_wrapFunction0(cbggg_GLFrameBuffer_setFrameBufferViewport),
 "$end", $rt_wrapFunction0(cbggg_GLFrameBuffer_end), "$end4", $rt_wrapFunction4(cbggg_GLFrameBuffer_end0), "$getHeight0", $rt_wrapFunction0(cbggg_GLFrameBuffer_getHeight), "$getWidth0", $rt_wrapFunction0(cbggg_GLFrameBuffer_getWidth)],
-crc_CourseManager, 0, jl_Object, [cbgu_Disposable], 0, 3, 0, crc_CourseManager_$callClinit, ["$_init_0", $rt_wrapFunction0(crc_CourseManager__init_), "$update9", function(var_1, var_2, var_3, var_4, var_5, var_6, var_7) { crc_CourseManager_update(this, var_1, var_2, var_3, var_4, var_5, var_6, var_7); }, "$total", $rt_wrapFunction0(crc_CourseManager_total), "$dispose", $rt_wrapFunction0(crc_CourseManager_dispose)],
+crc_CourseManager, 0, jl_Object, [cbgu_Disposable], 0, 3, 0, crc_CourseManager_$callClinit, ["$_init_0", $rt_wrapFunction0(crc_CourseManager__init_), "$update10", function(var_1, var_2, var_3, var_4, var_5, var_6, var_7) { crc_CourseManager_update(this, var_1, var_2, var_3, var_4, var_5, var_6, var_7); }, "$total", $rt_wrapFunction0(crc_CourseManager_total), "$dispose", $rt_wrapFunction0(crc_CourseManager_dispose)],
 ju_Objects, 0, jl_Object, [], 4, 3, 0, 0, 0,
 cbggge_AmbientCubemap, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(cbggge_AmbientCubemap__init_0), "$set23", $rt_wrapFunction1(cbggge_AmbientCubemap_set0), "$set39", $rt_wrapFunction3(cbggge_AmbientCubemap_set), "$clamp1", $rt_wrapFunction0(cbggge_AmbientCubemap_clamp), "$add14", function(var_1, var_2, var_3, var_4, var_5, var_6) { return cbggge_AmbientCubemap_add1(this, var_1, var_2, var_3, var_4, var_5, var_6); }, "$add9", $rt_wrapFunction2(cbggge_AmbientCubemap_add0), "$add10", $rt_wrapFunction4(cbggge_AmbientCubemap_add)],
 jur_SequenceSet, "SequenceSet", 36, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_215", $rt_wrapFunction1(jur_SequenceSet__init_), "$accepts", $rt_wrapFunction2(jur_SequenceSet_accepts), "$find", $rt_wrapFunction3(jur_SequenceSet_find), "$findBack", $rt_wrapFunction4(jur_SequenceSet_findBack), "$getName", $rt_wrapFunction0(jur_SequenceSet_getName), "$first", $rt_wrapFunction1(jur_SequenceSet_first), "$indexOf5", $rt_wrapFunction3(jur_SequenceSet_indexOf), "$lastIndexOf3", $rt_wrapFunction3(jur_SequenceSet_lastIndexOf),
@@ -57084,7 +57209,7 @@ cbgggs_DefaultShader, "DefaultShader", 24, cbgggs_BaseShader, [], 0, 3, 0, cbggg
 cbgggs_DepthShader, "DepthShader", 24, cbgggs_DefaultShader, [], 0, 3, 0, cbgggs_DepthShader_$callClinit, ["$_init_258", $rt_wrapFunction2(cbgggs_DepthShader__init_2), "$_init_234", $rt_wrapFunction3(cbgggs_DepthShader__init_0), "$_init_235", function(var_1, var_2, var_3, var_4, var_5) { cbgggs_DepthShader__init_(this, var_1, var_2, var_3, var_4, var_5); }, "$_init_236", $rt_wrapFunction3(cbgggs_DepthShader__init_1), "$begin4", $rt_wrapFunction2(cbgggs_DepthShader_begin), "$end", $rt_wrapFunction0(cbgggs_DepthShader_end),
 "$canRender", $rt_wrapFunction1(cbgggs_DepthShader_canRender), "$render1", $rt_wrapFunction2(cbgggs_DepthShader_render)],
 cgxgbt_TeaNet, 0, jl_Object, [cbg_Net], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(cgxgbt_TeaNet__init_)],
-crh_HorseAnimator, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_269", $rt_wrapFunction1(crh_HorseAnimator__init_0), "$instance1", $rt_wrapFunction0(crh_HorseAnimator_instance), "$setRiderVisible", $rt_wrapFunction1(crh_HorseAnimator_setRiderVisible), "$update11", $rt_wrapFunction2(crh_HorseAnimator_update), "$graze", $rt_wrapFunction4(crh_HorseAnimator_graze)],
+crh_HorseAnimator, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_269", $rt_wrapFunction1(crh_HorseAnimator__init_0), "$instance1", $rt_wrapFunction0(crh_HorseAnimator_instance), "$setRiderVisible", $rt_wrapFunction1(crh_HorseAnimator_setRiderVisible), "$update9", $rt_wrapFunction2(crh_HorseAnimator_update), "$graze", $rt_wrapFunction4(crh_HorseAnimator_graze)],
 crw_WorldBuilder, 0, jl_Object, [], 4, 3, 0, 0, 0,
 cbggg_GLFrameBuffer$FrameBufferRenderBufferAttachmentSpec, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_3", $rt_wrapFunction1(cbggg_GLFrameBuffer$FrameBufferRenderBufferAttachmentSpec__init_0)],
 jn_ShortBufferOverTypedArray, "ShortBufferOverTypedArray", 37, jn_ShortBufferImpl, [jn_ArrayBufferViewProvider], 0, 0, 0, 0, ["$_init_91", function(var_1, var_2, var_3, var_4, var_5) { jn_ShortBufferOverTypedArray__init_(this, var_1, var_2, var_3, var_4, var_5); }, "$readOnly", $rt_wrapFunction0(jn_ShortBufferOverTypedArray_readOnly), "$capacityImpl", $rt_wrapFunction0(jn_ShortBufferOverTypedArray_capacityImpl), "$putImpl1", $rt_wrapFunction4(jn_ShortBufferOverTypedArray_putImpl), "$getArrayBufferView", $rt_wrapFunction0(jn_ShortBufferOverTypedArray_getArrayBufferView)],
@@ -57302,13 +57427,13 @@ $rt_stringPool(["Can\'t enter monitor from another thread synchronously", "Actor
 "u_dirLights[0].color", "u_dirLights[0].direction", "u_dirLights[1].color", "u_pointLights[0].color", "u_pointLights[0].position", "u_pointLights[0].intensity", "u_pointLights[1].color", "u_spotLights[0].color", "u_spotLights[0].position", "u_spotLights[0].intensity", "u_spotLights[0].direction", "u_spotLights[0].cutoffAngle", "u_spotLights[0].exponent", "u_spotLights[1].color", "u_fogColor", "u_shadowMapProjViewTrans", "u_shadowTexture", "u_shadowPCFOffset", "Some attributes not implemented yet (", "too many bones: ",
 ", max configured: ", "too many bone weights: ", "u_time", "a_boneWeight", "#define positionFlag\n", "#define colorFlag\n", "#define binormalFlag\n", "#define tangentFlag\n", "#define normalFlag\n", "#define lightingFlag\n", "#define ambientCubemapFlag\n", "#define numDirectionalLights ", "#define numPointLights ", "#define numSpotLights ", "#define fogFlag\n", "#define shadowMapFlag\n", "#define environmentCubemapFlag\n", "#define texCoord", "Flag\n", "#define boneWeight", "#define blendedFlag\n", "#define diffuseTextureFlag\n",
 "#define diffuseTextureCoord texCoord0\n", "#define specularTextureFlag\n", "#define specularTextureCoord texCoord0\n", "#define normalTextureFlag\n", "#define normalTextureCoord texCoord0\n", "#define emissiveTextureFlag\n", "#define emissiveTextureCoord texCoord0\n", "#define reflectionTextureFlag\n", "#define reflectionTextureCoord texCoord0\n", "#define ambientTextureFlag\n", "#define ambientTextureCoord texCoord0\n", "#define diffuseColorFlag\n", "#define specularColorFlag\n", "#define emissiveColorFlag\n",
-"#define reflectionColorFlag\n", "#define shininessFlag\n", "#define alphaTestFlag\n", "#define numBones ", "Unknown material attribute: ", "com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl", "com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl", "#define PackedDepthFlag\n", "body", "neck", "tail", "legFL", "legFR", "legBL", "legBR", "rider", "grass", "patches", "trail", "trail2", "fencePosts", "fenceRails", "barn", "roof", "barnDoor", "barnTrim", "hay", "trough", "water", "trunks", "leaves", "leavesHi",
-"petals", "flowerCenters", "rocks", "hills", "mountains", "tufts", "clouds", "attributes must be >= 1", "Call end() first.", "Logical", "Pixels", "Could not remove child from its current parent", "Cannot add a parent as a child", "java.runtime.name", "userAgent", "os.name", "Windows", "OS X", "no OS", "Linux", "pagehide", "resize", "assets.txt", "gdx.wasm.js", "howler.js", "WEB_SCRIPT_PATH", "WEB_ASSET_PATH", "Incorrect primitive type : expect GL_LINES because innerWidth == width && innerHeight == height", "Error: ",
-"Mesh attempting to access memory outside of the index buffer (count: ", ", offset: ", ", max: ", "capacity must be >= 0: ", "The required capacity is too large: ", "EOI", "mousedown", "mouseup", "mousemove", "wheel", "touchstart", "touchmove", "touchcancel", "touchend", "keydown", "keypress", "keyup", "CSS1Compat", "node", "sphere", "progress", "Either src or dest is null", "java.version", "1.8", "TeaVM", "file.separator", "path.separator", ":", "line.separator", "java.io.tmpdir", "java.vm.version", "user.home",
-"/tmp", "DotAll", "decomposed Hangul syllable:", "WordBoundary", "spotLights", "data must be a ByteBuffer or FloatBuffer", "buffer not allocated with newUnsafeByteBuffer or already disposed", "READY", "RUNNING", "FINISHED", "width cannot be null.", "height cannot be null.", "top cannot be null.", "left cannot be null.", "bottom cannot be null.", "right cannot be null.", "viewport cannot be null.", "batch cannot be null.", "Asset download success: ", "Asset download failed: ", "Script download success: ", "canvas",
-"coat_body", "saddlePad", "saddle", "stirrup_metal", "stirrups", "coat_neck", "detail", "eye_glint", "eyeGlint", "marking", "tack_leather_bridle", "bridle", "mane_tail", "riderLegs", "riderBoots", "bootTops", "riderTorso", "riderSkin", "riderHair", "coat_", "Hoof", "hoof_", "<Unix MultiLine $>", "diffuseTexture", "specularTexture", "bumpTexture", "normalTexture", "ambientTexture", "emissiveTexture", "reflectionTexture", "u_viewTrans", "u_projViewTrans", "u_cameraPosition", "u_cameraDirection", "u_cameraUp",
-"u_cameraNearFar", "u_worldTrans", "u_viewWorldTrans", "u_projViewWorldTrans", "u_normalMatrix", "u_bones", "u_shininess", "u_opacity", "u_diffuseColor", "u_diffuseTexture", "u_diffuseUVTransform", "u_specularColor", "u_specularTexture", "u_specularUVTransform", "u_emissiveColor", "u_emissiveTexture", "u_emissiveUVTransform", "u_reflectionColor", "u_reflectionTexture", "u_reflectionUVTransform", "u_normalTexture", "u_normalUVTransform", "u_ambientTexture", "u_ambientUVTransform", "u_alphaTest", "u_ambientCubemap",
-"u_dirLights", "u_pointLights", "u_spotLights", "u_environmentCubemap", "RIDE", "Course complete!", "Jumping course: ride through the green flags to start", "Best ", "Race back through the flags!", "Gate ", " / ", "  +", "Course complete!\nTime ", "   Faults +", "s\nTotal ", "\nBest ", "\n\nCross the green flags to ride again", "Illegal arguments", "Error writing file: ", "Invalid assets description file. ", "1", "c"]);
+"#define reflectionColorFlag\n", "#define shininessFlag\n", "#define alphaTestFlag\n", "#define numBones ", "Unknown material attribute: ", "com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl", "com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl", "#define PackedDepthFlag\n", "body", "neck", "tail", "rider", "FL", "FR", "BL", "BR", "leg", "low", "grass", "patches", "trail", "trail2", "fencePosts", "fenceRails", "barn", "roof", "barnDoor", "barnTrim", "hay", "trough", "water", "trunks", "leaves",
+"leavesHi", "petals", "flowerCenters", "rocks", "hills", "mountains", "tufts", "clouds", "attributes must be >= 1", "Call end() first.", "Logical", "Pixels", "Could not remove child from its current parent", "Cannot add a parent as a child", "java.runtime.name", "userAgent", "os.name", "Windows", "OS X", "no OS", "Linux", "pagehide", "resize", "assets.txt", "gdx.wasm.js", "howler.js", "WEB_SCRIPT_PATH", "WEB_ASSET_PATH", "Incorrect primitive type : expect GL_LINES because innerWidth == width && innerHeight == height",
+"Error: ", "Mesh attempting to access memory outside of the index buffer (count: ", ", offset: ", ", max: ", "capacity must be >= 0: ", "The required capacity is too large: ", "EOI", "mousedown", "mouseup", "mousemove", "wheel", "touchstart", "touchmove", "touchcancel", "touchend", "keydown", "keypress", "keyup", "CSS1Compat", "node", "sphere", "progress", "Either src or dest is null", "java.version", "1.8", "TeaVM", "file.separator", "path.separator", ":", "line.separator", "java.io.tmpdir", "java.vm.version",
+"user.home", "/tmp", "DotAll", "decomposed Hangul syllable:", "WordBoundary", "spotLights", "data must be a ByteBuffer or FloatBuffer", "buffer not allocated with newUnsafeByteBuffer or already disposed", "READY", "RUNNING", "FINISHED", "width cannot be null.", "height cannot be null.", "top cannot be null.", "left cannot be null.", "bottom cannot be null.", "right cannot be null.", "viewport cannot be null.", "batch cannot be null.", "Asset download success: ", "Asset download failed: ", "Script download success: ",
+"canvas", "coat_body", "saddlePad", "saddle", "stirrup_metal", "stirrups", "coat_neck", "detail", "eye_glint", "eyeGlint", "marking", "tack_leather_bridle", "bridle", "mane_tail", "legFL", "legFR", "legBL", "legBR", "riderLegs", "riderBoots", "bootTops", "riderTorso", "riderSkin", "riderHair", "coat_", "_low", "Hoof", "hoof_", "<Unix MultiLine $>", "diffuseTexture", "specularTexture", "bumpTexture", "normalTexture", "ambientTexture", "emissiveTexture", "reflectionTexture", "u_viewTrans", "u_projViewTrans", "u_cameraPosition",
+"u_cameraDirection", "u_cameraUp", "u_cameraNearFar", "u_worldTrans", "u_viewWorldTrans", "u_projViewWorldTrans", "u_normalMatrix", "u_bones", "u_shininess", "u_opacity", "u_diffuseColor", "u_diffuseTexture", "u_diffuseUVTransform", "u_specularColor", "u_specularTexture", "u_specularUVTransform", "u_emissiveColor", "u_emissiveTexture", "u_emissiveUVTransform", "u_reflectionColor", "u_reflectionTexture", "u_reflectionUVTransform", "u_normalTexture", "u_normalUVTransform", "u_ambientTexture", "u_ambientUVTransform",
+"u_alphaTest", "u_ambientCubemap", "u_dirLights", "u_pointLights", "u_spotLights", "u_environmentCubemap", "RIDE", "Course complete!", "Jumping course: ride through the green flags to start", "Best ", "Race back through the flags!", "Gate ", " / ", "  +", "Course complete!\nTime ", "   Faults +", "s\nTotal ", "\nBest ", "\n\nCross the green flags to ride again", "Illegal arguments", "Error writing file: ", "Invalid assets description file. ", "1", "c"]);
 jl_String.prototype.toString = function() {
     return $rt_ustr(this);
 };

@@ -25,6 +25,9 @@ public class HorseGame extends Game {
     public static boolean touchDevice;
     /** Debug aid: start on foot beside the horse. */
     public static boolean startDismounted;
+    /** Debug aid: freeze the horse at a gait + stride phase for pose screenshots. */
+    public static int poseGait = -1;
+    public static float posePhase;
 
     @Override
     public void create() {

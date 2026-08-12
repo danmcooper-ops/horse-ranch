@@ -169,6 +169,41 @@ public class RanchScreen extends ScreenAdapter {
         camera.update();
     }
 
+    /** Debug: render the mounted horse frozen at a gait/phase, viewed side-on. */
+    private void renderPose() {
+        horse.gait = com.ranchgame.horse.Gait.values()[
+                Math.min(com.ranchgame.HorseGame.poseGait,
+                        com.ranchgame.horse.Gait.values().length - 1)];
+        horse.speed = horse.gait.maxSpeed;
+        horse.strideScale = 1f;
+        horse.phase = com.ranchgame.HorseGame.posePhase * MathUtils.PI2;
+        horse.grounded = true;
+        horseAnimator.update(horse, 0f);
+
+        camera.position.set(horse.position.x + 6.2f, horse.position.y + 1.7f, horse.position.z);
+        camera.direction.set(horse.position.x, horse.position.y + 1.1f, horse.position.z)
+                .sub(camera.position).nor();
+        camera.up.set(Vector3.Y);
+        camera.update();
+
+        shadowLight.begin(tmp.set(horse.position), shadowLight.direction);
+        shadowBatch.begin(shadowLight.getCamera());
+        shadowBatch.render(world.instances);
+        shadowBatch.render(horseInstance);
+        shadowBatch.end();
+        shadowLight.end();
+
+        Gdx.gl.glClearColor(SKY.r, SKY.g, SKY.b, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        skyDome.transform.setToTranslation(camera.position.x, 0f, camera.position.z);
+        batch.begin(camera);
+        batch.render(skyDome);
+        batch.render(clouds);
+        batch.render(world.instances, environment);
+        batch.render(horseInstance, environment);
+        batch.end();
+    }
+
     private void updateTouchMode(int width) {
         boolean touch = com.ranchgame.HorseGame.touchDevice
                 || Gdx.input.isPeripheralAvailable(Input.Peripheral.MultitouchScreen);
@@ -180,6 +215,11 @@ public class RanchScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         delta = Math.min(delta, 1f / 20f);
+        if (com.ranchgame.HorseGame.poseGait >= 0) {
+            renderPose();
+            maybeScreenshot(delta);
+            return;
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
             // debug: teleport just south of the course start line, facing it
             horse.position.set(14f, 0f, -26f);

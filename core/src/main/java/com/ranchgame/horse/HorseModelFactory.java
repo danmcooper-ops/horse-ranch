@@ -229,21 +229,30 @@ public final class HorseModelFactory {
         leg.id = id;
         leg.translation.set(x, 0.95f, z);
         float bulk = hind ? 1.2f : 1f;
+        // upper leg: pivots at the shoulder/hip
         MeshPartBuilder l = mb.part(id, GL20.GL_TRIANGLES, ATTRS_TEX,
                 coatMat("coat_" + id, coat, bodyColor));
         ball(l, 0f, -0.12f, hind ? -0.03f : 0f, 0.09f * bulk, 0.28f, 0.11f * bulk); // thigh/forearm
         ball(l, 0f, -0.42f, 0f, 0.058f, 0.09f, 0.065f);                             // knee/hock
-        ball(l, 0f, -0.62f, 0f, 0.048f, 0.20f, 0.052f);                             // cannon
-        ball(l, 0f, -0.82f, 0.01f, 0.055f, 0.06f, 0.06f);                           // fetlock
-        // leg wraps: stacked bands over the cannon, toggled by the console
+
+        // lower leg: its own node pivoted AT the knee so the animator can fold it.
+        // The animator recomputes this node's translation each frame from the hip
+        // swing; mesh coordinates here are knee-local (knee sits 0.42 below the hip).
+        Node low = mb.node();
+        low.id = "low" + id.substring(3);   // legFL -> lowFL
+        low.translation.set(leg.translation.x, leg.translation.y - 0.42f, leg.translation.z);
+        MeshPartBuilder c = mb.part("low" + id, GL20.GL_TRIANGLES, ATTRS_TEX,
+                coatMat("coat_" + id + "_low", coat, bodyColor));
+        ball(c, 0f, -0.20f, 0f, 0.048f, 0.20f, 0.052f);                             // cannon
+        ball(c, 0f, -0.40f, 0.01f, 0.055f, 0.06f, 0.06f);                           // fetlock
         MeshPartBuilder w = mb.part("wrap_" + id, GL20.GL_TRIANGLES, ATTRS,
                 mat("wraps", new Color(0.93f, 0.72f, 0.72f, 1f)));
-        ballLow(w, 0f, -0.56f, 0f, 0.057f, 0.05f, 0.061f);
-        ballLow(w, 0f, -0.64f, 0f, 0.058f, 0.05f, 0.062f);
-        ballLow(w, 0f, -0.72f, 0f, 0.06f, 0.05f, 0.064f);
+        ballLow(w, 0f, -0.14f, 0f, 0.057f, 0.05f, 0.061f);
+        ballLow(w, 0f, -0.22f, 0f, 0.058f, 0.05f, 0.062f);
+        ballLow(w, 0f, -0.30f, 0f, 0.06f, 0.05f, 0.064f);
         MeshPartBuilder h = mb.part(id + "Hoof", GL20.GL_TRIANGLES, ATTRS,
                 mat("hoof_" + id, hoofColor));
-        puck(h, 0f, -0.905f, 0.015f, 0.068f, 0.09f);
+        puck(h, 0f, -0.485f, 0.015f, 0.068f, 0.09f);
     }
 
     private static Material mat(String id, Color c) {
