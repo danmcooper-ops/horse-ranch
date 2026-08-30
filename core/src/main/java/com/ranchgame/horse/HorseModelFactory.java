@@ -55,7 +55,7 @@ public final class HorseModelFactory {
         ball(b, 0f, 0.14f, 0.42f, 0.27f, 0.34f, 0.34f);    // chest/shoulders
         ball(b, 0f, 0.16f, -0.52f, 0.29f, 0.33f, 0.38f);   // hindquarters
         ball(b, 0f, 0.30f, -0.60f, 0.22f, 0.20f, 0.28f);   // rounded croup
-        ball(b, 0f, 0.02f, 0f, 0.28f, 0.30f, 1.1f);        // underline (belly at ~half height)
+        ball(b, 0f, 0.02f, 0f, 0.28f, 0.30f, 0.55f);       // underline (belly at ~half height)
         ball(b, 0f, 0.42f, 0.30f, 0.14f, 0.13f, 0.24f);    // withers
         ball(b, 0f, 0.30f, 0.36f, 0.20f, 0.24f, 0.26f);    // shoulder blend into the neck
 
@@ -89,10 +89,10 @@ public final class HorseModelFactory {
         ballX(n, 0f, 0.05f, 0.10f, 0.145f, 0.28f, 0.22f, 42f);  // neck base
         ballX(n, 0f, 0.26f, 0.30f, 0.115f, 0.25f, 0.16f, 40f);  // mid neck
         ballX(n, 0f, 0.42f, 0.48f, 0.095f, 0.19f, 0.13f, 34f);  // upper neck
-        ballX(n, 0f, 0.58f, 0.63f, 0.108f, 0.14f, 0.24f, -33f); // skull, nose angled down
-        ballX(n, 0f, 0.52f, 0.54f, 0.095f, 0.115f, 0.15f, -26f);// cheek/jaw
+        ballX(n, 0f, 0.58f, 0.63f, 0.108f, 0.14f, 0.24f, 33f);  // skull, nose angled down
+        ballX(n, 0f, 0.52f, 0.54f, 0.095f, 0.115f, 0.15f, 26f); // cheek/jaw
         MeshPartBuilder mz = mb.part("muzzle", GL20.GL_TRIANGLES, ATTRS, mat("muzzle", muzzle));
-        ballX(mz, 0f, 0.475f, 0.795f, 0.062f, 0.08f, 0.14f, -40f);
+        ballX(mz, 0f, 0.475f, 0.795f, 0.062f, 0.08f, 0.14f, 40f);
         MeshPartBuilder det = mb.part("detail", GL20.GL_TRIANGLES, ATTRS, mat("detail", DETAIL));
         ball(det, 0.105f, 0.60f, 0.66f, 0.033f, 0.04f, 0.033f);    // eye R
         ball(det, -0.105f, 0.60f, 0.66f, 0.033f, 0.04f, 0.033f);   // eye L
@@ -106,19 +106,19 @@ public final class HorseModelFactory {
         // face markings, toggled by the customize console via NodePart.enabled
         MeshPartBuilder star = mb.part("markingStar", GL20.GL_TRIANGLES, ATTRS,
                 mat("marking", new Color(0.96f, 0.95f, 0.92f, 1f)));
-        ballLowX(star, 0f, 0.675f, 0.73f, 0.045f, 0.05f, 0.02f, -30f);
+        ballLowX(star, 0f, 0.675f, 0.73f, 0.045f, 0.05f, 0.02f, -57f);
         MeshPartBuilder blaze = mb.part("markingBlaze", GL20.GL_TRIANGLES, ATTRS,
                 mat("marking", new Color(0.96f, 0.95f, 0.92f, 1f)));
-        ballLowX(blaze, 0f, 0.67f, 0.735f, 0.035f, 0.085f, 0.025f, -32f);
-        ballLowX(blaze, 0f, 0.55f, 0.82f, 0.03f, 0.09f, 0.028f, -38f);
+        ballLowX(blaze, 0f, 0.67f, 0.735f, 0.035f, 0.085f, 0.025f, -57f);
+        ballLowX(blaze, 0f, 0.55f, 0.82f, 0.03f, 0.09f, 0.028f, -50f);
 
         if (withRider) {
             // bridle: flat straps that hug the head, plus thin rein ropes
             MeshPartBuilder br = mb.part("bridle", GL20.GL_TRIANGLES, ATTRS,
                     mat("tack_leather_bridle", new Color(0.45f, 0.2f, 0.12f, 1f)));
-            ballLowX(br, 0f, 0.495f, 0.81f, 0.082f, 0.022f, 0.152f, -32f);     // noseband
-            ballLowX(br, 0.093f, 0.575f, 0.70f, 0.011f, 0.065f, 0.013f, -32f); // cheek strap R
-            ballLowX(br, -0.093f, 0.575f, 0.70f, 0.011f, 0.065f, 0.013f, -32f);// cheek strap L
+            ballLowX(br, 0f, 0.495f, 0.81f, 0.082f, 0.022f, 0.152f, -50f);     // noseband
+            ballLowX(br, 0.093f, 0.575f, 0.70f, 0.011f, 0.065f, 0.013f, -53f); // cheek strap R
+            ballLowX(br, -0.093f, 0.575f, 0.70f, 0.011f, 0.065f, 0.013f, -53f);// cheek strap L
             ballLow(br, 0f, 0.67f, 0.575f, 0.10f, 0.012f, 0.035f);             // browband
             // reins: thin rope segments hugging the neck sides down to the withers
             for (int i = 0; i < 8; i++) {
