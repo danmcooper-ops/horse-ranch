@@ -32,9 +32,9 @@ public class ProceduralTextures implements Disposable {
     public ProceduralTextures() {
         grass = make(new Painter() {
             public Color pixel(int x, int y, float n1, float n2) {
-                // bold painterly blotches in a warm saturated spring green
-                float l = 0.86f + n1 * 0.34f + n2 * 0.1f;
-                return new Color(0.32f * l, 0.60f * l, 0.22f * l, 1f);
+                // natural meadow green: deeper, less neon, softer blotches
+                float l = 0.88f + n1 * 0.24f + n2 * 0.08f;
+                return new Color(0.30f * l, 0.52f * l, 0.22f * l, 1f);
             }
         }, 11, 5, 20260722L);
         cobble = makeCobble();

@@ -134,6 +134,7 @@ public class RanchScreen extends ScreenAdapter {
             if (p.length > 7) appearance.wraps = p[7];
             if (p.length > 8) appearance.marking = p[8];
             if (p.length > 9) appearance.helmet = p[9];
+            if (p.length > 10) appearance.maneStyle = p[10];
         }
         appearance.apply(horseInstance);
         appearance.apply(walker.instance());

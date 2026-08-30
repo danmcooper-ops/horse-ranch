@@ -131,9 +131,9 @@ public final class WorldBuilder {
         MeshPartBuilder trunks = mb.part("trunks", GL20.GL_TRIANGLES, ATTRS_TEX,
                 mat(tex.wood, new Color(0.62f, 0.5f, 0.42f, 1f), 1f, 2f));
         MeshPartBuilder leaves = mb.part("leaves", GL20.GL_TRIANGLES, ATTRS_TEX,
-                mat(tex.leaves, new Color(0.82f, 0.88f, 0.72f, 1f), 2f, 1.5f));
+                mat(tex.leaves, new Color(0.78f, 0.82f, 0.62f, 1f), 2f, 1.5f));
         MeshPartBuilder leavesHi = mb.part("leavesHi", GL20.GL_TRIANGLES, ATTRS_TEX,
-                mat(tex.leaves, new Color(1.25f, 1.4f, 0.95f, 1f), 2.4f, 1.8f));
+                mat(tex.leaves, new Color(1.08f, 1.2f, 0.82f, 1f), 2.4f, 1.8f));
         int planted = 0;
         while (planted < 26) {
             float x = rng.nextFloat() * 210f - 105f;
@@ -216,7 +216,7 @@ public final class WorldBuilder {
 
         // --- Horizon: soft hills and far mountains beyond the fence --------
         MeshPartBuilder hills = mb.part("hills", GL20.GL_TRIANGLES, ATTRS,
-                mat(new Color(0.4f, 0.58f, 0.32f, 1f)));
+                mat(new Color(0.34f, 0.5f, 0.28f, 1f)));
         for (int i = 0; i < 11; i++) {
             float a = i * MathUtils.PI2 / 11f + 0.2f;
             float r = 165f + rng.nextFloat() * 40f;

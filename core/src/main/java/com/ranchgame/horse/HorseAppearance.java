@@ -91,6 +91,11 @@ public class HorseAppearance {
             new Color(0.97f, 0.96f, 0.93f, 1f),   // star
             new Color(0.9f, 0.88f, 0.84f, 1f),    // blaze
     };
+    /** Mane style row: 0 = loose flowing, 1 = braided. Swatches are icons only. */
+    public static final Color[] MANE_STYLE = {
+            new Color(0.3f, 0.28f, 0.26f, 1f),    // loose (flowing)
+            new Color(0.62f, 0.5f, 0.4f, 1f),     // braided (buttons)
+    };
     public static final Color[] HELMET = {
             new Color(0.9f, 0.85f, 0.8f, 1f),     // cream (reference look)
             new Color(0.16f, 0.17f, 0.22f, 1f),   // navy
@@ -102,6 +107,7 @@ public class HorseAppearance {
 
     public int coat, mane, tack, pad, shirt, pants, hair;
     public int wraps = 1, marking = 1, helmet;
+    public int maneStyle;   // 0 = loose (default), 1 = braided
 
     public void load(Preferences prefs) {
         coat = clamp(prefs.getInteger("look.coat", 0), COAT.length);
@@ -114,6 +120,7 @@ public class HorseAppearance {
         wraps = clamp(prefs.getInteger("look.wraps", 1), WRAPS.length);
         marking = clamp(prefs.getInteger("look.marking", 1), MARKING.length);
         helmet = clamp(prefs.getInteger("look.helmet", 0), HELMET.length);
+        maneStyle = clamp(prefs.getInteger("look.maneStyle", 0), MANE_STYLE.length);
     }
 
     public void save(Preferences prefs) {
@@ -127,6 +134,7 @@ public class HorseAppearance {
         prefs.putInteger("look.wraps", wraps);
         prefs.putInteger("look.marking", marking);
         prefs.putInteger("look.helmet", helmet);
+        prefs.putInteger("look.maneStyle", maneStyle);
         prefs.flush();
     }
 
@@ -137,7 +145,7 @@ public class HorseAppearance {
     /** Recolor every named material and toggle optional parts of an instance. */
     public void apply(ModelInstance instance) {
         Color coatColor = COAT[coat];
-        Color muzzleColor = new Color(coatColor).lerp(Color.WHITE, 0.35f);
+        Color muzzleColor = new Color(coatColor).lerp(Color.WHITE, 0.15f);
         Color legColor = new Color(coatColor).lerp(POINTS_DARK, COAT_POINTS[coat]);
         for (Material m : instance.materials) {
             String id = m.id;
@@ -154,10 +162,14 @@ public class HorseAppearance {
             else if (id.equals("wraps") && wraps > 0) setDiffuse(m, WRAPS[wraps]);
             else if (id.equals("helmet")) setDiffuse(m, HELMET[helmet]);
         }
-        // optional geometry: leg wraps and face markings
+        // optional geometry: leg wraps, face markings, mane style
         setPartsEnabled(instance, "wrap_", wraps > 0);
         setPartsEnabled(instance, "markingStar", marking == 1);
         setPartsEnabled(instance, "markingBlaze", marking == 2);
+        setPartsEnabled(instance, "maneLoose", maneStyle == 0);
+        setPartsEnabled(instance, "tailLoose", maneStyle == 0);
+        setPartsEnabled(instance, "maneBraids", maneStyle == 1);
+        setPartsEnabled(instance, "tailBraid", maneStyle == 1);
     }
 
     /** Strip wraps and markings from pasture horses that keep their baked colors. */
@@ -165,6 +177,9 @@ public class HorseAppearance {
         setPartsEnabled(instance, "wrap_", false);
         setPartsEnabled(instance, "markingStar", false);
         setPartsEnabled(instance, "markingBlaze", false);
+        // pasture horses wear their manes loose
+        setPartsEnabled(instance, "maneBraids", false);
+        setPartsEnabled(instance, "tailBraid", false);
     }
 
     private static void setPartsEnabled(ModelInstance instance, String meshPartIdPrefix, boolean on) {

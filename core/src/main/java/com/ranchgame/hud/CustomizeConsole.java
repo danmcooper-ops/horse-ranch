@@ -103,6 +103,10 @@ public class CustomizeConsole {
             public int get() { return CustomizeConsole.this.appearance.helmet; }
             public void set(int i) { CustomizeConsole.this.appearance.helmet = i; }
         });
+        addRow("Mane style (loose / braided)", HorseAppearance.MANE_STYLE, new Selector() {
+            public int get() { return CustomizeConsole.this.appearance.maneStyle; }
+            public void set(int i) { CustomizeConsole.this.appearance.maneStyle = i; }
+        });
         addRow("Face marking (1st = none)", HorseAppearance.MARKING, new Selector() {
             public int get() { return CustomizeConsole.this.appearance.marking; }
             public void set(int i) { CustomizeConsole.this.appearance.marking = i; }
