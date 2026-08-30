@@ -47,8 +47,7 @@ public final class RiderModelFactory {
         ball(shirt, 0f, 0.10f, 0f, 0.163f, 0.085f, 0.125f);            // jacket skirt flare
         MeshPartBuilder trim = mb.part("jacketTrim", GL20.GL_TRIANGLES, ATTRS,
                 mat("jacket_trim", new Color(0.93f, 0.85f, 0.78f, 1f)));
-        ballZ(trim, 0.05f, 0.465f, 0.095f, 0.042f, 0.072f, 0.02f, -24f);  // lapel R
-        ballZ(trim, -0.05f, 0.465f, 0.095f, 0.042f, 0.072f, 0.02f, 24f);  // lapel L
+        ball(trim, 0f, 0.583f, 0.005f, 0.062f, 0.014f, 0.058f);           // shirt collar
         MeshPartBuilder buttons = mb.part("jacketButtons", GL20.GL_TRIANGLES, ATTRS,
                 mat("buttons", new Color(0.82f, 0.66f, 0.32f, 1f)));
         ballLow(buttons, 0f, 0.40f, 0.112f, 0.013f, 0.013f, 0.008f);
@@ -57,13 +56,14 @@ public final class RiderModelFactory {
         MeshPartBuilder skin = mb.part("head", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_skin", new Color(0.94f, 0.78f, 0.62f, 1f)));
         ball(skin, 0f, 0.585f, 0f, 0.045f, 0.055f, 0.045f);            // neck
-        ball(skin, 0f, 0.70f, 0.01f, 0.105f, 0.115f, 0.105f);          // head
+        ball(skin, 0f, 0.70f, 0.01f, 0.095f, 0.115f, 0.10f);           // head
         RiderBits.buildFace(mb, 0f, 0.70f, 0.01f);
         MeshPartBuilder hair = mb.part("hair", GL20.GL_TRIANGLES, ATTRS,
                 mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
+        ball(hair, 0f, 0.715f, -0.02f, 0.097f, 0.11f, 0.098f);         // hair cap under the helmet
         ballX(hair, 0f, 0.58f, -0.15f, 0.055f, 0.16f, 0.06f, 14f);     // ponytail
         ballX(hair, 0f, 0.40f, -0.19f, 0.04f, 0.12f, 0.045f, 8f);      // ponytail tip
-        RiderBits.buildHelmet(mb, 0f, 0.755f, -0.01f);
+        RiderBits.buildHelmet(mb, 0f, 0.775f, -0.01f);
 
         // --- Arms (pivot at the shoulder) ----------------------------------
         buildArm(mb, "armL", -0.20f);

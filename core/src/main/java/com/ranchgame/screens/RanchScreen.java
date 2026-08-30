@@ -3,6 +3,8 @@ package com.ranchgame.screens;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -69,6 +71,49 @@ public class RanchScreen extends ScreenAdapter {
     private final Vector3 tmp = new Vector3();
     private final Vector3 camTarget = new Vector3();
     private CourseManager.State lastState = CourseManager.State.READY;
+
+    // free-look orbit: drag the mouse (or a finger, off the touch controls)
+    // to swing the camera around the player, scroll wheel to zoom
+    private float camYaw;           // orbit offset in degrees, 0 = straight behind
+    private float camPitch = 14f;   // degrees above horizontal
+    private float camZoom = 1f;
+    private boolean camDragging;
+    private int camLastX, camLastY;
+
+    private final InputAdapter camInput = new InputAdapter() {
+        @Override
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            if (pointer != 0) return false;
+            camDragging = true;
+            camLastX = screenX;
+            camLastY = screenY;
+            return true;
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
+            if (pointer != 0 || !camDragging) return false;
+            camYaw -= (screenX - camLastX) * 0.4f;
+            camYaw = ((camYaw + 180f) % 360f + 360f) % 360f - 180f;
+            camPitch = MathUtils.clamp(camPitch + (camLastY - screenY) * 0.25f, 2f, 70f);
+            camLastX = screenX;
+            camLastY = screenY;
+            return true;
+        }
+
+        @Override
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            if (pointer != 0 || !camDragging) return false;
+            camDragging = false;
+            return true;
+        }
+
+        @Override
+        public boolean scrolled(float amountX, float amountY) {
+            camZoom = MathUtils.clamp(camZoom + amountY * 0.1f, 0.5f, 1.8f);
+            return true;
+        }
+    };
 
     public RanchScreen() {
         // warm shadow-casting key light + cool fill, soft daylight
@@ -158,7 +203,7 @@ public class RanchScreen extends ScreenAdapter {
             horse.yaw = walker.yaw + 90f;
         }
 
-        Gdx.input.setInputProcessor(hud.stage);
+        Gdx.input.setInputProcessor(new InputMultiplexer(hud.stage, camInput));
         updateTouchMode(Gdx.graphics.getWidth());
 
         // start the camera behind the horse
@@ -302,19 +347,33 @@ public class RanchScreen extends ScreenAdapter {
         if (cloudDrift > 250f) cloudDrift -= 500f;
         clouds.transform.setToTranslation(cloudDrift, 0f, 0f);
 
-        // --- camera (follows whoever the player is) ---
+        // --- camera (orbits the player: mouse-drag to look around, scroll to zoom) ---
+        float dist, focusHeight, baseYaw, moving;
+        Vector3 focusPos;
         if (mounted) {
-            horse.forward(tmp);
-            float dist = 7f + horse.speed * 0.35f;
-            float height = 3.2f + horse.speed * 0.12f;
-            camTarget.set(horse.position).mulAdd(tmp, -dist).add(0f, height, 0f);
-            tmp.set(horse.position).add(0f, 1.5f, 0f).mulAdd(horse.forward(new Vector3()), 2.5f);
+            dist = (7f + horse.speed * 0.35f) * camZoom;
+            focusHeight = 1.6f;
+            baseYaw = horse.yaw;
+            moving = horse.speed;
+            focusPos = horse.position;
         } else {
-            walker.forward(tmp);
-            float dist = 4.6f + walker.speed * 0.3f;
-            camTarget.set(walker.position).mulAdd(tmp, -dist).add(0f, 2.3f, 0f);
-            tmp.set(walker.position).add(0f, 1.3f, 0f).mulAdd(walker.forward(new Vector3()), 2f);
+            dist = (4.6f + walker.speed * 0.3f) * camZoom;
+            focusHeight = 1.25f;
+            baseYaw = walker.yaw;
+            moving = walker.speed;
+            focusPos = walker.position;
         }
+        // while riding/walking, ease the free-look back to straight behind
+        if (!camDragging && moving > 0.5f) {
+            camYaw *= (float) Math.exp(-1.6f * delta);
+        }
+        float camAngle = baseYaw + 180f + camYaw;
+        float flat = dist * MathUtils.cosDeg(camPitch);
+        camTarget.set(
+                focusPos.x + MathUtils.sinDeg(camAngle) * flat,
+                focusPos.y + focusHeight + dist * MathUtils.sinDeg(camPitch),
+                focusPos.z + MathUtils.cosDeg(camAngle) * flat);
+        tmp.set(focusPos).add(0f, focusHeight, 0f);
         float alpha = 1f - (float) Math.exp(-4.5f * delta);
         camera.position.lerp(camTarget, alpha);
         camera.direction.set(tmp).sub(camera.position).nor();

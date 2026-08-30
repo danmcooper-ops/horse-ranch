@@ -92,11 +92,11 @@ public class HorseAppearance {
             new Color(0.9f, 0.88f, 0.84f, 1f),    // blaze
     };
     public static final Color[] HELMET = {
-            new Color(0.9f, 0.85f, 0.8f, 1f),     // cream (reference look)
+            new Color(0.15f, 0.14f, 0.14f, 1f),   // black velvet (classic)
             new Color(0.16f, 0.17f, 0.22f, 1f),   // navy
-            new Color(0.15f, 0.14f, 0.14f, 1f),   // black
-            new Color(0.93f, 0.72f, 0.72f, 1f),   // rose
             new Color(0.35f, 0.25f, 0.18f, 1f),   // brown
+            new Color(0.93f, 0.72f, 0.72f, 1f),   // rose
+            new Color(0.9f, 0.85f, 0.8f, 1f),     // cream
             new Color(0.45f, 0.55f, 0.72f, 1f),   // slate blue
     };
 

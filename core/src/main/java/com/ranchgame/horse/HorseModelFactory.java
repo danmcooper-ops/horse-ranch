@@ -194,8 +194,7 @@ public final class HorseModelFactory {
             ballX(shirt, -0.185f, 0.36f, 0.03f, 0.05f, 0.16f, 0.055f, -20f);// upper arm L
             MeshPartBuilder trim = mb.part("jacketTrim", GL20.GL_TRIANGLES, ATTRS,
                     mat("jacket_trim", new Color(0.93f, 0.85f, 0.78f, 1f)));
-            ballZ(trim, 0.05f, 0.47f, 0.10f, 0.042f, 0.072f, 0.02f, -24f);  // lapel R
-            ballZ(trim, -0.05f, 0.47f, 0.10f, 0.042f, 0.072f, 0.02f, 24f);  // lapel L
+            ball(trim, 0f, 0.545f, 0.01f, 0.066f, 0.015f, 0.062f);          // shirt collar
             ballLow(trim, 0.19f, 0.225f, 0.10f, 0.052f, 0.028f, 0.056f);    // cuff R
             ballLow(trim, -0.19f, 0.225f, 0.10f, 0.052f, 0.028f, 0.056f);   // cuff L
             MeshPartBuilder buttons = mb.part("jacketButtons", GL20.GL_TRIANGLES, ATTRS,
@@ -207,7 +206,8 @@ public final class HorseModelFactory {
                     mat("rider_skin", new Color(0.94f, 0.78f, 0.62f, 1f)));
             ballX(skin, 0.19f, 0.17f, 0.16f, 0.042f, 0.14f, 0.05f, -42f);  // forearm R
             ballX(skin, -0.19f, 0.17f, 0.16f, 0.042f, 0.14f, 0.05f, -42f); // forearm L
-            ball(skin, 0f, 0.66f, 0.02f, 0.105f, 0.115f, 0.105f);          // head
+            ball(skin, 0f, 0.545f, 0.01f, 0.042f, 0.06f, 0.042f);          // neck
+            ball(skin, 0f, 0.66f, 0.02f, 0.095f, 0.115f, 0.10f);           // head
             MeshPartBuilder glove = mb.part("gloves", GL20.GL_TRIANGLES, ATTRS,
                     mat("gloves", new Color(0.92f, 0.9f, 0.86f, 1f)));
             ballLow(glove, 0.17f, 0.07f, 0.27f, 0.045f, 0.045f, 0.05f);    // hand R
@@ -215,9 +215,10 @@ public final class HorseModelFactory {
             RiderBits.buildFace(mb, 0f, 0.66f, 0.02f);
             MeshPartBuilder hair = mb.part("riderHair", GL20.GL_TRIANGLES, ATTRS,
                     mat("rider_hair", new Color(0.28f, 0.18f, 0.1f, 1f)));
+            ball(hair, 0f, 0.675f, -0.01f, 0.097f, 0.11f, 0.098f);         // hair cap under the helmet
             ballX(hair, 0f, 0.55f, -0.14f, 0.055f, 0.15f, 0.06f, 18f);     // ponytail
             ballX(hair, 0f, 0.38f, -0.19f, 0.04f, 0.11f, 0.045f, 10f);     // ponytail tip
-            RiderBits.buildHelmet(mb, 0f, 0.715f, 0f);
+            RiderBits.buildHelmet(mb, 0f, 0.735f, 0f);
         }
 
         return mb.end();
